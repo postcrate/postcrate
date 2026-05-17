@@ -1,5 +1,6 @@
 import { SWRConfig } from "swr";
 import { Outlet } from "react-router-dom";
+import { domAnimation, LazyMotion } from "motion/react";
 
 import { fetcher } from "@/lib/fetcher";
 import { useTheme } from "@/hooks/use-theme";
@@ -10,11 +11,13 @@ export default function RootLayout() {
   useTheme();
 
   return (
-    <SWRConfig value={{ fetcher }}>
-      <TooltipProvider delayDuration={200}>
-        <Outlet />
-        <Toaster position="bottom-right" />
-      </TooltipProvider>
-    </SWRConfig>
+    <LazyMotion features={domAnimation} strict>
+      <SWRConfig value={{ fetcher }}>
+        <TooltipProvider delayDuration={200}>
+          <Outlet />
+          <Toaster position="bottom-right" />
+        </TooltipProvider>
+      </SWRConfig>
+    </LazyMotion>
   );
 }

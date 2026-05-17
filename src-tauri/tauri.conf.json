@@ -20,7 +20,9 @@
         "minHeight": 640,
         "center": true,
         "hiddenTitle": true,
-        "titleBarStyle": "Overlay"
+        "titleBarStyle": "Overlay",
+        "transparent": true,
+        "dragDropEnabled": false
       },
       {
         "label": "preferences",
@@ -35,7 +37,9 @@
         "center": true,
         "skipTaskbar": true,
         "hiddenTitle": true,
-        "titleBarStyle": "Overlay"
+        "titleBarStyle": "Overlay",
+        "transparent": true,
+        "dragDropEnabled": false
       }
     ],
     "security": {

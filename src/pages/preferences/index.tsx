@@ -54,8 +54,8 @@ export default function PreferencesPage() {
   const ActiveSection = SECTION_COMPONENTS[active];
 
   return (
-    <div className="bg-background text-foreground flex h-screen">
-      <aside className="border-sidebar-border bg-sidebar text-sidebar-foreground flex w-56 shrink-0 flex-col border-r">
+    <div className="text-foreground flex h-screen">
+      <aside className="border-sidebar-border bg-sidebar/55 text-sidebar-foreground flex w-56 shrink-0 flex-col border-r">
         <div data-tauri-drag-region className="h-10 shrink-0" />
         <nav className="flex-1 space-y-px overflow-y-auto px-2 pt-1">
           {SECTIONS.map(({ id, label, Icon }) => {
@@ -85,7 +85,7 @@ export default function PreferencesPage() {
         </nav>
       </aside>
 
-      <main className="relative flex-1 overflow-auto overscroll-none">
+      <main className="bg-background relative flex-1 overflow-auto overscroll-none">
         <div data-tauri-drag-region className="sticky top-0 z-10 h-10 shrink-0" />
         <div className="mx-auto -mt-10 max-w-2xl px-10 pt-14 pb-12">
           <ActiveSection />
