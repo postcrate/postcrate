@@ -14,21 +14,28 @@
       {
         "label": "main",
         "title": "postcrate",
-        "width": 800,
-        "height": 600
+        "width": 1280,
+        "height": 800,
+        "minWidth": 960,
+        "minHeight": 640,
+        "center": true,
+        "hiddenTitle": true,
+        "titleBarStyle": "Overlay"
       },
       {
         "label": "preferences",
         "title": "Preferences",
         "url": "/preferences",
-        "width": 520,
-        "height": 440,
+        "width": 820,
+        "height": 620,
         "resizable": false,
         "minimizable": false,
         "maximizable": false,
         "visible": false,
         "center": true,
-        "skipTaskbar": true
+        "skipTaskbar": true,
+        "hiddenTitle": true,
+        "titleBarStyle": "Overlay"
       }
     ],
     "security": {
