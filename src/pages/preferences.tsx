@@ -73,16 +73,16 @@ export function Preferences() {
                 key={id}
                 onClick={() => setActive(id)}
                 className={cn(
-                  "flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-[13px] transition-colors",
+                  "flex h-7 w-full items-center gap-2.5 rounded-md pr-2 pl-2.5 text-[13px] transition-colors",
                   isActive
                     ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
+                    : "text-sidebar-foreground/85 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
                 )}
               >
                 <Icon
                   className={cn(
                     "size-[15px] shrink-0",
-                    isActive ? "opacity-100" : "opacity-70",
+                    isActive ? "opacity-100" : "opacity-85",
                   )}
                   weight={isActive ? "fill" : "regular"}
                 />
