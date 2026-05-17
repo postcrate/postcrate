@@ -82,6 +82,15 @@ export const VIEW_DESCRIPTIONS: Record<ViewId, string> = {
   docs: "API reference, recipes and integration guides.",
 };
 
+export const VIEW_SUBTITLES: Partial<Record<ViewId, string>> = {
+  agent: "Idle",
+  render: "All clients",
+  mailboxes: "5 active",
+  scenarios: "0 saved",
+  recordings: "4 captures",
+  templates: "12 templates",
+};
+
 const VIEW_ICON_BY_ID: Record<ViewId, Icon> = Object.fromEntries(
   NAV_SECTIONS.flatMap((section) => section.items.map((i) => [i.id, i.icon])),
 ) as Record<ViewId, Icon>;

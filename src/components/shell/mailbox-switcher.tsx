@@ -1,9 +1,20 @@
-import { CaretUpDownIcon, CheckIcon, PlusIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  CaretUpDownIcon,
+  CheckIcon,
+  HouseLineIcon,
+  PlusIcon,
+} from "@phosphor-icons/react/dist/ssr";
 
 import { cn } from "@/lib/utils";
 import { Kbd } from "@/components/ui/kbd";
 import { useViewStore } from "@/stores/use-view-store";
-import { MAILBOXES, type Mailbox, type MailboxKind } from "@/data/mailboxes";
+import { useServerStore } from "@/stores/use-server-store";
+import {
+  MAILBOXES,
+  getMailboxesByProject,
+  type Mailbox,
+  type MailboxKind,
+} from "@/data/mailboxes";
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -20,28 +31,34 @@ const KIND_SWATCH: Record<MailboxKind, string> = {
 };
 
 export function MailboxSwitcher() {
+  const projectId = useViewStore((s) => s.projectId);
   const mailboxId = useViewStore((s) => s.mailboxId);
   const setMailboxId = useViewStore((s) => s.setMailboxId);
   const setView = useViewStore((s) => s.setView);
+  const running = useServerStore((s) => s.running);
 
-  const current = MAILBOXES.find((m) => m.id === mailboxId) ?? MAILBOXES[0];
+  const projectMailboxes = getMailboxesByProject(projectId);
+  const current =
+    projectMailboxes.find((m) => m.id === mailboxId) ??
+    projectMailboxes[0] ??
+    MAILBOXES[0];
 
   return (
     <div className="px-2 pt-1 pb-2">
       <DropdownMenu>
         <DropdownMenuTrigger
           className={cn(
-            "hover:bg-sidebar-accent/60 data-[state=open]:bg-sidebar-accent",
-            "flex h-11 w-full items-center gap-2 rounded-md px-2 text-left",
+            "group flex h-11 w-full items-center gap-2.5 rounded-lg px-2 text-left",
+            "bg-sidebar-accent/60 hover:bg-sidebar-accent/80 data-[state=open]:bg-sidebar-accent",
             "transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/30",
           )}
         >
-          <Swatch kind={current.kind} />
+          <MailboxChip kind={current.kind} live={running} />
           <MailboxLabel mailbox={current} />
           <CaretUpDownIcon
-            size={12}
+            size={11}
             weight="bold"
-            className="text-muted-foreground/70 shrink-0"
+            className="text-muted-foreground/0 group-hover:text-muted-foreground/70 group-data-[state=open]:text-muted-foreground/70 shrink-0 transition-colors"
           />
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -52,7 +69,7 @@ export function MailboxSwitcher() {
           <DropdownMenuLabel className="text-muted-foreground/70 px-2 pt-1.5 pb-1 text-[10.5px] font-medium tracking-wider uppercase">
             Switch mailbox
           </DropdownMenuLabel>
-          {MAILBOXES.map((m) => {
+          {projectMailboxes.map((m) => {
             const isCurrent = m.id === mailboxId;
             return (
               <DropdownMenuItem
@@ -64,7 +81,7 @@ export function MailboxSwitcher() {
                 className="h-9 gap-2 px-2"
               >
                 <Swatch kind={m.kind} />
-                <MailboxLabel mailbox={m} />
+                <MailboxRow mailbox={m} />
                 <span className="text-muted-foreground/70 shrink-0 font-mono text-[10.5px] tabular-nums">
                   {m.count}
                 </span>
@@ -95,6 +112,20 @@ export function MailboxSwitcher() {
   );
 }
 
+function MailboxChip({ kind, live }: { kind: MailboxKind; live: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className="bg-sidebar-border dark:bg-sidebar/60 relative grid size-6 shrink-0 place-items-center rounded-md"
+    >
+      <span className={cn("size-2.5 rounded-[3px]", KIND_SWATCH[kind])} />
+      {live ? (
+        <span className="bg-success ring-sidebar-accent motion-safe:animate-[pulse-soft_1.8s_ease-in-out_infinite] absolute -top-0.5 -right-0.5 size-1.5 rounded-full ring-2" />
+      ) : null}
+    </span>
+  );
+}
+
 function Swatch({ kind }: { kind: MailboxKind }) {
   return (
     <span
@@ -107,7 +138,31 @@ function Swatch({ kind }: { kind: MailboxKind }) {
 function MailboxLabel({ mailbox }: { mailbox: Mailbox }) {
   return (
     <span className="flex min-w-0 flex-1 flex-col leading-tight">
-      <span className="text-foreground truncate font-mono text-[12.5px] font-medium">
+      <span className="text-foreground truncate text-[12.5px] font-medium">
+        {mailbox.name}
+      </span>
+      <span
+        className="text-muted-foreground/80 flex min-w-0 items-center gap-1 font-mono text-[10.5px] tabular-nums"
+        title="Local listener · tunneling coming soon"
+      >
+        <HouseLineIcon
+          size={10}
+          weight="bold"
+          className="text-muted-foreground/55 shrink-0"
+        />
+        <span className="truncate">
+          localhost:{mailbox.port}
+          {mailbox.ttl ? ` · ${mailbox.ttl}` : ""}
+        </span>
+      </span>
+    </span>
+  );
+}
+
+function MailboxRow({ mailbox }: { mailbox: Mailbox }) {
+  return (
+    <span className="flex min-w-0 flex-1 flex-col leading-tight">
+      <span className="text-foreground truncate text-[12.5px] font-medium">
         {mailbox.name}
       </span>
       <span className="text-muted-foreground/70 font-mono text-[10px] tabular-nums">

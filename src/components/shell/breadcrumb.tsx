@@ -1,13 +1,19 @@
-import { VIEW_TITLES, type ViewId } from "@/data/nav-items";
-
 type Props = {
-  view: ViewId;
+  title: string;
+  subtitle?: string;
 };
 
-export function Breadcrumb({ view }: Props) {
+export function Breadcrumb({ title, subtitle }: Props) {
   return (
-    <span className="text-foreground text-[13px] font-medium tracking-tight whitespace-nowrap">
-      {VIEW_TITLES[view]}
-    </span>
+    <div className="flex min-w-0 items-baseline gap-2 whitespace-nowrap">
+      <span className="text-foreground text-[13px] font-medium tracking-tight">
+        {title}
+      </span>
+      {subtitle ? (
+        <span className="text-muted-foreground/70 truncate text-[11.5px] tabular-nums">
+          {subtitle}
+        </span>
+      ) : null}
+    </div>
   );
 }
