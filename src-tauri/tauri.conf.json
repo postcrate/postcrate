@@ -12,9 +12,23 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "postcrate",
         "width": 800,
         "height": 600
+      },
+      {
+        "label": "preferences",
+        "title": "Preferences",
+        "url": "/preferences",
+        "width": 520,
+        "height": 440,
+        "resizable": false,
+        "minimizable": false,
+        "maximizable": false,
+        "visible": false,
+        "center": true,
+        "skipTaskbar": true
       }
     ],
     "security": {

@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
-import { useThemeStore, type Theme } from "@/stores/use-theme-store";
+import {
+  useThemeStore,
+  THEME_STORAGE_KEY,
+  type Theme,
+} from "@/stores/use-theme-store";
 
 const DARK_QUERY = "(prefers-color-scheme: dark)";
 
@@ -41,6 +45,16 @@ export function useTheme() {
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
   }, [theme]);
+
+  // Cross-window sync: when another webview window mutates the persisted
+  // theme, rehydrate this window's store so the change propagates.
+  useEffect(() => {
+    function onStorage(e: StorageEvent) {
+      if (e.key === THEME_STORAGE_KEY) useThemeStore.persist.rehydrate();
+    }
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   return { theme, setTheme, resolved: resolve(theme) };
 }
