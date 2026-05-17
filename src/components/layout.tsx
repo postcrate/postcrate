@@ -3,13 +3,18 @@ import { Outlet } from "react-router-dom";
 
 import { fetcher } from "@/lib/fetcher";
 import { useTheme } from "@/hooks/use-theme";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export function RootLayout() {
   useTheme();
 
   return (
     <SWRConfig value={{ fetcher }}>
-      <Outlet />
+      <TooltipProvider delayDuration={200}>
+        <Outlet />
+        <Toaster position="bottom-right" />
+      </TooltipProvider>
     </SWRConfig>
   );
 }
