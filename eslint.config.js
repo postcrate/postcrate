@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 import perfectionist from "eslint-plugin-perfectionist";
 
 export default tseslint.config(
-  { ignores: ["dist", "node_modules", "src-tauri"] },
+  { ignores: ["dist", "node_modules", "src-tauri", "public"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
