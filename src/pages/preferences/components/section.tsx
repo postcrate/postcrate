@@ -5,9 +5,9 @@ type HeaderProps = {
 
 function SectionHeader({ title, description }: HeaderProps) {
   return (
-    <header className="mb-5">
-      <h1 className="text-[19px] font-semibold tracking-tight">{title}</h1>
-      <p className="text-muted-foreground mt-1 text-[13px] leading-snug">
+    <header className="mb-3">
+      <h1 className="text-[17px] font-semibold tracking-tight">{title}</h1>
+      <p className="text-muted-foreground mt-0.5 text-[12.5px] leading-snug">
         {description}
       </p>
     </header>

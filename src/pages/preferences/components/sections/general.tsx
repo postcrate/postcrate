@@ -69,7 +69,7 @@ export function GeneralSection() {
           onChange={(e) =>
             update("general", { globalShortcut: e.currentTarget.value })
           }
-          className="h-8 w-48 font-mono text-[11px]"
+          className="h-8 w-48 font-mono text-xs"
         />
       </Row>
     </Section>

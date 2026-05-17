@@ -87,7 +87,7 @@ export default function PreferencesPage() {
 
       <main className="bg-background relative flex-1 overflow-auto overscroll-none">
         <div data-tauri-drag-region className="sticky top-0 z-10 h-10 shrink-0" />
-        <div className="mx-auto -mt-10 max-w-2xl px-10 pt-14 pb-12">
+        <div className="mx-auto -mt-10 max-w-2xl px-7 pt-12 pb-10">
           <ActiveSection />
         </div>
       </main>

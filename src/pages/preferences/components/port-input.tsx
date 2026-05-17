@@ -15,7 +15,7 @@ export function PortInput({ id, value, onChange }: Props) {
       max={65535}
       value={value}
       onChange={(e) => onChange(Number(e.currentTarget.value) || 0)}
-      className="w-28 text-right tabular-nums"
+      className="h-8 w-24 text-right text-xs tabular-nums"
     />
   );
 }
