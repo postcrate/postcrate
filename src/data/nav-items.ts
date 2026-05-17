@@ -71,17 +71,6 @@ export const VIEW_TITLES: Record<ViewId, string> = {
   docs: "Docs",
 };
 
-export const VIEW_DESCRIPTIONS: Record<ViewId, string> = {
-  inbox: "Inspect mail captured by the local SMTP listener.",
-  agent: "Connect AI agents to send and validate mail end-to-end.",
-  render: "Preview emails across clients, modes and viewport sizes.",
-  mailboxes: "Manage primary, shared and ephemeral mailboxes.",
-  scenarios: "Replay recorded mail flows against expected matchers.",
-  recordings: "Capture and replay deterministic mail traffic.",
-  templates: "Reusable snippets for fixtures and seed data.",
-  docs: "API reference, recipes and integration guides.",
-};
-
 export const VIEW_SUBTITLES: Partial<Record<ViewId, string>> = {
   agent: "Idle",
   render: "All clients",
@@ -91,10 +80,22 @@ export const VIEW_SUBTITLES: Partial<Record<ViewId, string>> = {
   templates: "12 templates",
 };
 
-const VIEW_ICON_BY_ID: Record<ViewId, Icon> = Object.fromEntries(
-  NAV_SECTIONS.flatMap((section) => section.items.map((i) => [i.id, i.icon])),
-) as Record<ViewId, Icon>;
+const VIEW_IDS = new Set<ViewId>([
+  "inbox",
+  "agent",
+  "render",
+  "mailboxes",
+  "scenarios",
+  "recordings",
+  "templates",
+  "docs",
+]);
 
-export function getViewIcon(view: ViewId): Icon {
-  return VIEW_ICON_BY_ID[view];
+export function pathnameToViewId(pathname: string): ViewId {
+  const seg = pathname.split("/").filter(Boolean)[0] ?? "";
+  return VIEW_IDS.has(seg as ViewId) ? (seg as ViewId) : "inbox";
+}
+
+export function viewIdToPath(viewId: ViewId): string {
+  return `/${viewId}`;
 }

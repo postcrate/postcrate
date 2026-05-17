@@ -3,6 +3,7 @@ import { GearIcon, PlayIcon, StopIcon } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 import { MAILBOXES } from "@/data/mailboxes";
 import { openPreferencesWindow } from "@/lib/windows";
+import { IconButton } from "@/components/icon-button";
 import { useViewStore } from "@/stores/use-view-store";
 import { useServerStore } from "@/stores/use-server-store";
 import {
@@ -10,8 +11,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-import { IconButton } from "./icon-button";
 
 export function SidebarStatus() {
   const mailboxId = useViewStore((s) => s.mailboxId);

@@ -1,5 +1,4 @@
 import { NAV_SECTIONS } from "@/data/nav-items";
-import { useViewStore } from "@/stores/use-view-store";
 
 import { NavItem } from "./nav-item";
 import { NavSection } from "./nav-section";
@@ -8,9 +7,6 @@ import { SidebarStatus } from "./sidebar-status";
 import { MailboxSwitcher } from "./mailbox-switcher";
 
 export function Sidebar() {
-  const view = useViewStore((s) => s.view);
-  const setView = useViewStore((s) => s.setView);
-
   return (
     <aside className="bg-sidebar text-sidebar-foreground border-sidebar-border relative flex w-58 shrink-0 flex-col border-r">
       <SidebarBrand />
@@ -20,12 +16,7 @@ export function Sidebar() {
           <div key={section.id} className="space-y-px">
             <NavSection label={section.label} />
             {section.items.map((item) => (
-              <NavItem
-                key={item.id}
-                item={item}
-                active={view === item.id}
-                onClick={() => setView(item.id)}
-              />
+              <NavItem key={item.id} item={item} />
             ))}
           </div>
         ))}

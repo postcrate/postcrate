@@ -6,7 +6,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-export function RootLayout() {
+export default function RootLayout() {
   useTheme();
 
   return (

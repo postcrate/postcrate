@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   CaretUpDownIcon,
   CheckIcon,
@@ -31,10 +32,10 @@ const KIND_SWATCH: Record<MailboxKind, string> = {
 };
 
 export function MailboxSwitcher() {
+  const navigate = useNavigate();
   const projectId = useViewStore((s) => s.projectId);
   const mailboxId = useViewStore((s) => s.mailboxId);
   const setMailboxId = useViewStore((s) => s.setMailboxId);
-  const setView = useViewStore((s) => s.setView);
   const running = useServerStore((s) => s.running);
 
   const projectMailboxes = getMailboxesByProject(projectId);
@@ -76,7 +77,7 @@ export function MailboxSwitcher() {
                 key={m.id}
                 onSelect={() => {
                   setMailboxId(m.id);
-                  setView("inbox");
+                  navigate("/inbox");
                 }}
                 className="h-9 gap-2 px-2"
               >
@@ -99,7 +100,7 @@ export function MailboxSwitcher() {
           })}
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onSelect={() => setView("mailboxes")}
+            onSelect={() => navigate("/mailboxes")}
             className="text-muted-foreground h-8 gap-2 px-2 text-[12.5px]"
           >
             <PlusIcon size={12} weight="bold" />

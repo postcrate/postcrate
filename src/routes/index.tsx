@@ -1,15 +1,36 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
-import { Home } from "@/pages/home";
-import { RootLayout } from "@/components/layout";
-import { Preferences } from "@/pages/preferences";
+import DocsPage from "@/pages/docs";
+import AgentPage from "@/pages/agent";
+import InboxPage from "@/pages/inbox";
+import RenderPage from "@/pages/render";
+import MailboxesPage from "@/pages/mailboxes";
+import ScenariosPage from "@/pages/scenarios";
+import TemplatesPage from "@/pages/templates";
+import RecordingsPage from "@/pages/recordings";
+import PreferencesPage from "@/pages/preferences";
+import RootLayout from "@/components/layouts/root-layout";
+import MainLayout from "@/components/layouts/main-layout";
 
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
     children: [
-      { path: "/", element: <Home /> },
-      { path: "/preferences", element: <Preferences /> },
+      {
+        element: <MainLayout />,
+        children: [
+          { index: true, element: <Navigate to="/inbox" replace /> },
+          { path: "inbox", element: <InboxPage /> },
+          { path: "agent", element: <AgentPage /> },
+          { path: "render", element: <RenderPage /> },
+          { path: "mailboxes", element: <MailboxesPage /> },
+          { path: "scenarios", element: <ScenariosPage /> },
+          { path: "recordings", element: <RecordingsPage /> },
+          { path: "templates", element: <TemplatesPage /> },
+          { path: "docs", element: <DocsPage /> },
+        ],
+      },
+      { path: "preferences", element: <PreferencesPage /> },
     ],
   },
 ]);

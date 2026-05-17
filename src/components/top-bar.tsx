@@ -1,12 +1,17 @@
 import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
 import { BellIcon } from "@phosphor-icons/react/dist/ssr";
 
 import { MAILBOXES } from "@/data/mailboxes";
+import { IconButton } from "@/components/icon-button";
 import { useViewStore } from "@/stores/use-view-store";
-import { VIEW_SUBTITLES, VIEW_TITLES } from "@/data/nav-items";
+import {
+  VIEW_SUBTITLES,
+  VIEW_TITLES,
+  pathnameToViewId,
+} from "@/data/nav-items";
 
 import { Breadcrumb } from "./breadcrumb";
-import { IconButton } from "./icon-button";
 import { SearchTrigger } from "./search-trigger";
 
 type Props = {
@@ -14,7 +19,8 @@ type Props = {
 };
 
 export function TopBar({ onOpenPalette }: Props) {
-  const view = useViewStore((s) => s.view);
+  const { pathname } = useLocation();
+  const view = pathnameToViewId(pathname);
   const mailboxId = useViewStore((s) => s.mailboxId);
 
   const subtitle =

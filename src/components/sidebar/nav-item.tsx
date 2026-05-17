@@ -1,0 +1,56 @@
+import { NavLink } from "react-router-dom";
+
+import type { NavItem as Item } from "@/data/nav-items";
+
+import { cn } from "@/lib/utils";
+import { viewIdToPath } from "@/data/nav-items";
+import { PulseDot } from "@/components/pulse-dot";
+
+type Props = {
+  item: Item;
+};
+
+export function NavItem({ item }: Props) {
+  const { label, icon: IconComp, badge, dot } = item;
+
+  return (
+    <NavLink
+      to={viewIdToPath(item.id)}
+      className={({ isActive }) =>
+        cn(
+          "group relative flex h-7 w-full items-center gap-2.5 rounded-md pr-2 pl-2.5",
+          "text-sidebar-foreground/85 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+          "transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/30",
+          isActive &&
+            "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent",
+        )
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <span
+            aria-hidden
+            className={cn(
+              "bg-brand pointer-events-none absolute top-1/2 -left-1 h-3.5 w-[2px] -translate-y-1/2 rounded-r-sm transition-opacity",
+              isActive ? "opacity-100" : "opacity-0",
+            )}
+          />
+          <IconComp
+            size={15}
+            weight={isActive ? "fill" : "regular"}
+            className={cn("shrink-0", isActive ? "opacity-100" : "opacity-85")}
+          />
+          <span className="min-w-0 flex-1 truncate text-left text-[13px]">
+            {label}
+          </span>
+          {badge ? (
+            <span className="text-muted-foreground/70 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded px-1 font-mono text-[10.5px] tabular-nums">
+              {badge}
+            </span>
+          ) : null}
+          {!badge && dot ? <PulseDot tone={dot} className="mr-px" /> : null}
+        </>
+      )}
+    </NavLink>
+  );
+}
