@@ -70,7 +70,7 @@ export default function OnboardingPage() {
     if (finishedRef.current) return;
     finishedRef.current = true;
     setFinishing(true);
-    addProject({ name: draft.projectName });
+    addProject({ name: draft.projectName, tone: draft.projectTone });
     updatePrefs("network", { smtpPort: draft.smtpPort });
     complete();
     await finishOnboardingWindow();

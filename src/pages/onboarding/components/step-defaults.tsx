@@ -5,7 +5,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { TonePicker } from "@/components/tone-picker";
 import { useOnboardingStore } from "@/stores/use-onboarding-store";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 const NAME_PATTERN = /^[a-z0-9][a-z0-9-]*$/i;
 
@@ -44,7 +50,11 @@ export function StepDefaults({ registerSubmit }: Props) {
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     mode: "onBlur",
-    defaultValues: draft,
+    defaultValues: {
+      projectName: draft.projectName,
+      smtpPort: draft.smtpPort,
+      mailboxName: draft.mailboxName,
+    },
   });
 
   const { register, handleSubmit, formState, setValue } = form;
@@ -85,17 +95,25 @@ export function StepDefaults({ registerSubmit }: Props) {
         hint="Shown in the sidebar. You can rename it later."
         error={formState.errors.projectName?.message}
       >
-        <Input
-          id="project-name"
-          autoFocus
-          autoComplete="off"
-          spellCheck={false}
-          placeholder="Personal"
-          className={INPUT_CLASS}
-          {...register("projectName", {
-            onChange: (e) => setValue("projectName", e.currentTarget.value),
-          })}
-        />
+        <InputGroup>
+          <InputGroupAddon align="inline-start" className="pl-4">
+            <TonePicker
+              value={draft.projectTone}
+              onChange={(projectTone) => patchDraft({ projectTone })}
+            />
+          </InputGroupAddon>
+          <InputGroupInput
+            id="project-name"
+            autoFocus
+            autoComplete="off"
+            spellCheck={false}
+            placeholder="Personal"
+            className={INPUT_CLASS}
+            {...register("projectName", {
+              onChange: (e) => setValue("projectName", e.currentTarget.value),
+            })}
+          />
+        </InputGroup>
       </Field>
 
       <div className="grid grid-cols-[150px_1fr] gap-3">

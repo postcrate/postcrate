@@ -18,15 +18,24 @@ export const PROJECT_TONE_BG: Record<ProjectTone, string> = {
   danger: "bg-danger",
 };
 
-const TONE_CYCLE: ProjectTone[] = ["brand", "info", "success", "warn", "danger"];
+export const PROJECT_TONES: ProjectTone[] = [
+  "brand",
+  "info",
+  "success",
+  "warn",
+  "danger",
+];
 
 type ProjectsState = {
   projects: Project[];
   currentId: string | null;
   setCurrentId: (id: string) => void;
-  addProject: (input: { name: string }) => Project;
+  addProject: (input: { name: string; tone?: ProjectTone }) => Project;
   removeProject: (id: string) => void;
-  renameProject: (id: string, name: string) => void;
+  updateProject: (
+    id: string,
+    patch: { name?: string; tone?: ProjectTone },
+  ) => void;
 };
 
 function makeId(name: string, existing: ReadonlyArray<Project>): string {
@@ -45,7 +54,7 @@ function makeId(name: string, existing: ReadonlyArray<Project>): string {
 }
 
 function nextTone(projects: ReadonlyArray<Project>): ProjectTone {
-  return TONE_CYCLE[projects.length % TONE_CYCLE.length];
+  return PROJECT_TONES[projects.length % PROJECT_TONES.length];
 }
 
 function initial(name: string): string {
@@ -61,14 +70,14 @@ export const useProjectsStore = create<ProjectsState>()(
       setCurrentId: (id) => {
         if (get().projects.some((p) => p.id === id)) set({ currentId: id });
       },
-      addProject: ({ name }) => {
+      addProject: ({ name, tone }) => {
         const trimmed = name.trim();
         const projects = get().projects;
         const project: Project = {
           id: makeId(trimmed, projects),
           name: trimmed,
           initial: initial(trimmed),
-          tone: nextTone(projects),
+          tone: tone ?? nextTone(projects),
         };
         set({
           projects: [...projects, project],
@@ -81,11 +90,18 @@ export const useProjectsStore = create<ProjectsState>()(
         const currentId = get().currentId === id ? (projects[0]?.id ?? null) : get().currentId;
         set({ projects, currentId });
       },
-      renameProject: (id, name) =>
+      updateProject: (id, patch) =>
         set((state) => ({
-          projects: state.projects.map((p) =>
-            p.id === id ? { ...p, name: name.trim(), initial: initial(name) } : p,
-          ),
+          projects: state.projects.map((p) => {
+            if (p.id !== id) return p;
+            const nextName = patch.name?.trim() ?? p.name;
+            return {
+              ...p,
+              name: nextName,
+              initial: initial(nextName),
+              tone: patch.tone ?? p.tone,
+            };
+          }),
         })),
     }),
     { name: "postcrate-projects" },

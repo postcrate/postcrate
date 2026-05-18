@@ -3,10 +3,18 @@ import { useState } from "react";
 import { CheckIcon, CopyIcon } from "@phosphor-icons/react/dist/ssr";
 
 import { cn } from "@/lib/utils";
+import { type SyntaxLang } from "@/lib/syntax-highlight";
+import { CodeHighlight } from "@/components/code-highlight";
 
 type Props = {
   code: string;
-  language: string;
+  language: SyntaxLang;
+};
+
+const LANGUAGE_LABEL: Record<SyntaxLang, string> = {
+  ini: "env",
+  json: "json",
+  ts: "ts",
 };
 
 export function CopyBlock({ code, language }: Props) {
@@ -25,7 +33,7 @@ export function CopyBlock({ code, language }: Props) {
   return (
     <div className="border-border/60 bg-muted/40 group relative overflow-hidden rounded-lg border">
       <div className="text-muted-foreground/80 border-border/40 bg-muted/30 flex h-7 items-center justify-between border-b pr-1.5 pl-2.5 text-[10px] tracking-wider uppercase">
-        <span className="font-mono">{language}</span>
+        <span className="font-mono">{LANGUAGE_LABEL[language]}</span>
         <button
           type="button"
           onClick={copy}
@@ -48,9 +56,7 @@ export function CopyBlock({ code, language }: Props) {
           )}
         </button>
       </div>
-      <pre className="text-foreground/90 overflow-auto px-3 py-2.5 font-mono text-[11.5px] leading-relaxed">
-        <code>{code}</code>
-      </pre>
+      <CodeHighlight code={code} lang={language} />
     </div>
   );
 }

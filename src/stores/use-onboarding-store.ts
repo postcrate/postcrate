@@ -1,18 +1,22 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { type ProjectTone } from "./use-projects-store";
+
 export const ONBOARDING_STORAGE_KEY = "postcrate-onboarding";
 
 export type OnboardingStep = 0 | 1 | 2;
 
 export type OnboardingDraft = {
   projectName: string;
+  projectTone: ProjectTone;
   smtpPort: number;
   mailboxName: string;
 };
 
 export const DEFAULT_DRAFT: OnboardingDraft = {
   projectName: "Personal",
+  projectTone: "brand",
   smtpPort: 1025,
   mailboxName: "default",
 };
