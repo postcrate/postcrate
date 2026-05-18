@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { Kbd } from "@/components/ui/kbd";
 import { useViewStore } from "@/stores/use-view-store";
 import { useServerStore } from "@/stores/use-server-store";
+import { useProjectsStore } from "@/stores/use-projects-store";
 import {
   MAILBOXES,
   getMailboxesByProject,
@@ -33,12 +34,12 @@ const KIND_SWATCH: Record<MailboxKind, string> = {
 
 export function MailboxSwitcher() {
   const navigate = useNavigate();
-  const projectId = useViewStore((s) => s.projectId);
+  const projectId = useProjectsStore((s) => s.currentId);
   const mailboxId = useViewStore((s) => s.mailboxId);
   const setMailboxId = useViewStore((s) => s.setMailboxId);
   const running = useServerStore((s) => s.running);
 
-  const projectMailboxes = getMailboxesByProject(projectId);
+  const projectMailboxes = projectId ? getMailboxesByProject(projectId) : [];
   const current =
     projectMailboxes.find((m) => m.id === mailboxId) ??
     projectMailboxes[0] ??

@@ -10,6 +10,7 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
         "label": "main",
@@ -18,7 +19,26 @@
         "height": 800,
         "minWidth": 960,
         "minHeight": 640,
+        "visible": false,
         "center": true,
+        "hiddenTitle": true,
+        "titleBarStyle": "Overlay",
+        "transparent": true,
+        "dragDropEnabled": false
+      },
+      {
+        "label": "onboarding",
+        "title": "Welcome to postcrate",
+        "url": "/onboarding",
+        "width": 760,
+        "height": 560,
+        "resizable": false,
+        "minimizable": false,
+        "maximizable": false,
+        "fullscreen": false,
+        "visible": false,
+        "center": true,
+        "skipTaskbar": true,
         "hiddenTitle": true,
         "titleBarStyle": "Overlay",
         "transparent": true,

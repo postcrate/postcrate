@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   CaretDownIcon,
   CheckIcon,
@@ -6,12 +7,13 @@ import {
 
 import { cn } from "@/lib/utils";
 import { useViewStore } from "@/stores/use-view-store";
+import { getFirstMailboxOfProject } from "@/data/mailboxes";
 import {
-  PROJECTS,
-  PROJECT_TONE_BG,
   findProject,
+  useProjectsStore,
+  PROJECT_TONE_BG,
   type Project,
-} from "@/data/projects";
+} from "@/stores/use-projects-store";
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -22,10 +24,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function ProjectSwitcher() {
-  const projectId = useViewStore((s) => s.projectId);
-  const setProjectId = useViewStore((s) => s.setProjectId);
+  const navigate = useNavigate();
+  const projects = useProjectsStore((s) => s.projects);
+  const currentId = useProjectsStore((s) => s.currentId);
+  const setCurrentId = useProjectsStore((s) => s.setCurrentId);
+  const setMailboxId = useViewStore((s) => s.setMailboxId);
 
-  const current = findProject(projectId);
+  const current = findProject(projects, currentId);
+
+  if (!current) {
+    return (
+      <button
+        onClick={() => navigate("/mailboxes")}
+        className="text-muted-foreground hover:text-foreground flex h-6 items-center gap-1 text-[12px] font-medium"
+      >
+        <PlusIcon size={11} weight="bold" />
+        <span>New project</span>
+      </button>
+    );
+  }
 
   return (
     <DropdownMenu>
@@ -54,12 +71,15 @@ export function ProjectSwitcher() {
         <DropdownMenuLabel className="text-muted-foreground/70 px-2 pt-1.5 pb-1 text-[10.5px] font-medium tracking-wider uppercase">
           Switch project
         </DropdownMenuLabel>
-        {PROJECTS.map((p) => {
-          const isCurrent = p.id === projectId;
+        {projects.map((p) => {
+          const isCurrent = p.id === currentId;
           return (
             <DropdownMenuItem
               key={p.id}
-              onSelect={() => setProjectId(p.id)}
+              onSelect={() => {
+                setCurrentId(p.id);
+                setMailboxId(getFirstMailboxOfProject(p.id).id);
+              }}
               className="h-8 gap-2 px-2"
             >
               <ProjectGlyph project={p} />
@@ -79,7 +99,10 @@ export function ProjectSwitcher() {
           );
         })}
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-muted-foreground h-8 gap-2 px-2 text-[12.5px]">
+        <DropdownMenuItem
+          onSelect={() => navigate("/mailboxes")}
+          className="text-muted-foreground h-8 gap-2 px-2 text-[12.5px]"
+        >
           <PlusIcon size={12} weight="bold" />
           <span>New project</span>
         </DropdownMenuItem>

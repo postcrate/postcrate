@@ -29,17 +29,26 @@ pub fn run() {
     #[cfg(desktop)]
     {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
-            if let Some(win) = app.get_webview_window("main") {
-                let _ = win.show();
-                let _ = win.unminimize();
-                let _ = win.set_focus();
-            }
+            windows::reactivate(app);
         }));
     }
 
     let app = builder
         .plugin(tauri_plugin_opener::init())
-        .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(
+            tauri_plugin_window_state::Builder::default()
+                // Don't restore the last visibility — bootstrap in the
+                // frontend decides whether `main` is shown, so we'd
+                // otherwise flash the main window before onboarding.
+                .with_state_flags(
+                    tauri_plugin_window_state::StateFlags::all()
+                        - tauri_plugin_window_state::StateFlags::VISIBLE,
+                )
+                // Onboarding is a one-shot transient window; don't let
+                // it inherit any persisted size/position state.
+                .skip_initial_state(windows::ONBOARDING)
+                .build(),
+        )
         .register_asynchronous_uri_scheme_protocol(
             core::protocol::SCHEME,
             core::protocol::handle_request,
@@ -47,6 +56,12 @@ pub fn run() {
         .invoke_handler(specta_builder.invoke_handler())
         .setup(move |app| {
             let handle = app.handle();
+
+            // Whichever window the frontend bootstrap decides to show
+            // first, never let `main` flash before that decision lands.
+            if let Some(main) = app.get_webview_window(windows::MAIN) {
+                let _ = main.hide();
+            }
 
             specta_builder.mount_events(app);
 
@@ -60,7 +75,7 @@ pub fn run() {
                     apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState,
                 };
 
-                for label in ["main", "preferences"] {
+                for label in [windows::MAIN, windows::ONBOARDING, windows::PREFERENCES] {
                     if let Some(win) = app.get_webview_window(label) {
                         let _ = apply_vibrancy(
                             &win,

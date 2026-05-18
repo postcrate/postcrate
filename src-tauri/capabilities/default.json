@@ -1,15 +1,17 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Capability for the main + preferences windows",
-  "windows": ["main", "preferences"],
+  "description": "Capability for the main, onboarding, and preferences windows",
+  "windows": ["main", "onboarding", "preferences"],
   "permissions": [
     "core:default",
     "core:window:allow-start-dragging",
     "core:window:allow-set-theme",
     "core:window:allow-show",
     "core:window:allow-hide",
+    "core:window:allow-close",
     "core:window:allow-set-focus",
+    "core:window:allow-unminimize",
     "core:event:allow-listen",
     "core:event:allow-unlisten",
     "opener:default"

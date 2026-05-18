@@ -7,6 +7,7 @@ import RenderPage from "@/pages/render";
 import MailboxesPage from "@/pages/mailboxes";
 import ScenariosPage from "@/pages/scenarios";
 import TemplatesPage from "@/pages/templates";
+import OnboardingPage from "@/pages/onboarding";
 import RecordingsPage from "@/pages/recordings";
 import PreferencesPage from "@/pages/preferences";
 import RootLayout from "@/components/layouts/root-layout";
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
         ],
       },
       { path: "preferences", element: <PreferencesPage /> },
+      { path: "onboarding", element: <OnboardingPage /> },
     ],
   },
 ]);
