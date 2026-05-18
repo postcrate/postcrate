@@ -3,7 +3,16 @@ import tseslint from "typescript-eslint";
 import perfectionist from "eslint-plugin-perfectionist";
 
 export default tseslint.config(
-  { ignores: ["dist", "node_modules", "src-tauri", "public"] },
+  {
+    ignores: [
+      "dist",
+      "node_modules",
+      "src-tauri",
+      "public",
+      // tauri-specta auto-generates this; we don't lint generated code.
+      "src/lib/bridge/bindings.ts",
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
