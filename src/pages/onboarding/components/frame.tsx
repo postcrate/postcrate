@@ -49,7 +49,7 @@ export function Frame({
         </m.div>
       </div>
 
-      <footer className="border-border/60 flex h-14 shrink-0 items-center justify-between border-t px-6">
+      <footer className="border-border/60 flex h-16 shrink-0 items-center justify-between border-t px-6">
         <div>
           {secondary ? (
             <Button

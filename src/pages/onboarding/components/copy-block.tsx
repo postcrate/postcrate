@@ -48,7 +48,7 @@ export function CopyBlock({ code, language }: Props) {
           )}
         </button>
       </div>
-      <pre className="text-foreground/90 max-h-48 overflow-auto px-3 py-2.5 font-mono text-[11.5px] leading-relaxed">
+      <pre className="text-foreground/90 overflow-auto px-3 py-2.5 font-mono text-[11.5px] leading-relaxed">
         <code>{code}</code>
       </pre>
     </div>

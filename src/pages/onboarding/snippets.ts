@@ -15,7 +15,7 @@ export function buildSnippets(draft: OnboardingDraft): Snippet[] {
   return [
     {
       id: "env",
-      label: ".env",
+      label: "ENV",
       language: "ini",
       hint: "Drop into the app you're testing. Most SMTP libraries pick these up automatically.",
       body: [
@@ -28,7 +28,7 @@ export function buildSnippets(draft: OnboardingDraft): Snippet[] {
     },
     {
       id: "mcp",
-      label: "MCP config",
+      label: "MCP",
       language: "json",
       hint: "Add to Claude Desktop or any MCP-compatible client to give agents inbox access.",
       body: JSON.stringify(

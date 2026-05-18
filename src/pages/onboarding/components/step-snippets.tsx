@@ -1,13 +1,7 @@
 import { useMemo, useState } from "react";
-import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
 
 import { useOnboardingStore } from "@/stores/use-onboarding-store";
-import {
-  Tabs,
-  TabsList,
-  TabsContent,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 
 import { CopyBlock } from "./copy-block";
 import { buildSnippets, type SnippetId } from "../snippets";
@@ -35,7 +29,6 @@ export function StepSnippets() {
             </TabsTrigger>
           ))}
         </TabsList>
-
         {snippets.map((s) => (
           <TabsContent
             key={s.id}
@@ -49,18 +42,6 @@ export function StepSnippets() {
           </TabsContent>
         ))}
       </Tabs>
-
-      <p className="text-muted-foreground/80 mt-3 flex items-start gap-1.5 text-[11.5px] leading-snug">
-        <InfoIcon
-          size={11}
-          weight="regular"
-          className="mt-[3px] shrink-0 opacity-70"
-        />
-        <span>
-          Values reflect the port and mailbox you just picked — change them
-          later in Preferences.
-        </span>
-      </p>
     </div>
   );
 }
