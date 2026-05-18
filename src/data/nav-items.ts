@@ -45,7 +45,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { id: "inbox", label: "Inbox", icon: TrayIcon },
       { id: "agent", label: "AI Agent", icon: RobotIcon, dot: "success" },
       { id: "render", label: "Render", icon: BrowsersIcon },
-      { id: "mailboxes", label: "Mailboxes", icon: PackageIcon, badge: "5" },
+      { id: "mailboxes", label: "Mailboxes", icon: PackageIcon },
       { id: "scenarios", label: "Scenarios", icon: FlaskIcon, dot: "warn" },
     ],
   },

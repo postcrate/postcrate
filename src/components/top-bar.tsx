@@ -2,9 +2,10 @@ import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
 import { BellIcon } from "@phosphor-icons/react/dist/ssr";
 
-import { MAILBOXES } from "@/data/mailboxes";
 import { IconButton } from "@/components/icon-button";
 import { useViewStore } from "@/stores/use-view-store";
+import { useMailbox, useMailboxes } from "@/services/mailbox";
+import { useProjectsStore } from "@/stores/use-projects-store";
 import {
   VIEW_SUBTITLES,
   VIEW_TITLES,
@@ -21,12 +22,19 @@ type Props = {
 export function TopBar({ onOpenPalette }: Props) {
   const { pathname } = useLocation();
   const view = pathnameToViewId(pathname);
+  const projectId = useProjectsStore((s) => s.currentId);
   const mailboxId = useViewStore((s) => s.mailboxId);
+  const { mailbox } = useMailbox(view === "inbox" ? mailboxId : null);
+  const { mailboxes } = useMailboxes(view === "mailboxes" ? projectId : null);
 
   const subtitle =
     view === "inbox"
-      ? `${MAILBOXES.find((m) => m.id === mailboxId)?.count ?? 0} messages`
-      : VIEW_SUBTITLES[view];
+      ? `${mailbox?.count ?? 0} messages`
+      : view === "mailboxes"
+        ? mailboxes
+          ? `${mailboxes.length} ${mailboxes.length === 1 ? "mailbox" : "mailboxes"}`
+          : VIEW_SUBTITLES[view]
+        : VIEW_SUBTITLES[view];
 
   return (
     <header

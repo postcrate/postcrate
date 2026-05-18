@@ -10,13 +10,9 @@ import { cn } from "@/lib/utils";
 import { Kbd } from "@/components/ui/kbd";
 import { useViewStore } from "@/stores/use-view-store";
 import { useServerStore } from "@/stores/use-server-store";
+import { useDialogsStore } from "@/stores/use-dialogs-store";
 import { useProjectsStore } from "@/stores/use-projects-store";
-import {
-  MAILBOXES,
-  getMailboxesByProject,
-  type Mailbox,
-  type MailboxKind,
-} from "@/data/mailboxes";
+import { useMailboxes, type Mailbox, type MailboxKind } from "@/services/mailbox";
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -27,7 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const KIND_SWATCH: Record<MailboxKind, string> = {
-  primary: "bg-brand",
+  primary: "bg-warn",
   ephemeral: "bg-info",
   shared: "bg-muted-foreground/60",
 };
@@ -38,12 +34,38 @@ export function MailboxSwitcher() {
   const mailboxId = useViewStore((s) => s.mailboxId);
   const setMailboxId = useViewStore((s) => s.setMailboxId);
   const running = useServerStore((s) => s.running);
+  const openNewMailbox = useDialogsStore((s) => s.openNewMailbox);
 
-  const projectMailboxes = projectId ? getMailboxesByProject(projectId) : [];
-  const current =
-    projectMailboxes.find((m) => m.id === mailboxId) ??
-    projectMailboxes[0] ??
-    MAILBOXES[0];
+  const { mailboxes } = useMailboxes(projectId);
+  const list = mailboxes ?? [];
+  const current = list.find((m) => m.id === mailboxId) ?? list[0];
+
+  if (!current) {
+    return (
+      <div className="px-2 pt-1 pb-2">
+        <button
+          onClick={openNewMailbox}
+          className={cn(
+            "group flex h-11 w-full items-center gap-2.5 rounded-lg px-2 text-left",
+            "bg-sidebar-accent/40 hover:bg-sidebar-accent/60 transition-colors",
+          )}
+        >
+          <span className="bg-sidebar-border/60 dark:bg-sidebar/60 grid size-6 shrink-0 place-items-center rounded-md">
+            <PlusIcon size={11} weight="bold" className="text-muted-foreground" />
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col leading-tight">
+            <span className="text-foreground truncate text-[12.5px] font-medium">
+              No mailbox yet
+            </span>
+            <span className="text-muted-foreground/80 truncate text-[10.5px]">
+              Create one to capture mail
+            </span>
+          </span>
+          <Kbd className="h-4 text-[10px]">⌘N</Kbd>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="px-2 pt-1 pb-2">
@@ -52,7 +74,7 @@ export function MailboxSwitcher() {
           className={cn(
             "group flex h-11 w-full items-center gap-2.5 rounded-lg px-2 text-left",
             "bg-sidebar-accent/60 hover:bg-sidebar-accent/80 data-[state=open]:bg-sidebar-accent",
-            "transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/30",
+            "transition-colors outline-none",
           )}
         >
           <MailboxChip kind={current.kind} live={running} />
@@ -71,8 +93,8 @@ export function MailboxSwitcher() {
           <DropdownMenuLabel className="text-muted-foreground/70 px-2 pt-1.5 pb-1 text-[10.5px] font-medium tracking-wider uppercase">
             Switch mailbox
           </DropdownMenuLabel>
-          {projectMailboxes.map((m) => {
-            const isCurrent = m.id === mailboxId;
+          {list.map((m) => {
+            const isCurrent = m.id === current.id;
             return (
               <DropdownMenuItem
                 key={m.id}
@@ -101,11 +123,11 @@ export function MailboxSwitcher() {
           })}
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onSelect={() => navigate("/mailboxes")}
+            onSelect={openNewMailbox}
             className="text-muted-foreground h-8 gap-2 px-2 text-[12.5px]"
           >
             <PlusIcon size={12} weight="bold" />
-            <span>New ephemeral mailbox</span>
+            <span>New mailbox</span>
             <Kbd className="ml-auto h-4 text-[10px]">⌘N</Kbd>
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -138,6 +160,7 @@ function Swatch({ kind }: { kind: MailboxKind }) {
 }
 
 function MailboxLabel({ mailbox }: { mailbox: Mailbox }) {
+  const ttl = mailbox.kind === "ephemeral" ? formatRemaining(mailbox.expiresAt) : null;
   return (
     <span className="flex min-w-0 flex-1 flex-col leading-tight">
       <span className="text-foreground truncate text-[12.5px] font-medium">
@@ -145,7 +168,7 @@ function MailboxLabel({ mailbox }: { mailbox: Mailbox }) {
       </span>
       <span
         className="text-muted-foreground/80 flex min-w-0 items-center gap-1 font-mono text-[10.5px] tabular-nums"
-        title="Local listener · tunneling coming soon"
+        title="Local listener"
       >
         <HouseLineIcon
           size={10}
@@ -153,8 +176,8 @@ function MailboxLabel({ mailbox }: { mailbox: Mailbox }) {
           className="text-muted-foreground/55 shrink-0"
         />
         <span className="truncate">
-          localhost:{mailbox.port}
-          {mailbox.ttl ? ` · ${mailbox.ttl}` : ""}
+          127.0.0.1:{mailbox.port}
+          {ttl ? ` · ${ttl}` : ""}
         </span>
       </span>
     </span>
@@ -162,6 +185,7 @@ function MailboxLabel({ mailbox }: { mailbox: Mailbox }) {
 }
 
 function MailboxRow({ mailbox }: { mailbox: Mailbox }) {
+  const ttl = mailbox.kind === "ephemeral" ? formatRemaining(mailbox.expiresAt) : null;
   return (
     <span className="flex min-w-0 flex-1 flex-col leading-tight">
       <span className="text-foreground truncate text-[12.5px] font-medium">
@@ -169,8 +193,16 @@ function MailboxRow({ mailbox }: { mailbox: Mailbox }) {
       </span>
       <span className="text-muted-foreground/70 font-mono text-[10px] tabular-nums">
         :{mailbox.port}
-        {mailbox.ttl ? ` · ${mailbox.ttl}` : ""}
+        {ttl ? ` · ${ttl}` : ""}
       </span>
     </span>
   );
+}
+
+function formatRemaining(expiresAt: number | null): string | null {
+  if (!expiresAt) return null;
+  const remainingSec = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
+  if (remainingSec >= 3600) return `${Math.floor(remainingSec / 3600)}h`;
+  if (remainingSec >= 60) return `${Math.floor(remainingSec / 60)}m`;
+  return `${remainingSec}s`;
 }

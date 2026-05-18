@@ -8,7 +8,7 @@ import { MailboxSwitcher } from "./mailbox-switcher";
 
 export function Sidebar() {
   return (
-    <aside className="bg-sidebar/55 text-sidebar-foreground border-sidebar-border relative flex w-58 shrink-0 flex-col border-r">
+    <aside className="bg-sidebar/70 text-sidebar-foreground border-sidebar-border relative flex w-58 shrink-0 flex-col border-r">
       <SidebarBrand />
       <MailboxSwitcher />
       <nav className="flex-1 space-y-3 overflow-y-auto px-2 pb-2">

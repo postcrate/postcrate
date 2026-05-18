@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { cn } from "@/lib/utils";
+import { suggestName } from "@/lib/suggest";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { TonePicker } from "@/components/tone-picker";
 import { useViewStore } from "@/stores/use-view-store";
-import { getFirstMailboxOfProject } from "@/data/mailboxes";
 import {
   InputGroup,
   InputGroupAddon,
@@ -81,25 +81,28 @@ export function ProjectFormDialog(props: Props) {
     ? props.project.tone
     : (props.defaultTone ??
       PROJECT_TONES[projects.length % PROJECT_TONES.length]);
-  const initialName = isEdit ? props.project.name : "";
 
   const [tone, setTone] = useState<ProjectTone>(initialTone);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     mode: "onSubmit",
-    defaultValues: { name: initialName },
+    defaultValues: { name: isEdit ? props.project.name : "" },
   });
 
-  // Each open of the dialog (and any time the underlying project
-  // changes) reseeds the form so stale state from a previous session
-  // never leaks through.
+  // Each open of the dialog reseeds the form so stale state from a
+  // previous session never leaks through. Create mode gets a fresh
+  // suggested name every time so users can submit on Enter.
   useEffect(() => {
-    if (open) {
-      form.reset({ name: initialName });
-      setTone(initialTone);
+    if (!open) return;
+    if (isEdit) {
+      form.reset({ name: props.project.name });
+    } else {
+      form.reset({ name: suggestName() });
     }
-  }, [open, form, initialName, initialTone]);
+    setTone(initialTone);
+
+  }, [open, isEdit, initialTone, isEdit ? props.project.id : null, form]);
 
   function onSubmit(values: FormValues) {
     if (isEdit) {
@@ -109,7 +112,9 @@ export function ProjectFormDialog(props: Props) {
     }
     const project = addProject({ name: values.name, tone });
     setCurrentId(project.id);
-    setMailboxId(getFirstMailboxOfProject(project.id).id);
+    // No mailbox to focus yet for a brand-new project — the sidebar
+    // switcher will surface "No mailbox yet" until one is created.
+    setMailboxId(null);
     props.onCreated?.(project.id);
     onOpenChange(false);
   }

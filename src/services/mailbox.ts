@@ -18,7 +18,15 @@
  * extra wiring at the call site.
  */
 
-import useSWR, { mutate as globalMutate, type SWRConfiguration } from "swr";
+import type { UnlistenFn } from "@tauri-apps/api/event";
+
+import { toast } from "sonner";
+import { useEffect } from "react";
+import useSWR, {
+  mutate as globalMutate,
+  useSWRConfig,
+  type SWRConfiguration,
+} from "swr";
 
 import { unwrap } from "@/lib/bridge/ipc";
 import { EngineEvent, listenEngine } from "@/lib/bridge/events";
@@ -224,36 +232,80 @@ export async function purgeMailbox(mailboxId: string): Promise<number> {
 
 /**
  * Wire engine `MailboxStateChanged` events into SWR cache invalidation
- * so the UI reacts to backend-driven mailbox lifecycle (created /
- * started / stopped / expired / failed / deleted) without needing
- * per-component listeners.
+ * and user-facing toasts for noteworthy transitions (ephemeral expiry,
+ * listener failures). Install once at React root via `<RootLayout />`.
  *
- * Returns the unsubscribe handle — call at app boot, dispose on
- * teardown (e.g. logout / app-quit).
+ * The hook reads the SWR cache directly to find the mailbox's name
+ * before invalidation — so the toast can say "ci-mailbox-72f1 expired"
+ * instead of "a mailbox expired".
  */
-export async function installMailboxSync(): Promise<() => void> {
-  const unlisten = await listenEngine(
-    EngineEvent.MailboxStateChanged,
-    (event) => {
+export function useMailboxSync(): void {
+  const { cache } = useSWRConfig();
+
+  useEffect(() => {
+    let unlisten: UnlistenFn | undefined;
+    let cancelled = false;
+
+    listenEngine(EngineEvent.MailboxStateChanged, (event) => {
       if (event.payload.kind !== "mailboxStateChanged") return;
       const { mailboxId, change } = event.payload;
 
+      // Look the mailbox up *before* we invalidate so we can name it
+      // in the toast even after the entry is dropped.
+      const previous = (cache.get(
+        keyToString(MAILBOX_KEYS.detail(mailboxId)),
+      )?.data ?? findInLists(cache, mailboxId)) as Mailbox | undefined;
+      const name = previous?.name ?? "Mailbox";
+
+      switch (change.kind) {
+        case "expired":
+          toast.info(`${name} expired`, { description: "TTL reached." });
+          break;
+        case "failed":
+          toast.error(`${name} listener failed`, { description: change.error });
+          break;
+        case "started":
+        case "stopped":
+        case "created":
+        case "updated":
+        case "deleted":
+          // No-op for toast — the table re-renders is enough feedback.
+          break;
+      }
+
       if (change.kind === "deleted") {
-        // Drop the detail cache entry outright — there's nothing to
-        // refetch.
         globalMutate(MAILBOX_KEYS.detail(mailboxId), undefined, {
           revalidate: false,
         });
       } else {
-        // Anything else (created / updated / started / stopped /
-        // expired / failed) means the stored shape changed.
         globalMutate(MAILBOX_KEYS.detail(mailboxId));
       }
-
       invalidateLists();
-    },
-  );
-  return unlisten;
+    }).then((un) => {
+      if (cancelled) un();
+      else unlisten = un;
+    });
+
+    return () => {
+      cancelled = true;
+      unlisten?.();
+    };
+  }, [cache]);
+}
+
+/**
+ * Delete every mailbox owned by a project. Used as a cascade step when
+ * a project is removed. Resolves with the number of mailboxes deleted.
+ * Errors per mailbox are surfaced via `reportIpcError` upstream — the
+ * caller decides whether to surface a single summary toast.
+ */
+export async function deleteAllMailboxesForProject(
+  projectId: string,
+): Promise<number> {
+  const mailboxes = await fetchMailboxes(projectId);
+  if (mailboxes.length === 0) return 0;
+  await Promise.allSettled(mailboxes.map((m) => deleteMailbox(m.id)));
+  return mailboxes.length;
 }
 
 // ---------------------------------------------------------------------------
@@ -271,4 +323,43 @@ function invalidateLists(): Promise<unknown> {
     undefined,
     { revalidate: true },
   );
+}
+
+/**
+ * SWR's `cache.get(key)` indexes by the *serialised* key string, not
+ * the array we pass into hooks. Mirror SWR's own serializer (the same
+ * stable JSON shape it uses internally).
+ */
+function keyToString(key: readonly unknown[]): string {
+  return JSON.stringify(key);
+}
+
+/**
+ * Last-resort lookup when the detail cache is cold: scan any cached
+ * mailbox list for an entry with the matching id. Returns undefined if
+ * nothing's cached.
+ */
+function findInLists(
+  cache: ReturnType<typeof useSWRConfig>["cache"],
+  mailboxId: string,
+): Mailbox | undefined {
+  for (const key of cache.keys()) {
+    try {
+      const parsed = JSON.parse(key) as unknown;
+      if (
+        !Array.isArray(parsed) ||
+        parsed[0] !== "mailboxes" ||
+        parsed.length !== 2
+      ) {
+        continue;
+      }
+      const entry = cache.get(key);
+      const list = entry?.data as Mailbox[] | undefined;
+      const hit = list?.find((m) => m.id === mailboxId);
+      if (hit) return hit;
+    } catch {
+      // Non-JSON keys are not ours — skip.
+    }
+  }
+  return undefined;
 }

@@ -1,11 +1,12 @@
 import { GearIcon, PlayIcon, StopIcon } from "@phosphor-icons/react/dist/ssr";
 
 import { cn } from "@/lib/utils";
-import { MAILBOXES } from "@/data/mailboxes";
+import { useMailboxes } from "@/services/mailbox";
 import { openPreferencesWindow } from "@/lib/windows";
 import { IconButton } from "@/components/icon-button";
 import { useViewStore } from "@/stores/use-view-store";
 import { useServerStore } from "@/stores/use-server-store";
+import { useProjectsStore } from "@/stores/use-projects-store";
 import {
   Tooltip,
   TooltipContent,
@@ -13,8 +14,12 @@ import {
 } from "@/components/ui/tooltip";
 
 export function SidebarStatus() {
+  const projectId = useProjectsStore((s) => s.currentId);
   const mailboxId = useViewStore((s) => s.mailboxId);
-  const current = MAILBOXES.find((m) => m.id === mailboxId) ?? MAILBOXES[0];
+  const { mailboxes } = useMailboxes(projectId);
+  const list = mailboxes ?? [];
+  const current = list.find((m) => m.id === mailboxId) ?? list[0];
+
   const running = useServerStore((s) => s.running);
   const toggle = useServerStore((s) => s.toggle);
 
@@ -31,7 +36,7 @@ export function SidebarStatus() {
             onClick={toggle}
             className={cn(
               "inline-flex size-7 items-center justify-center rounded-md transition-colors",
-              "focus-visible:ring-ring/30 outline-none focus-visible:ring-2",
+              "outline-none",
               running
                 ? "text-muted-foreground hover:bg-muted hover:text-foreground"
                 : "text-brand bg-brand/12 hover:bg-brand/20",
@@ -45,12 +50,9 @@ export function SidebarStatus() {
 
       <div className="flex min-w-0 flex-1 items-center gap-1.5">
         <span className="text-foreground/85 font-mono text-[11px] tabular-nums">
-          :{current.port}
+          {current ? `:${current.port}` : "—"}
         </span>
-        <span
-          aria-hidden
-          className="bg-border/80 h-2.5 w-px shrink-0"
-        />
+        <span aria-hidden className="bg-border/80 h-2.5 w-px shrink-0" />
         {running ? (
           <span
             aria-hidden

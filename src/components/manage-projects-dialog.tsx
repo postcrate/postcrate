@@ -1,8 +1,11 @@
+import { toast } from "sonner";
 import { useState } from "react";
 import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react/dist/ssr";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { reportIpcError } from "@/lib/bridge/ipc";
+import { deleteAllMailboxesForProject } from "@/services/mailbox";
 import { ProjectFormDialog } from "@/components/project-form-dialog";
 import {
   useProjectsStore,
@@ -40,12 +43,26 @@ export function ManageProjectsDialog({ open, onOpenChange }: Props) {
 
   const [pendingDelete, setPendingDelete] = useState<Project | null>(null);
   const [editing, setEditing] = useState<Project | null>(null);
+  const [deletePending, setDeletePending] = useState(false);
   const isLast = projects.length <= 1;
 
-  function confirmDelete() {
+  async function confirmDelete() {
     if (!pendingDelete) return;
-    removeProject(pendingDelete.id);
-    setPendingDelete(null);
+    setDeletePending(true);
+    try {
+      const count = await deleteAllMailboxesForProject(pendingDelete.id);
+      removeProject(pendingDelete.id);
+      if (count > 0) {
+        toast.success(
+          `Deleted ${pendingDelete.name} and ${count} mailbox${count === 1 ? "" : "es"}`,
+        );
+      }
+      setPendingDelete(null);
+    } catch (err) {
+      reportIpcError(err, "Couldn't fully clean up project mailboxes");
+    } finally {
+      setDeletePending(false);
+    }
   }
 
   return (
@@ -165,20 +182,25 @@ export function ManageProjectsDialog({ open, onOpenChange }: Props) {
                   <span className="text-foreground font-medium">
                     {pendingDelete.name}
                   </span>{" "}
-                  will be removed. Its mailboxes stay on disk and can be
-                  re-imported.
+                  and every mailbox it owns will be removed. Captured email
+                  and attachments for those mailboxes are deleted from disk.
                 </>
               ) : null}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
+            <AlertDialogCancel size="sm" disabled={deletePending}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               size="sm"
               variant="destructive"
+              disabled={deletePending}
               onClick={confirmDelete}
             >
-              Delete{pendingDelete ? ` ${shortName(pendingDelete.name)}` : ""}
+              {deletePending
+                ? "Deleting…"
+                : `Delete${pendingDelete ? ` ${shortName(pendingDelete.name)}` : ""}`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

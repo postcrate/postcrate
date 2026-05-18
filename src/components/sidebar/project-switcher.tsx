@@ -9,7 +9,6 @@ import {
 
 import { cn } from "@/lib/utils";
 import { useViewStore } from "@/stores/use-view-store";
-import { getFirstMailboxOfProject } from "@/data/mailboxes";
 import { ProjectFormDialog } from "@/components/project-form-dialog";
 import { ManageProjectsDialog } from "@/components/manage-projects-dialog";
 import {
@@ -94,7 +93,9 @@ export function ProjectSwitcher() {
                 key={p.id}
                 onSelect={() => {
                   setCurrentId(p.id);
-                  setMailboxId(getFirstMailboxOfProject(p.id).id);
+                  // Drop the current mailbox so the sidebar switcher
+                  // auto-falls back to the new project's first one.
+                  setMailboxId(null);
                 }}
                 className="h-8 gap-2 px-2"
               >

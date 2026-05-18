@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { createMailbox } from "@/services/mailbox";
 import { finishOnboardingWindow } from "@/lib/windows";
 import { useProjectsStore } from "@/stores/use-projects-store";
 import { usePreferencesStore } from "@/stores/use-preferences-store";
@@ -70,8 +71,29 @@ export default function OnboardingPage() {
     if (finishedRef.current) return;
     finishedRef.current = true;
     setFinishing(true);
-    addProject({ name: draft.projectName, tone: draft.projectTone });
+
+    const project = addProject({
+      name: draft.projectName,
+      tone: draft.projectTone,
+    });
     updatePrefs("network", { smtpPort: draft.smtpPort });
+
+    // Best-effort: create the default mailbox in the engine. If the
+    // engine isn't reachable we still complete onboarding so the user
+    // lands on the empty Mailboxes page and can retry from there.
+    try {
+      await createMailbox({
+        projectId: project.id,
+        name: draft.mailboxName,
+        kind: "primary",
+        port: draft.smtpPort,
+        ttlSeconds: null,
+        implicitTls: false,
+      });
+    } catch (err) {
+      console.error("Default mailbox creation failed:", err);
+    }
+
     complete();
     await finishOnboardingWindow();
   }, [addProject, complete, draft, updatePrefs]);

@@ -1,3 +1,4 @@
+import useSWR from "swr";
 import { NavLink } from "react-router-dom";
 
 import type { NavItem as Item } from "@/data/nav-items";
@@ -5,13 +6,17 @@ import type { NavItem as Item } from "@/data/nav-items";
 import { cn } from "@/lib/utils";
 import { viewIdToPath } from "@/data/nav-items";
 import { PulseDot } from "@/components/pulse-dot";
+import { useProjectsStore } from "@/stores/use-projects-store";
+import { MAILBOX_KEYS, type Mailbox } from "@/services/mailbox";
 
 type Props = {
   item: Item;
 };
 
 export function NavItem({ item }: Props) {
-  const { label, icon: IconComp, badge, dot } = item;
+  const { label, icon: IconComp, dot } = item;
+  const dynamicBadge = useDynamicBadge(item);
+  const badge = dynamicBadge ?? item.badge;
 
   return (
     <NavLink
@@ -53,4 +58,24 @@ export function NavItem({ item }: Props) {
       )}
     </NavLink>
   );
+}
+
+/**
+ * Some nav entries surface real counts (mailbox count for "mailboxes").
+ * We subscribe to the SWR cache *without* a fetcher — the sidebar's
+ * MailboxSwitcher (and the Mailboxes page) keep that key fresh, so the
+ * badge piggybacks on their fetch instead of issuing its own.
+ */
+function useDynamicBadge(item: Item): string | undefined {
+  const projectId = useProjectsStore((s) => s.currentId);
+  const isMailboxes = item.id === "mailboxes";
+
+  const { data } = useSWR<Mailbox[]>(
+    isMailboxes ? MAILBOX_KEYS.list(projectId ?? null) : null,
+    null,
+    { revalidateOnFocus: false },
+  );
+
+  if (!isMailboxes) return undefined;
+  return data && data.length > 0 ? String(data.length) : undefined;
 }
