@@ -172,6 +172,19 @@
     @apply border-border outline-ring/50;
   }
 
+  /* Native app feel: no focus rings, no outlines. Keyboard focus is
+     trapped by Radix' FocusScope inside dialogs/menus, and pointer
+     interactions are obvious without a halo. */
+  *:focus,
+  *:focus-visible,
+  *:focus-within {
+    outline: none !important;
+    --tw-ring-shadow: 0 0 transparent !important;
+    --tw-ring-offset-shadow: 0 0 transparent !important;
+    --tw-ring-color: transparent !important;
+    --tw-ring-inset: ;
+  }
+
   html {
     @apply font-sans;
     -webkit-font-smoothing: antialiased;
