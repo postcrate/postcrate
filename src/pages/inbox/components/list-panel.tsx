@@ -201,6 +201,7 @@ export function ListPanel({ mailboxId }: Props) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <ListToolbar
+        mailboxId={mailboxId}
         query={query}
         onQueryChange={setQuery}
         filters={filters}

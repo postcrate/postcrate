@@ -1,5 +1,5 @@
-import type { RefObject } from "react";
-
+import { m } from "motion/react";
+import { useState, type RefObject } from "react";
 import {
   FunnelIcon,
   MagnifyingGlassIcon,
@@ -26,9 +26,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { ClearInboxButton } from "./clear-inbox-button";
+
 export type FilterKey = "unread" | "starred" | "pinned";
 
 type Props = {
+  mailboxId: string;
   query: string;
   onQueryChange: (q: string) => void;
   filters: Set<FilterKey>;
@@ -56,6 +59,7 @@ const SORT_LABEL: Record<EmailSort, string> = {
  * are currently visible.
  */
 export function ListToolbar({
+  mailboxId,
   query,
   onQueryChange,
   filters,
@@ -76,6 +80,7 @@ export function ListToolbar({
       <div className="ml-auto flex items-center gap-1">
         <FilterMenu filters={filters} onToggle={onToggleFilter} />
         <SortMenu sort={sort} onChange={onSortChange} />
+        <ClearInboxButton mailboxId={mailboxId} />
       </div>
     </header>
   );
@@ -90,39 +95,61 @@ function SearchInput({
   onChange: (v: string) => void;
   inputRef?: RefObject<HTMLInputElement | null>;
 }) {
+  const [focused, setFocused] = useState(false);
+  const expanded = focused || value.length > 0;
+
   return (
-    <div className="relative w-44">
+    <m.div
+      animate={{ width: expanded ? 176 : 28 }}
+      initial={false}
+      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+      className={cn(
+        "relative h-7 overflow-hidden",
+        expanded ? "cursor-text" : "cursor-pointer",
+      )}
+      onClick={() => {
+        if (!expanded) inputRef?.current?.focus();
+      }}
+    >
       <MagnifyingGlassIcon
         size={12}
         weight="regular"
-        className="text-muted-foreground/70 pointer-events-none absolute top-1/2 left-2 -translate-y-1/2"
+        className="text-muted-foreground/70 pointer-events-none absolute top-1/2 left-2 z-10 -translate-y-1/2"
       />
       <Input
         ref={inputRef}
         type="text"
         value={value}
         onChange={(e) => onChange(e.currentTarget.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         placeholder="Search messages"
-        className="h-7 pr-12 pl-6 text-[12px] placeholder:text-[12px]"
+        aria-label="Search messages"
+        className={cn(
+          "h-7 w-full pr-12 pl-6 text-[12px] placeholder:text-[12px]",
+          !expanded &&
+            "cursor-pointer border-transparent bg-transparent shadow-none placeholder:opacity-0 focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent",
+        )}
       />
-      {value ? (
+      {expanded && value ? (
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => onChange("")}
           className="text-muted-foreground/70 hover:text-foreground absolute top-1/2 right-1.5 -translate-y-1/2 rounded p-0.5"
           aria-label="Clear search"
         >
           <XIcon size={10} weight="bold" />
         </button>
-      ) : (
+      ) : expanded ? (
         <kbd
           aria-hidden
           className="bg-muted text-muted-foreground/80 pointer-events-none absolute top-1/2 right-1.5 -translate-y-1/2 rounded px-1 font-sans text-[10.5px] font-medium tracking-tight"
         >
           /
         </kbd>
-      )}
-    </div>
+      ) : null}
+    </m.div>
   );
 }
 
@@ -187,11 +214,7 @@ function SortMenu({
       <Tooltip>
         <TooltipTrigger asChild>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Sort messages"
-            >
+            <Button variant="ghost" size="icon-sm" aria-label="Sort messages">
               <SortAscendingIcon size={14} weight="regular" />
             </Button>
           </DropdownMenuTrigger>

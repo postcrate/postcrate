@@ -29,6 +29,7 @@ import useSWR, {
 } from "swr";
 
 import { unwrap } from "@/lib/bridge/ipc";
+import { useViewStore } from "@/stores/use-view-store";
 import { EngineEvent, listenEngine } from "@/lib/bridge/events";
 import {
   commands,
@@ -255,7 +256,7 @@ export async function createEphemeralMailbox(
  */
 export async function clearMailbox(mailboxId: string): Promise<number> {
   const count = unwrap(await commands.clearMailbox(mailboxId));
-  await globalMutate(MAILBOX_KEYS.detail(mailboxId));
+  await evictMailboxContents(mailboxId);
   return count;
 }
 
@@ -266,8 +267,37 @@ export async function clearMailbox(mailboxId: string): Promise<number> {
  */
 export async function purgeMailbox(mailboxId: string): Promise<number> {
   const count = unwrap(await commands.purgeMailbox(mailboxId));
-  await globalMutate(MAILBOX_KEYS.detail(mailboxId));
+  await evictMailboxContents(mailboxId);
   return count;
+}
+
+/**
+ * Drop every cached email list, search result, and (if applicable)
+ * selection state for a mailbox whose contents were just wiped. The
+ * engine doesn't emit a "cleared" variant on `MailboxStateChanged`, so
+ * the eviction has to happen here client-side.
+ *
+ * Lists get set to an empty array directly (no revalidate) so the UI
+ * empties in the same tick as the toast. The mailbox detail + list
+ * caches revalidate so the row count drops to 0 everywhere it's shown.
+ */
+function evictMailboxContents(mailboxId: string): Promise<unknown> {
+  const view = useViewStore.getState();
+  if (view.mailboxId === mailboxId && view.emailId) {
+    view.setEmailId(null);
+  }
+  return Promise.all([
+    globalMutate(
+      (key) =>
+        Array.isArray(key) &&
+        (key[0] === "emails" || key[0] === "emails-search") &&
+        key[1] === mailboxId,
+      [],
+      { revalidate: false },
+    ),
+    globalMutate(MAILBOX_KEYS.detail(mailboxId)),
+    invalidateLists(),
+  ]);
 }
 
 // ---------------------------------------------------------------------------
