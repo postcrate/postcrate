@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 
+import { CopyBlock } from "@/components/copy-block";
 import { useOnboardingStore } from "@/stores/use-onboarding-store";
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 
-import { CopyBlock } from "./copy-block";
 import { buildSnippets, type SnippetId } from "../snippets";
 
 export function StepSnippets() {

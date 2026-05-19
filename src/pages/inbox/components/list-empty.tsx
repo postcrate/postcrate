@@ -1,13 +1,10 @@
 import { toast } from "sonner";
 import { useState } from "react";
-import {
-  CopyIcon,
-  EnvelopeOpenIcon,
-} from "@phosphor-icons/react/dist/ssr";
+import { CheckIcon, CopyIcon } from "@phosphor-icons/react/dist/ssr";
 
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { CopyBlock } from "@/components/copy-block";
 import { type SyntaxLang } from "@/lib/syntax-highlight";
-import { CodeHighlight } from "@/components/code-highlight";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Props = {
@@ -92,60 +89,49 @@ func main() {
 const ORDER: SnippetKey[] = ["node", "python", "go", "swaks"];
 
 /**
- * Shown when the active mailbox has zero captured messages. Displays
- * the SMTP host:port and copy-pasteable snippets for the four runtimes
- * we know users reach for first.
+ * Shown when the active mailbox has zero captured messages. Quietly
+ * surfaces the SMTP endpoint as a copyable pill and language tabs
+ * underneath, with no outer card chrome — the surface stays flat so it
+ * reads as a hint rather than an alert.
  */
 export function ListEmpty({ port }: Props) {
   const [active, setActive] = useState<SnippetKey>("node");
 
   return (
-    <div className="flex flex-1 items-center justify-center px-6 py-10">
-      <div className="border-border/60 bg-card/30 flex w-full max-w-md flex-col items-stretch rounded-xl border p-5">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <span className="bg-muted text-muted-foreground border-border/60 grid size-10 place-items-center rounded-xl border">
-            <EnvelopeOpenIcon size={16} weight="regular" />
-          </span>
-          <h2 className="text-foreground mt-1 text-[14px] font-semibold tracking-tight">
+    <div className="flex flex-1 items-center justify-center px-8 py-12">
+      <div className="flex w-full max-w-md flex-col">
+        <div className="flex flex-col items-center text-center">
+          <h2 className="text-foreground text-[14.5px] font-medium tracking-tight">
             No messages yet
           </h2>
-          <p className="text-muted-foreground max-w-xs text-[12px] leading-snug">
-            Send mail to{" "}
-            <span className="text-foreground font-mono tabular-nums">
-              {HOST}:{port}
-            </span>{" "}
-            and it will land here in real time.
+          <p className="text-muted-foreground mt-1.5 flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-[12.5px] leading-snug">
+            <span>Send mail to</span>
+            <EndpointPill host={HOST} port={port} />
+            <span>and it&rsquo;ll show up here.</span>
           </p>
         </div>
 
         <Tabs
           value={active}
           onValueChange={(v) => setActive(v as SnippetKey)}
-          className="mt-5"
+          className="mt-7 flex min-h-0 flex-col"
         >
-          <TabsList variant="line" className="h-auto justify-center gap-1 p-0">
+          <TabsList className="h-7 self-center">
             {ORDER.map((k) => (
               <TabsTrigger
                 key={k}
                 value={k}
-                className="text-[12px]"
+                className="text-[12px] font-medium"
               >
                 {SNIPPETS[k].label}
               </TabsTrigger>
             ))}
           </TabsList>
-
           {ORDER.map((k) => {
             const s = SNIPPETS[k];
-            const code = s.code(port);
             return (
-              <TabsContent
-                key={k}
-                value={k}
-                className="border-border/60 bg-background/40 relative mt-3 overflow-hidden rounded-lg border"
-              >
-                <CodeHighlight code={code} lang={s.lang} />
-                <CopyButton code={code} />
+              <TabsContent key={k} value={k} className="mt-3">
+                <CopyBlock code={s.code(port)} language={s.lang} />
               </TabsContent>
             );
           })}
@@ -155,25 +141,41 @@ export function ListEmpty({ port }: Props) {
   );
 }
 
-function CopyButton({ code }: { code: string }) {
-  async function onCopy() {
+function EndpointPill({ host, port }: { host: string; port: number }) {
+  const value = `${host}:${port}`;
+  const [copied, setCopied] = useState(false);
+
+  async function copy() {
     try {
-      await navigator.clipboard.writeText(code);
-      toast.success("Copied to clipboard");
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1400);
     } catch {
       toast.error("Couldn't access the clipboard");
     }
   }
+
   return (
-    <Button
+    <button
       type="button"
-      variant="ghost"
-      size="icon-xs"
-      onClick={onCopy}
-      aria-label="Copy snippet"
-      className="absolute top-1.5 right-1.5"
+      onClick={copy}
+      aria-label={`Copy ${value}`}
+      className={cn(
+        "border-border/50 bg-muted/50 text-foreground hover:bg-muted hover:border-border/80",
+        "inline-flex h-5 items-center gap-1 rounded-md border px-1.5",
+        "font-mono text-[11.5px] tabular-nums transition-colors",
+      )}
     >
-      <CopyIcon size={12} weight="regular" />
-    </Button>
+      <span>{value}</span>
+      {copied ? (
+        <CheckIcon size={10} weight="bold" className="text-success" />
+      ) : (
+        <CopyIcon
+          size={10}
+          weight="regular"
+          className="text-muted-foreground/70"
+        />
+      )}
+    </button>
   );
 }
