@@ -15,6 +15,9 @@ const LANGUAGE_LABEL: Record<SyntaxLang, string> = {
   ini: "env",
   json: "json",
   ts: "ts",
+  python: "py",
+  go: "go",
+  shell: "sh",
 };
 
 export function CopyBlock({ code, language }: Props) {

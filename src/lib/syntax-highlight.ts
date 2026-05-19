@@ -11,12 +11,15 @@ export const SHIKI_THEMES = {
   dark: "github-dark-default",
 } as const;
 
-export type SyntaxLang = "ini" | "json" | "ts";
+export type SyntaxLang = "ini" | "json" | "ts" | "python" | "go" | "shell";
 
 const LANG_MAP: Record<SyntaxLang, string> = {
   ini: "ini",
   json: "json",
   ts: "typescript",
+  python: "python",
+  go: "go",
+  shell: "shell",
 };
 
 let highlighterPromise: Promise<Highlighter> | null = null;

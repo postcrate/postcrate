@@ -92,6 +92,9 @@ type UseMailboxesResult = {
 /**
  * Subscribe to the mailbox list, optionally scoped to a project.
  * Passing `undefined` / `null` returns mailboxes across all projects.
+ *
+ * Subscribes to engine `NewEmail` events so per-row count chips in the
+ * sidebar update in real time as messages arrive.
  */
 export function useMailboxes(
   projectId?: string | null,
@@ -103,6 +106,23 @@ export function useMailboxes(
     () => fetchMailboxes(scoped),
     config,
   );
+
+  const revalidate = result.mutate;
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+    let cancelled = false;
+    listenEngine(EngineEvent.NewEmail, () => {
+      revalidate();
+    }).then((un) => {
+      if (cancelled) un();
+      else unlisten = un;
+    });
+    return () => {
+      cancelled = true;
+      unlisten?.();
+    };
+  }, [revalidate]);
+
   return {
     mailboxes: result.data,
     isLoading: result.isLoading,
@@ -123,6 +143,10 @@ type UseMailboxResult = {
 /**
  * Subscribe to a single mailbox by id. Passing a falsy id leaves the
  * hook idle (returns `undefined` for `mailbox` without fetching).
+ *
+ * Also listens to engine `NewEmail` events so the per-mailbox count
+ * stays fresh in real time without waiting for the periodic SWR
+ * revalidate.
  */
 export function useMailbox(
   id: string | null | undefined,
@@ -133,6 +157,26 @@ export function useMailbox(
     () => fetchMailbox(id as string),
     config,
   );
+
+  const revalidate = result.mutate;
+  useEffect(() => {
+    if (!id) return;
+    let unlisten: (() => void) | undefined;
+    let cancelled = false;
+    listenEngine(EngineEvent.NewEmail, (event) => {
+      if (event.payload.kind !== "newEmail") return;
+      if (event.payload.mailboxId !== id) return;
+      revalidate();
+    }).then((un) => {
+      if (cancelled) un();
+      else unlisten = un;
+    });
+    return () => {
+      cancelled = true;
+      unlisten?.();
+    };
+  }, [id, revalidate]);
+
   return {
     mailbox: result.data,
     isLoading: result.isLoading,
