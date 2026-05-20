@@ -3,6 +3,9 @@ import { CopyIcon } from "@phosphor-icons/react/dist/ssr";
 
 import type { JsonValue } from "@/lib/bridge/bindings";
 
+import { cn } from "@/lib/utils";
+import { usePreferencesStore } from "@/stores/use-preferences-store";
+
 type Props = {
   headers: JsonValue;
   messageId: string | null;
@@ -17,6 +20,8 @@ type Props = {
  * `serde_json::Value` and renders leaves as monospace.
  */
 export function DetailHeaders({ headers, messageId, inReplyTo }: Props) {
+  const mono = usePreferencesStore((s) => s.appearance.monoForCode);
+  const codeFont = mono ? "font-mono" : "font-sans";
   const hasIdentity = messageId !== null || inReplyTo !== null;
 
   return (
@@ -28,10 +33,18 @@ export function DetailHeaders({ headers, messageId, inReplyTo }: Props) {
           </h3>
           <dl className="border-border/60 divide-border/60 divide-y rounded-lg border">
             {messageId ? (
-              <IdentityRow label="Message-ID" value={messageId} />
+              <IdentityRow
+                label="Message-ID"
+                value={messageId}
+                codeFont={codeFont}
+              />
             ) : null}
             {inReplyTo ? (
-              <IdentityRow label="In-Reply-To" value={inReplyTo} />
+              <IdentityRow
+                label="In-Reply-To"
+                value={inReplyTo}
+                codeFont={codeFont}
+              />
             ) : null}
           </dl>
         </section>
@@ -43,13 +56,21 @@ export function DetailHeaders({ headers, messageId, inReplyTo }: Props) {
             All headers
           </h3>
         ) : null}
-        <Node value={headers} />
+        <Node value={headers} codeFont={codeFont} />
       </section>
     </div>
   );
 }
 
-function IdentityRow({ label, value }: { label: string; value: string }) {
+function IdentityRow({
+  label,
+  value,
+  codeFont,
+}: {
+  label: string;
+  value: string;
+  codeFont: string;
+}) {
   async function copy() {
     try {
       await navigator.clipboard.writeText(value);
@@ -60,10 +81,20 @@ function IdentityRow({ label, value }: { label: string; value: string }) {
   }
   return (
     <div className="group flex items-start gap-3 px-3 py-2">
-      <dt className="text-muted-foreground/70 w-24 shrink-0 pt-px font-mono text-[11px]">
+      <dt
+        className={cn(
+          "text-muted-foreground/70 w-24 shrink-0 pt-px text-[11px]",
+          codeFont,
+        )}
+      >
         {label}
       </dt>
-      <dd className="text-foreground min-w-0 flex-1 font-mono text-[12px] break-all">
+      <dd
+        className={cn(
+          "text-foreground min-w-0 flex-1 text-[12px] break-all",
+          codeFont,
+        )}
+      >
         {value}
       </dd>
       <button
@@ -78,14 +109,22 @@ function IdentityRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Node({ value, depth = 0 }: { value: JsonValue; depth?: number }) {
-  if (value === null) return <Leaf>null</Leaf>;
-  if (typeof value === "string") return <Leaf>{value}</Leaf>;
+function Node({
+  value,
+  codeFont,
+  depth = 0,
+}: {
+  value: JsonValue;
+  codeFont: string;
+  depth?: number;
+}) {
+  if (value === null) return <Leaf codeFont={codeFont}>null</Leaf>;
+  if (typeof value === "string") return <Leaf codeFont={codeFont}>{value}</Leaf>;
   if (typeof value === "number" || typeof value === "boolean") {
-    return <Leaf>{String(value)}</Leaf>;
+    return <Leaf codeFont={codeFont}>{String(value)}</Leaf>;
   }
   if (Array.isArray(value)) {
-    if (value.length === 0) return <Leaf>[]</Leaf>;
+    if (value.length === 0) return <Leaf codeFont={codeFont}>[]</Leaf>;
     return (
       <ul className="space-y-1">
         {value.map((entry, i) => (
@@ -94,14 +133,18 @@ function Node({ value, depth = 0 }: { value: JsonValue; depth?: number }) {
             className="border-border/50 border-l pl-3"
             style={{ marginLeft: depth === 0 ? 0 : 4 }}
           >
-            <Node value={entry as JsonValue} depth={depth + 1} />
+            <Node
+              value={entry as JsonValue}
+              codeFont={codeFont}
+              depth={depth + 1}
+            />
           </li>
         ))}
       </ul>
     );
   }
   const entries = Object.entries(value as Record<string, JsonValue>);
-  if (entries.length === 0) return <Leaf>{"{}"}</Leaf>;
+  if (entries.length === 0) return <Leaf codeFont={codeFont}>{"{}"}</Leaf>;
   return (
     <dl className="space-y-1.5">
       {entries.map(([k, v]) => (
@@ -109,11 +152,16 @@ function Node({ value, depth = 0 }: { value: JsonValue; depth?: number }) {
           key={k}
           className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1"
         >
-          <dt className="text-muted-foreground/70 pt-px font-mono text-[11.5px]">
+          <dt
+            className={cn(
+              "text-muted-foreground/70 pt-px text-[11.5px]",
+              codeFont,
+            )}
+          >
             {k}
           </dt>
           <dd className="min-w-0">
-            <Node value={v} depth={depth + 1} />
+            <Node value={v} codeFont={codeFont} depth={depth + 1} />
           </dd>
         </div>
       ))}
@@ -121,9 +169,20 @@ function Node({ value, depth = 0 }: { value: JsonValue; depth?: number }) {
   );
 }
 
-function Leaf({ children }: { children: React.ReactNode }) {
+function Leaf({
+  children,
+  codeFont,
+}: {
+  children: React.ReactNode;
+  codeFont: string;
+}) {
   return (
-    <span className="text-foreground font-mono text-[12px] break-all">
+    <span
+      className={cn(
+        "text-foreground text-[12px] break-all",
+        codeFont,
+      )}
+    >
       {children}
     </span>
   );

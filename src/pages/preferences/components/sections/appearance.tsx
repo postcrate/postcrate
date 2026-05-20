@@ -29,9 +29,8 @@ export function AppearanceSection() {
       </Row>
       <Row
         label="Density"
-        description="Spacing between rows in the inbox and lists."
+        description="Comfortable shows three lines per email. Compact pulls recipients onto the subject line so each row uses two."
         htmlFor="density"
-        comingSoon
       >
         <Select
           value={density}
@@ -50,7 +49,6 @@ export function AppearanceSection() {
         label="Mono font for code"
         description="Use a monospace font for raw email source and headers."
         htmlFor="mono-code"
-        comingSoon
       >
         <Switch
           id="mono-code"
