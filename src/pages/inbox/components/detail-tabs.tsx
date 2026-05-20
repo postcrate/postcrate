@@ -5,18 +5,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { DetailRaw } from "./detail-raw";
 import { DetailText } from "./detail-text";
+import { DetailRender } from "./detail-render";
 import { DetailHeaders } from "./detail-headers";
 import { DetailPreview } from "./detail-preview";
+import { DetailInspect } from "./detail-inspect";
 
 type Props = {
   email: EmailDetail;
 };
 
-type TabValue = "preview" | "text" | "headers" | "raw";
+type TabValue =
+  | "preview"
+  | "text"
+  | "headers"
+  | "raw"
+  | "inspect"
+  | "render";
 
 /**
  * Body-view switcher. Defaults to Preview if HTML is present, falls
- * back to Text. Raw fetches its bytes lazily; the others render off
+ * back to Text. Raw / Inspect / Render fetch their data lazily on tab
+ * activation; the cheap views (Preview / Text / Headers) render off
  * the detail payload we already have.
  */
 export function DetailTabs({ email }: Props) {
@@ -42,6 +51,10 @@ export function DetailTabs({ email }: Props) {
           </Trigger>
           <Trigger value="headers">Headers</Trigger>
           <Trigger value="raw">Raw</Trigger>
+          <Trigger value="inspect">Inspect</Trigger>
+          <Trigger value="render" disabled={!email.hasHtml}>
+            Render
+          </Trigger>
         </TabsList>
       </div>
 
@@ -71,7 +84,11 @@ export function DetailTabs({ email }: Props) {
         value="headers"
         className="min-h-0 flex-1 overflow-y-auto focus-visible:outline-none"
       >
-        <DetailHeaders headers={email.headers} />
+        <DetailHeaders
+          headers={email.headers}
+          messageId={email.messageId}
+          inReplyTo={email.inReplyTo}
+        />
       </TabsContent>
 
       <TabsContent
@@ -79,6 +96,20 @@ export function DetailTabs({ email }: Props) {
         className="min-h-0 flex-1 overflow-y-auto focus-visible:outline-none"
       >
         <DetailRaw emailId={email.id} />
+      </TabsContent>
+
+      <TabsContent
+        value="inspect"
+        className="min-h-0 flex-1 overflow-y-auto focus-visible:outline-none"
+      >
+        <DetailInspect emailId={email.id} />
+      </TabsContent>
+
+      <TabsContent
+        value="render"
+        className="min-h-0 flex-1 overflow-y-auto focus-visible:outline-none"
+      >
+        <DetailRender emailId={email.id} hasHtml={email.hasHtml} />
       </TabsContent>
     </Tabs>
   );

@@ -12,6 +12,10 @@ import {
   type Mailbox,
 } from "@/services/mailbox";
 import {
+  exportMailboxRecording,
+  replayRecordingFromFile,
+} from "@/services/recording";
+import {
   ContextMenu,
   ContextMenuItem,
   ContextMenuContent,
@@ -158,6 +162,19 @@ export function MailboxRow({
         </ContextMenuItem>
         <ContextMenuItem onSelect={copyConnection}>
           Copy SMTP URL
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem
+          onSelect={() =>
+            void exportMailboxRecording(mailbox.id, mailbox.name)
+          }
+        >
+          Export recording…
+        </ContextMenuItem>
+        <ContextMenuItem
+          onSelect={() => void replayRecordingFromFile(mailbox.id)}
+        >
+          Replay from file…
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem onSelect={handleClear}>

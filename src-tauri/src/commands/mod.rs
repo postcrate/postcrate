@@ -14,6 +14,8 @@ pub mod forwarding;
 pub mod mailboxes;
 pub mod matcher;
 pub mod recordings;
+pub mod rendering;
+pub mod scenarios;
 pub mod server;
 pub mod settings;
 pub mod webhooks;
@@ -81,6 +83,15 @@ pub fn specta_builder() -> Builder<tauri::Wry> {
         // recordings
         recordings::export_recording,
         recordings::replay_recording,
+        // per-email analysis
+        scenarios::spam_report,
+        scenarios::link_report,
+        scenarios::auth_report,
+        scenarios::unsub_report,
+        // per-email rendering
+        rendering::render_message,
+        rendering::lint_message,
+        rendering::a11y_message,
     ])
 }
 

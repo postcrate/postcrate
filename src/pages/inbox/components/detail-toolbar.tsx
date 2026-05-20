@@ -94,6 +94,10 @@ export function DetailToolbar({ email }: Props) {
 
   return (
     <div className="border-border/60 flex items-center gap-1 border-b px-5 py-2">
+      <ExtensionBadges
+        smtputf8={email.extSmtputf8}
+        eightBit={email.ext8Bitmime}
+      />
       <ToolButton
         label={email.starred ? "Unstar" : "Star"}
         shortcut="s"
@@ -225,4 +229,48 @@ function ToolButton({
 
 function Divider() {
   return <span className="bg-border/60 mx-1 h-4 w-px shrink-0" />;
+}
+
+/**
+ * SMTP extension badges. SMTPUTF8 marks UTF-8 envelopes (RFC 6531) and
+ * 8BITMIME marks 8-bit bodies (RFC 1652) — useful flags when debugging
+ * encoding-related issues. Renders nothing when both flags are off.
+ */
+function ExtensionBadges({
+  smtputf8,
+  eightBit,
+}: {
+  smtputf8: boolean;
+  eightBit: boolean;
+}) {
+  if (!smtputf8 && !eightBit) return null;
+  return (
+    <>
+      <div className="flex items-center gap-1">
+        {smtputf8 ? <ExtBadge label="SMTPUTF8" /> : null}
+        {eightBit ? <ExtBadge label="8BITMIME" /> : null}
+      </div>
+      <Divider />
+    </>
+  );
+}
+
+function ExtBadge({ label }: { label: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span
+          className="border-border/60 bg-muted/50 text-muted-foreground inline-flex h-5 items-center rounded-md border px-1.5 font-mono text-[10px] tracking-tight"
+          aria-label={`${label} extension`}
+        >
+          {label}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>
+        {label === "SMTPUTF8"
+          ? "UTF-8 envelope (RFC 6531)"
+          : "8-bit MIME body (RFC 1652)"}
+      </TooltipContent>
+    </Tooltip>
+  );
 }

@@ -13,6 +13,7 @@ import {
 
 import { ListEmpty } from "./list-empty";
 import { ListPanel } from "./list-panel";
+import { ChaosBanner } from "./chaos-banner";
 import { DetailPanel } from "./detail-panel";
 
 type Props = {
@@ -41,39 +42,45 @@ export function InboxLayout({ mailboxId }: Props) {
 
   if (mailboxIsEmpty && mailbox) {
     return (
-      <div className="flex h-full min-h-0 flex-1 items-center justify-center">
-        <ListEmpty port={mailbox.port} />
+      <div className="flex h-full min-h-0 flex-1 flex-col">
+        <ChaosBanner mailboxId={mailboxId} />
+        <div className="flex flex-1 items-center justify-center">
+          <ListEmpty port={mailbox.port} />
+        </div>
       </div>
     );
   }
 
   return (
-    <ResizablePanelGroup
-      id="postcrate-inbox-split"
-      orientation="horizontal"
-      defaultLayout={defaultLayout}
-      onLayoutChanged={onLayoutChanged}
-      className="h-full min-h-0 flex-1"
-    >
-      <ResizablePanel
-        id="list"
-        defaultSize="360px"
-        minSize="280px"
-        maxSize="520px"
-        groupResizeBehavior="preserve-pixel-size"
-        className="flex min-w-0 flex-col"
+    <div className="flex h-full min-h-0 flex-1 flex-col">
+      <ChaosBanner mailboxId={mailboxId} />
+      <ResizablePanelGroup
+        id="postcrate-inbox-split"
+        orientation="horizontal"
+        defaultLayout={defaultLayout}
+        onLayoutChanged={onLayoutChanged}
+        className="min-h-0 flex-1"
       >
-        <ListPanel mailboxId={mailboxId} />
-      </ResizablePanel>
-      <ResizableHandle />
-      <ResizablePanel
-        id="detail"
-        groupResizeBehavior="preserve-relative-size"
-        className="flex min-w-0 flex-col"
-      >
-        <DetailPanel emailId={emailId} />
-      </ResizablePanel>
-    </ResizablePanelGroup>
+        <ResizablePanel
+          id="list"
+          defaultSize="360px"
+          minSize="280px"
+          maxSize="520px"
+          groupResizeBehavior="preserve-pixel-size"
+          className="flex min-w-0 flex-col"
+        >
+          <ListPanel mailboxId={mailboxId} />
+        </ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel
+          id="detail"
+          groupResizeBehavior="preserve-relative-size"
+          className="flex min-w-0 flex-col"
+        >
+          <DetailPanel emailId={emailId} />
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </div>
   );
 }
 
