@@ -3,6 +3,7 @@ import { Switch } from "@/components/ui/switch";
 import { reportIpcError } from "@/lib/bridge/ipc";
 import { IntField } from "@/components/int-field";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useDeferredCommit } from "@/hooks/use-deferred-commit";
 import {
   usePreferencesStore,
   type InboxView,
@@ -39,6 +40,13 @@ export function InboxSection() {
       reportIpcError(err, "Couldn't update inbox settings"),
     );
   }
+
+  // Auto-clear slider commits on release only, so dragging doesn't
+  // fire one IPC per step.
+  const autoClear = useDeferredCommit(
+    inbox?.autoClearAfterDays ?? 0,
+    (v) => commit({ autoClearAfterDays: v }),
+  );
 
   return (
     <Section
@@ -117,22 +125,23 @@ export function InboxSection() {
         label="Auto-clear after"
         description={
           inbox
-            ? `Currently set to ${inbox.autoClearAfterDays} days. Set to 0 to disable.`
+            ? `Currently set to ${autoClear.draft} days. Set to 0 to disable.`
             : "Days to retain captured email."
         }
       >
         {inbox ? (
           <div className="flex w-56 items-center gap-3">
             <Slider
-              value={[inbox.autoClearAfterDays]}
-              onValueChange={([v]) => commit({ autoClearAfterDays: v ?? 0 })}
+              value={[autoClear.draft]}
+              onValueChange={([v]) => autoClear.setDraft(v ?? 0)}
+              onValueCommit={([v]) => autoClear.commitDraft(v ?? 0)}
               min={0}
               max={90}
               step={1}
               className="flex-1"
             />
             <span className="text-muted-foreground w-12 text-right text-[11px] tabular-nums">
-              {inbox.autoClearAfterDays}d
+              {autoClear.draft}d
             </span>
           </div>
         ) : (

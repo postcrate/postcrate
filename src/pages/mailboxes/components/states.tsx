@@ -1,12 +1,8 @@
-import {
-  PlusIcon,
-  TrayIcon,
-  WarningIcon,
-} from "@phosphor-icons/react/dist/ssr";
+import { TrayIcon, WarningIcon } from "@phosphor-icons/react/dist/ssr";
 
 import { Button } from "@/components/ui/button";
 
-export function EmptyMailboxes({ onCreate }: { onCreate: () => void }) {
+export function EmptyMailboxes() {
   return (
     <div className="border-border/60 bg-card/30 flex flex-col items-center rounded-xl border px-6 py-14 text-center">
       <span className="bg-muted text-muted-foreground border-border/60 grid size-11 place-items-center rounded-xl border">
@@ -18,10 +14,6 @@ export function EmptyMailboxes({ onCreate }: { onCreate: () => void }) {
       <p className="text-muted-foreground mt-1 max-w-xs text-[12.5px] leading-snug">
         Create a mailbox to capture SMTP traffic from your app, tests, or CI.
       </p>
-      <Button size="sm" onClick={onCreate} className="mt-4 text-[12.5px]">
-        <PlusIcon size={12} weight="bold" />
-        New mailbox
-      </Button>
     </div>
   );
 }

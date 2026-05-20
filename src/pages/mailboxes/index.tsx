@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MailboxesHeader } from "./components/header";
 import { MailboxTable } from "./components/mailbox-table";
 import { ForwardingPanel } from "./components/forwarding-panel";
-import { BounceRulesPanel } from "./components/bounce-rules-panel";
 import { MailboxFormDialog } from "./components/mailbox-form-dialog";
 import { DeleteMailboxAlert } from "./components/delete-mailbox-alert";
 import {
@@ -17,7 +16,7 @@ import {
   TableSkeleton,
 } from "./components/states";
 
-type Tab = "mailboxes" | "forwarding" | "bounces";
+type Tab = "mailboxes" | "forwarding";
 
 export default function MailboxesPage() {
   const currentProjectId = useProjectsStore((s) => s.currentId);
@@ -44,9 +43,6 @@ export default function MailboxesPage() {
             <TabsTrigger value="forwarding" className="text-[12.5px]">
               Forwarding
             </TabsTrigger>
-            <TabsTrigger value="bounces" className="text-[12.5px]">
-              Bounce rules
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="mailboxes" className="mt-5 flex flex-col gap-5">
@@ -62,7 +58,7 @@ export default function MailboxesPage() {
             {isLoading && list.length === 0 ? (
               <TableSkeleton />
             ) : list.length === 0 && !error ? (
-              <EmptyMailboxes onCreate={openNewMailbox} />
+              <EmptyMailboxes />
             ) : (
               <MailboxTable
                 mailboxes={list}
@@ -74,10 +70,6 @@ export default function MailboxesPage() {
 
           <TabsContent value="forwarding" className="mt-5">
             <ForwardingPanel />
-          </TabsContent>
-
-          <TabsContent value="bounces" className="mt-5">
-            <BounceRulesPanel />
           </TabsContent>
         </Tabs>
       </div>

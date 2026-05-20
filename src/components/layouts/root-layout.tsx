@@ -6,6 +6,7 @@ import { fetcher } from "@/lib/fetcher";
 import { useTheme } from "@/hooks/use-theme";
 import { useEmailSync } from "@/services/email";
 import { useAuditSync } from "@/services/audit";
+import { useChaosSync } from "@/services/chaos";
 import { Toaster } from "@/components/ui/sonner";
 import { useMailboxSync } from "@/services/mailbox";
 import { useWebhookSync } from "@/services/webhooks";
@@ -43,6 +44,7 @@ function EngineSubscriptions() {
   useWebhookSync();
   useForwardingSync();
   useBounceRuleSync();
+  useChaosSync();
   useAuditSync();
   return null;
 }

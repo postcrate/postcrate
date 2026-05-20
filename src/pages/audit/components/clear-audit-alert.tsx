@@ -20,9 +20,14 @@ import {
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /**
+   * Fired after the engine confirms the clear. Use to refresh the
+   * list view — `clearAudit` deliberately doesn't touch SWR caches.
+   */
+  onCleared?: (deletedCount: number) => void;
 };
 
-export function ClearAuditAlert({ open, onOpenChange }: Props) {
+export function ClearAuditAlert({ open, onOpenChange, onCleared }: Props) {
   const [olderOnly, setOlderOnly] = useState(true);
   const [days, setDays] = useState(7);
   const [pending, setPending] = useState(false);
@@ -38,7 +43,8 @@ export function ClearAuditAlert({ open, onOpenChange }: Props) {
   async function confirm() {
     setPending(true);
     try {
-      await clearAudit(olderOnly ? days : null);
+      const deleted = await clearAudit(olderOnly ? days : null);
+      onCleared?.(deleted);
       onOpenChange(false);
     } catch (err) {
       reportIpcError(err, "Couldn't clear audit log");

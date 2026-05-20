@@ -66,7 +66,7 @@ export function ForwardingPanel() {
         {isLoading && rules === undefined ? (
           <SkeletonList count={2} />
         ) : list.length === 0 ? (
-          <EmptyState onCreate={() => setCreating(true)} />
+          <EmptyState />
         ) : (
           <ul className="border-border/60 divide-border/60 divide-y rounded-lg border">
             {list.map((r) => (
@@ -220,7 +220,7 @@ function SkeletonList({ count }: { count: number }) {
   );
 }
 
-function EmptyState({ onCreate }: { onCreate: () => void }) {
+function EmptyState() {
   return (
     <div className="border-border/60 bg-muted/20 flex flex-col items-center justify-center gap-2.5 rounded-xl border border-dashed px-6 py-12 text-center">
       <PaperPlaneTiltIcon
@@ -236,14 +236,6 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
           Relay matched email to an upstream SMTP server.
         </p>
       </div>
-      <Button
-        size="sm"
-        onClick={onCreate}
-        className="mt-1 gap-2 text-[12.5px]"
-      >
-        <PlusIcon size={12} weight="bold" />
-        New rule
-      </Button>
     </div>
   );
 }

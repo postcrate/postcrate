@@ -92,7 +92,7 @@ export default function WebhooksPage() {
         {isLoading && webhooks === undefined ? (
           <TableSkeleton />
         ) : list.length === 0 && !error ? (
-          <EmptyWebhooks onCreate={() => setCreating(true)} />
+          <EmptyWebhooks />
         ) : (
           <section className="border-border/60 overflow-hidden rounded-xl border">
             <header className="border-border/60 flex h-11 items-center gap-3 border-b px-3">
@@ -329,7 +329,7 @@ function TableSkeleton() {
   );
 }
 
-function EmptyWebhooks({ onCreate }: { onCreate: () => void }) {
+function EmptyWebhooks() {
   return (
     <div className="border-border/60 bg-card/30 flex flex-col items-center rounded-xl border px-6 py-14 text-center">
       <span className="bg-muted text-muted-foreground border-border/60 grid size-11 place-items-center rounded-xl border">
@@ -342,10 +342,6 @@ function EmptyWebhooks({ onCreate }: { onCreate: () => void }) {
         Forward every captured email to your own service — Slack, a CI hook, a
         dev relay.
       </p>
-      <Button size="sm" onClick={onCreate} className="mt-4 text-[12.5px]">
-        <PlusIcon size={12} weight="bold" />
-        New webhook
-      </Button>
     </div>
   );
 }

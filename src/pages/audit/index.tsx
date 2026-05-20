@@ -10,8 +10,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/page-header";
-import { useAudit, type AuditEntry } from "@/services/audit";
 import { useMailboxes, type Mailbox } from "@/services/mailbox";
+import { AUDIT_PAGE_SIZE, useAudit, type AuditEntry } from "@/services/audit";
 import {
   Tooltip,
   TooltipContent,
@@ -37,16 +37,22 @@ import {
 import { actionMeta } from "./components/action-meta";
 import { ClearAuditAlert } from "./components/clear-audit-alert";
 
-const PAGE_SIZE = 200;
-
 export default function AuditPage() {
-  const [limit, setLimit] = useState(PAGE_SIZE);
   const [actors, setActors] = useState<Set<string>>(new Set());
   const [actions, setActions] = useState<Set<string>>(new Set());
   const [clearing, setClearing] = useState(false);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
 
-  const { entries, isLoading, error, refresh } = useAudit(limit, 0);
+  const {
+    entries,
+    isLoading,
+    isValidating,
+    error,
+    reachedEnd,
+    loadMore,
+    refresh,
+    reset,
+  } = useAudit();
   const { mailboxes } = useMailboxes(null);
   const mailboxById = useMemo(
     () => new Map((mailboxes ?? []).map((m) => [m.id, m] as const)),
@@ -73,7 +79,6 @@ export default function AuditPage() {
     };
   }, [list, actors, actions]);
 
-  const canLoadMore = entries !== undefined && entries.length === limit;
   const activeFilterCount = actors.size + actions.size;
 
   function toggleActor(a: string) {
@@ -176,24 +181,37 @@ export default function AuditPage() {
               </Table>
             )}
 
-            {canLoadMore ? (
-              <footer className="border-border/60 flex h-11 items-center justify-center border-t">
+            {reachedEnd ? null : (
+              <footer className="border-border/60 flex h-11 items-center justify-center gap-2 border-t">
                 <Button
                   type="button"
                   size="sm"
                   variant="ghost"
+                  disabled={isValidating}
                   className="text-muted-foreground h-7 text-[11.5px]"
-                  onClick={() => setLimit((l) => l + PAGE_SIZE)}
+                  onClick={loadMore}
                 >
-                  Load {PAGE_SIZE} older entries
+                  {isValidating
+                    ? "Loading…"
+                    : `Load ${AUDIT_PAGE_SIZE} older entries`}
                 </Button>
               </footer>
-            ) : null}
+            )}
           </section>
         )}
       </div>
 
-      <ClearAuditAlert open={clearing} onOpenChange={setClearing} />
+      <ClearAuditAlert
+        open={clearing}
+        onOpenChange={setClearing}
+        onCleared={() => {
+          // Collapse pagination back to page 1 and refetch — the
+          // dataset just got wiped, so loaded pages past the first are
+          // meaningless.
+          setExpanded(new Set());
+          void reset();
+        }}
+      />
     </div>
   );
 }
