@@ -1,13 +1,26 @@
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { usePreferencesStore } from "@/stores/use-preferences-store";
+import { reportIpcError } from "@/lib/bridge/ipc";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  updateAgentPrefs,
+  useBackendSettings,
+  type AgentPrefs,
+} from "@/services/settings";
 
 import { Row } from "../row";
 import { Section } from "../section";
 
 export function AgentsSection() {
-  const ai = usePreferencesStore((s) => s.agents);
-  const update = usePreferencesStore((s) => s.update);
+  const { settings } = useBackendSettings();
+  const ai = settings?.agents;
+
+  function commit(patch: Partial<AgentPrefs>) {
+    if (!ai) return;
+    updateAgentPrefs({ ...ai, ...patch }).catch((err) =>
+      reportIpcError(err, "Couldn't update agent settings"),
+    );
+  }
 
   return (
     <Section
@@ -16,47 +29,61 @@ export function AgentsSection() {
     >
       <Row
         label="Default wait timeout"
-        description={`wait_for_email blocks up to ${ai.defaultWaitTimeoutSeconds}s by default.`}
+        description={
+          ai
+            ? `wait_for_email blocks up to ${ai.defaultWaitTimeoutSeconds}s by default.`
+            : "wait_for_email default timeout."
+        }
       >
-        <div className="flex w-56 items-center gap-3">
-          <Slider
-            value={[ai.defaultWaitTimeoutSeconds]}
-            onValueChange={([v]) =>
-              update("agents", { defaultWaitTimeoutSeconds: v ?? 30 })
-            }
-            min={5}
-            max={300}
-            step={5}
-            className="flex-1"
-          />
-          <span className="text-muted-foreground w-12 text-right text-[11px] tabular-nums">
-            {ai.defaultWaitTimeoutSeconds}s
-          </span>
-        </div>
+        {ai ? (
+          <div className="flex w-56 items-center gap-3">
+            <Slider
+              value={[ai.defaultWaitTimeoutSeconds]}
+              onValueChange={([v]) =>
+                commit({ defaultWaitTimeoutSeconds: v ?? 30 })
+              }
+              min={5}
+              max={300}
+              step={5}
+              className="flex-1"
+            />
+            <span className="text-muted-foreground w-12 text-right text-[11px] tabular-nums">
+              {ai.defaultWaitTimeoutSeconds}s
+            </span>
+          </div>
+        ) : (
+          <Skeleton className="h-2 w-56" />
+        )}
       </Row>
       <Row
         label="Log agent requests"
         description="Keep an audit log of every MCP tool invocation."
         htmlFor="log-agent"
       >
-        <Switch
-          id="log-agent"
-          checked={ai.logAgentRequests}
-          onCheckedChange={(v) => update("agents", { logAgentRequests: v })}
-        />
+        {ai ? (
+          <Switch
+            id="log-agent"
+            checked={ai.logAgentRequests}
+            onCheckedChange={(v) => commit({ logAgentRequests: v })}
+          />
+        ) : (
+          <Skeleton className="h-5 w-9 rounded-full" />
+        )}
       </Row>
       <Row
         label="Confirm destructive actions"
         description="Require explicit confirmation for clear_inbox and similar tools."
         htmlFor="confirm-destructive"
       >
-        <Switch
-          id="confirm-destructive"
-          checked={ai.confirmDestructiveActions}
-          onCheckedChange={(v) =>
-            update("agents", { confirmDestructiveActions: v })
-          }
-        />
+        {ai ? (
+          <Switch
+            id="confirm-destructive"
+            checked={ai.confirmDestructiveActions}
+            onCheckedChange={(v) => commit({ confirmDestructiveActions: v })}
+          />
+        ) : (
+          <Skeleton className="h-5 w-9 rounded-full" />
+        )}
       </Row>
     </Section>
   );

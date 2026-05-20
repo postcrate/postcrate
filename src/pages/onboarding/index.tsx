@@ -3,7 +3,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createMailbox } from "@/services/mailbox";
 import { finishOnboardingWindow } from "@/lib/windows";
 import { useProjectsStore } from "@/stores/use-projects-store";
-import { usePreferencesStore } from "@/stores/use-preferences-store";
+import {
+  updateNetworkPrefs,
+  useBackendSettings,
+} from "@/services/settings";
 import {
   useOnboardingStore,
   type OnboardingStep,
@@ -40,7 +43,7 @@ export default function OnboardingPage() {
   const draft = useOnboardingStore((s) => s.draft);
 
   const addProject = useProjectsStore((s) => s.addProject);
-  const updatePrefs = usePreferencesStore((s) => s.update);
+  const { settings } = useBackendSettings();
 
   const stepSubmit = useRef<StepHandler | null>(null);
   const finishedRef = useRef(false);
@@ -76,7 +79,17 @@ export default function OnboardingPage() {
       name: draft.projectName,
       tone: draft.projectTone,
     });
-    updatePrefs("network", { smtpPort: draft.smtpPort });
+
+    if (settings && settings.network.smtpPort !== draft.smtpPort) {
+      try {
+        await updateNetworkPrefs({
+          ...settings.network,
+          smtpPort: draft.smtpPort,
+        });
+      } catch (err) {
+        console.error("Couldn't persist SMTP port preference:", err);
+      }
+    }
 
     // Best-effort: create the default mailbox in the engine. If the
     // engine isn't reachable we still complete onboarding so the user
@@ -96,7 +109,7 @@ export default function OnboardingPage() {
 
     complete();
     await finishOnboardingWindow();
-  }, [addProject, complete, draft, updatePrefs]);
+  }, [addProject, complete, draft, settings]);
 
   const copy = COPY[step];
   const isLast = step === 2;

@@ -1,10 +1,17 @@
-import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { reportIpcError } from "@/lib/bridge/ipc";
+import { IntField } from "@/components/int-field";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   usePreferencesStore,
   type InboxView,
 } from "@/stores/use-preferences-store";
+import {
+  updateInboxPrefs,
+  useBackendSettings,
+  type InboxPrefs,
+} from "@/services/settings";
 import {
   Select,
   SelectContent,
@@ -17,8 +24,21 @@ import { Row } from "../row";
 import { Section } from "../section";
 
 export function InboxSection() {
-  const inbox = usePreferencesStore((s) => s.inbox);
-  const update = usePreferencesStore((s) => s.update);
+  const { settings } = useBackendSettings();
+  const inbox = settings?.inbox;
+
+  // defaultView is purely a render-time choice and has no engine
+  // counterpart; it stays in the local zustand store. Everything else
+  // round-trips through the engine.
+  const defaultView = usePreferencesStore((s) => s.inbox.defaultView);
+  const updateLocal = usePreferencesStore((s) => s.update);
+
+  function commit(patch: Partial<InboxPrefs>) {
+    if (!inbox) return;
+    updateInboxPrefs({ ...inbox, ...patch }).catch((err) =>
+      reportIpcError(err, "Couldn't update inbox settings"),
+    );
+  }
 
   return (
     <Section
@@ -31,9 +51,9 @@ export function InboxSection() {
         htmlFor="default-view"
       >
         <Select
-          value={inbox.defaultView}
+          value={defaultView}
           onValueChange={(v) =>
-            update("inbox", { defaultView: v as InboxView })
+            updateLocal("inbox", { defaultView: v as InboxView })
           }
         >
           <SelectTrigger id="default-view" className="h-8 w-40">
@@ -51,61 +71,73 @@ export function InboxSection() {
         description="Collapse same-recipient threads into a single row."
         htmlFor="thread-related"
       >
-        <Switch
-          id="thread-related"
-          checked={inbox.threadRelated}
-          onCheckedChange={(v) => update("inbox", { threadRelated: v })}
-        />
+        {inbox ? (
+          <Switch
+            id="thread-related"
+            checked={inbox.threadRelated}
+            onCheckedChange={(v) => commit({ threadRelated: v })}
+          />
+        ) : (
+          <Skeleton className="h-5 w-9 rounded-full" />
+        )}
       </Row>
       <Row
         label="Auto-tag emails"
         description="Detect auth, billing, marketing, and system mail locally."
         htmlFor="auto-tag"
       >
-        <Switch
-          id="auto-tag"
-          checked={inbox.autoTag}
-          onCheckedChange={(v) => update("inbox", { autoTag: v })}
-        />
+        {inbox ? (
+          <Switch
+            id="auto-tag"
+            checked={inbox.autoTag}
+            onCheckedChange={(v) => commit({ autoTag: v })}
+          />
+        ) : (
+          <Skeleton className="h-5 w-9 rounded-full" />
+        )}
       </Row>
       <Row
         label="Max retained emails"
         description="Older emails are pruned when this limit is exceeded."
         htmlFor="max-retained"
       >
-        <Input
-          id="max-retained"
-          type="number"
-          min={100}
-          step={100}
-          value={inbox.maxRetainedEmails}
-          onChange={(e) =>
-            update("inbox", {
-              maxRetainedEmails: Number(e.currentTarget.value) || 0,
-            })
-          }
-          className="h-8 w-24 text-right text-xs tabular-nums"
-        />
+        {inbox ? (
+          <IntField
+            id="max-retained"
+            value={inbox.maxRetainedEmails}
+            onCommit={(n) => commit({ maxRetainedEmails: n })}
+            min={100}
+            step={100}
+          />
+        ) : (
+          <Skeleton className="h-8 w-24" />
+        )}
       </Row>
       <Row
         label="Auto-clear after"
-        description={`Currently set to ${inbox.autoClearAfterDays} days. Set to 0 to disable.`}
+        description={
+          inbox
+            ? `Currently set to ${inbox.autoClearAfterDays} days. Set to 0 to disable.`
+            : "Days to retain captured email."
+        }
       >
-        <div className="flex w-56 items-center gap-3">
-          <Slider
-            value={[inbox.autoClearAfterDays]}
-            onValueChange={([v]) =>
-              update("inbox", { autoClearAfterDays: v ?? 0 })
-            }
-            min={0}
-            max={90}
-            step={1}
-            className="flex-1"
-          />
-          <span className="text-muted-foreground w-12 text-right text-[11px] tabular-nums">
-            {inbox.autoClearAfterDays}d
-          </span>
-        </div>
+        {inbox ? (
+          <div className="flex w-56 items-center gap-3">
+            <Slider
+              value={[inbox.autoClearAfterDays]}
+              onValueChange={([v]) => commit({ autoClearAfterDays: v ?? 0 })}
+              min={0}
+              max={90}
+              step={1}
+              className="flex-1"
+            />
+            <span className="text-muted-foreground w-12 text-right text-[11px] tabular-nums">
+              {inbox.autoClearAfterDays}d
+            </span>
+          </div>
+        ) : (
+          <Skeleton className="h-2 w-56" />
+        )}
       </Row>
     </Section>
   );

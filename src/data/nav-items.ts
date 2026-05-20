@@ -1,12 +1,19 @@
 import type { Icon } from "@phosphor-icons/react";
 
 import {
-  TrayIcon,
-  PackageIcon,
+  ClipboardTextIcon,
   FlaskIcon,
+  PackageIcon,
+  TrayIcon,
+  WebhooksLogoIcon,
 } from "@phosphor-icons/react/dist/ssr";
 
-export type ViewId = "inbox" | "mailboxes" | "scenarios";
+export type ViewId =
+  | "inbox"
+  | "mailboxes"
+  | "scenarios"
+  | "webhooks"
+  | "audit";
 
 type Tone = "success" | "warn" | "danger" | "info";
 
@@ -34,12 +41,22 @@ export const NAV_SECTIONS: NavSection[] = [
       { id: "scenarios", label: "Scenarios", icon: FlaskIcon, dot: "warn" },
     ],
   },
+  {
+    id: "observe",
+    label: "Observe",
+    items: [
+      { id: "webhooks", label: "Webhooks", icon: WebhooksLogoIcon },
+      { id: "audit", label: "Audit log", icon: ClipboardTextIcon },
+    ],
+  },
 ];
 
 export const VIEW_TITLES: Record<ViewId, string> = {
   inbox: "Inbox",
   mailboxes: "Mailboxes",
   scenarios: "Scenarios",
+  webhooks: "Webhooks",
+  audit: "Audit log",
 };
 
 export const VIEW_SUBTITLES: Partial<Record<ViewId, string>> = {
@@ -47,7 +64,13 @@ export const VIEW_SUBTITLES: Partial<Record<ViewId, string>> = {
   scenarios: "0 saved",
 };
 
-const VIEW_IDS = new Set<ViewId>(["inbox", "mailboxes", "scenarios"]);
+const VIEW_IDS = new Set<ViewId>([
+  "inbox",
+  "mailboxes",
+  "scenarios",
+  "webhooks",
+  "audit",
+]);
 
 export function pathnameToViewId(pathname: string): ViewId {
   const seg = pathname.split("/").filter(Boolean)[0] ?? "";

@@ -1,21 +1,13 @@
-import { Input } from "@/components/ui/input";
+import { IntField } from "@/components/int-field";
 
 type Props = {
   id: string;
   value: number;
-  onChange: (n: number) => void;
+  onCommit: (n: number) => void;
 };
 
-export function PortInput({ id, value, onChange }: Props) {
+export function PortInput({ id, value, onCommit }: Props) {
   return (
-    <Input
-      id={id}
-      type="number"
-      min={1}
-      max={65535}
-      value={value}
-      onChange={(e) => onChange(Number(e.currentTarget.value) || 0)}
-      className="h-8 w-24 text-right text-xs tabular-nums"
-    />
+    <IntField id={id} value={value} onCommit={onCommit} min={1} max={65535} />
   );
 }

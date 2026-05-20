@@ -1,6 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { reportIpcError } from "@/lib/bridge/ipc";
+import { IntField } from "@/components/int-field";
+import { Skeleton } from "@/components/ui/skeleton";
 import { usePreferencesStore } from "@/stores/use-preferences-store";
+import {
+  updateAdvancedPrefs,
+  useBackendSettings,
+  type AdvancedPrefs,
+} from "@/services/settings";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,9 +25,16 @@ import { Row } from "../row";
 import { Section } from "../section";
 
 export function AdvancedSection() {
-  const a = usePreferencesStore((s) => s.advanced);
-  const update = usePreferencesStore((s) => s.update);
+  const { settings } = useBackendSettings();
+  const a = settings?.advanced;
   const reset = usePreferencesStore((s) => s.reset);
+
+  function commit(patch: Partial<AdvancedPrefs>) {
+    if (!a) return;
+    updateAdvancedPrefs({ ...a, ...patch }).catch((err) =>
+      reportIpcError(err, "Couldn't update advanced settings"),
+    );
+  }
 
   return (
     <Section
@@ -31,28 +46,51 @@ export function AdvancedSection() {
         description="Verbose logs for troubleshooting. Increases disk usage."
         htmlFor="debug-logging"
       >
-        <Switch
-          id="debug-logging"
-          checked={a.debugLogging}
-          onCheckedChange={(v) => update("advanced", { debugLogging: v })}
-        />
+        {a ? (
+          <Switch
+            id="debug-logging"
+            checked={a.debugLogging}
+            onCheckedChange={(v) => commit({ debugLogging: v })}
+          />
+        ) : (
+          <Skeleton className="h-5 w-9 rounded-full" />
+        )}
       </Row>
       <Row
         label="Preserve SMTP transcript"
         description="Keep the raw conversation for each captured email."
         htmlFor="preserve-smtp"
       >
-        <Switch
-          id="preserve-smtp"
-          checked={a.preserveSmtpTranscript}
-          onCheckedChange={(v) =>
-            update("advanced", { preserveSmtpTranscript: v })
-          }
-        />
+        {a ? (
+          <Switch
+            id="preserve-smtp"
+            checked={a.preserveSmtpTranscript}
+            onCheckedChange={(v) => commit({ preserveSmtpTranscript: v })}
+          />
+        ) : (
+          <Skeleton className="h-5 w-9 rounded-full" />
+        )}
       </Row>
       <Row
-        label={<span className="text-destructive">Reset all preferences</span>}
-        description="Restore every setting to its default value. Cannot be undone."
+        label="Audit log retention"
+        description="Days to keep audit entries before automatic pruning."
+        htmlFor="audit-retain"
+      >
+        {a ? (
+          <IntField
+            id="audit-retain"
+            value={a.auditRetainDays}
+            onCommit={(n) => commit({ auditRetainDays: n })}
+            min={1}
+            max={3650}
+          />
+        ) : (
+          <Skeleton className="h-8 w-24" />
+        )}
+      </Row>
+      <Row
+        label={<span className="text-destructive">Reset UI preferences</span>}
+        description="Restore appearance, notifications, and other client-side settings. Engine settings (network, agents, inbox, advanced) are unaffected."
       >
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -62,10 +100,11 @@ export function AdvancedSection() {
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Reset all preferences?</AlertDialogTitle>
+              <AlertDialogTitle>Reset UI preferences?</AlertDialogTitle>
               <AlertDialogDescription>
-                Every setting on every tab will return to its default. Your
-                captured emails are not affected.
+                Appearance, general, notifications, privacy, updates, and the
+                inbox view will return to their defaults. Engine-backed
+                settings and your captured emails are not affected.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

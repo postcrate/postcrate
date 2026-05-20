@@ -3,10 +3,12 @@ import { useState } from "react";
 import { useDialogsStore } from "@/stores/use-dialogs-store";
 import { useProjectsStore } from "@/stores/use-projects-store";
 import { useMailboxes, type Mailbox } from "@/services/mailbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { StatsGrid } from "./components/stats-grid";
 import { MailboxesHeader } from "./components/header";
 import { MailboxTable } from "./components/mailbox-table";
+import { ForwardingPanel } from "./components/forwarding-panel";
+import { BounceRulesPanel } from "./components/bounce-rules-panel";
 import { MailboxFormDialog } from "./components/mailbox-form-dialog";
 import { DeleteMailboxAlert } from "./components/delete-mailbox-alert";
 import {
@@ -14,6 +16,8 @@ import {
   ErrorBanner,
   TableSkeleton,
 } from "./components/states";
+
+type Tab = "mailboxes" | "forwarding" | "bounces";
 
 export default function MailboxesPage() {
   const currentProjectId = useProjectsStore((s) => s.currentId);
@@ -23,6 +27,7 @@ export default function MailboxesPage() {
   const openNewMailbox = useDialogsStore((s) => s.openNewMailbox);
   const [editing, setEditing] = useState<Mailbox | null>(null);
   const [deleting, setDeleting] = useState<Mailbox | null>(null);
+  const [tab, setTab] = useState<Tab>("mailboxes");
 
   const list = mailboxes ?? [];
 
@@ -31,26 +36,50 @@ export default function MailboxesPage() {
       <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-5 px-6 py-5">
         <MailboxesHeader mailboxes={list} onCreate={openNewMailbox} />
 
-        <StatsGrid mailboxes={list} />
+        <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+          <TabsList className="h-8 self-start">
+            <TabsTrigger value="mailboxes" className="text-[12.5px]">
+              Mailboxes
+            </TabsTrigger>
+            <TabsTrigger value="forwarding" className="text-[12.5px]">
+              Forwarding
+            </TabsTrigger>
+            <TabsTrigger value="bounces" className="text-[12.5px]">
+              Bounce rules
+            </TabsTrigger>
+          </TabsList>
 
-        {error ? (
-          <ErrorBanner
-            message={error instanceof Error ? error.message : "Unknown error"}
-            onRetry={() => refresh()}
-          />
-        ) : null}
+          <TabsContent value="mailboxes" className="mt-5 flex flex-col gap-5">
+            {error ? (
+              <ErrorBanner
+                message={
+                  error instanceof Error ? error.message : "Unknown error"
+                }
+                onRetry={() => refresh()}
+              />
+            ) : null}
 
-        {isLoading && list.length === 0 ? (
-          <TableSkeleton />
-        ) : list.length === 0 && !error ? (
-          <EmptyMailboxes onCreate={openNewMailbox} />
-        ) : (
-          <MailboxTable
-            mailboxes={list}
-            onEdit={setEditing}
-            onDelete={setDeleting}
-          />
-        )}
+            {isLoading && list.length === 0 ? (
+              <TableSkeleton />
+            ) : list.length === 0 && !error ? (
+              <EmptyMailboxes onCreate={openNewMailbox} />
+            ) : (
+              <MailboxTable
+                mailboxes={list}
+                onEdit={setEditing}
+                onDelete={setDeleting}
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="forwarding" className="mt-5">
+            <ForwardingPanel />
+          </TabsContent>
+
+          <TabsContent value="bounces" className="mt-5">
+            <BounceRulesPanel />
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Edit is still page-local — it needs the specific mailbox in

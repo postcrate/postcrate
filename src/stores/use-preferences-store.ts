@@ -1,6 +1,22 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
+/**
+ * UI-only preferences.
+ *
+ * Engine-backed sections (network, agents, inbox.retention/tagging,
+ * advanced) live in `src/services/settings.ts` and round-trip through
+ * the Rust engine. Anything in *this* store is purely cosmetic / OS
+ * integration / view state — it has no engine counterpart and is safe
+ * to persist client-side.
+ *
+ * The split intentionally leaks one engine concept here: `defaultView`
+ * is a UI choice (list vs cards vs compact) and the engine doesn't
+ * track it, so it lives next to the rest of the inbox section in the
+ * Preferences window even though everything else in that section is
+ * engine-backed.
+ */
+
 export const PREFERENCES_STORAGE_KEY = "postcrate-preferences";
 
 export type Density = "comfortable" | "compact";
@@ -27,26 +43,8 @@ export type NotificationPrefs = {
   badgeUnreadCount: boolean;
 };
 
-export type InboxPrefs = {
+export type InboxViewPrefs = {
   defaultView: InboxView;
-  threadRelated: boolean;
-  autoTag: boolean;
-  maxRetainedEmails: number;
-  autoClearAfterDays: number;
-};
-
-export type NetworkPrefs = {
-  smtpPort: number;
-  httpApiPort: number;
-  mcpEnabled: boolean;
-  mcpPort: number;
-  exposeOnLan: boolean;
-};
-
-export type AgentPrefs = {
-  defaultWaitTimeoutSeconds: number;
-  logAgentRequests: boolean;
-  confirmDestructiveActions: boolean;
 };
 
 export type PrivacyPrefs = {
@@ -60,21 +58,13 @@ export type UpdatesPrefs = {
   channel: UpdateChannel;
 };
 
-export type AdvancedPrefs = {
-  debugLogging: boolean;
-  preserveSmtpTranscript: boolean;
-};
-
 type Sections = {
   appearance: AppearancePrefs;
   general: GeneralPrefs;
   notifications: NotificationPrefs;
-  inbox: InboxPrefs;
-  network: NetworkPrefs;
-  agents: AgentPrefs;
+  inbox: InboxViewPrefs;
   privacy: PrivacyPrefs;
   updates: UpdatesPrefs;
-  advanced: AdvancedPrefs;
 };
 
 type PreferencesState = Sections & {
@@ -105,22 +95,6 @@ const defaults: Sections = {
   },
   inbox: {
     defaultView: "list",
-    threadRelated: true,
-    autoTag: true,
-    maxRetainedEmails: 5000,
-    autoClearAfterDays: 14,
-  },
-  network: {
-    smtpPort: 1025,
-    httpApiPort: 1080,
-    mcpEnabled: true,
-    mcpPort: 1081,
-    exposeOnLan: false,
-  },
-  agents: {
-    defaultWaitTimeoutSeconds: 30,
-    logAgentRequests: true,
-    confirmDestructiveActions: true,
   },
   privacy: {
     enableSpamScoring: true,
@@ -130,10 +104,6 @@ const defaults: Sections = {
   updates: {
     autoCheck: true,
     channel: "stable",
-  },
-  advanced: {
-    debugLogging: false,
-    preserveSmtpTranscript: true,
   },
 };
 

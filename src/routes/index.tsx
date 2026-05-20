@@ -1,6 +1,8 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
+import AuditPage from "@/pages/audit";
 import InboxPage from "@/pages/inbox";
+import WebhooksPage from "@/pages/webhooks";
 import MailboxesPage from "@/pages/mailboxes";
 import ScenariosPage from "@/pages/scenarios";
 import OnboardingPage from "@/pages/onboarding";
@@ -19,6 +21,8 @@ export const router = createBrowserRouter([
           { path: "inbox", element: <InboxPage /> },
           { path: "mailboxes", element: <MailboxesPage /> },
           { path: "scenarios", element: <ScenariosPage /> },
+          { path: "webhooks", element: <WebhooksPage /> },
+          { path: "audit", element: <AuditPage /> },
         ],
       },
       { path: "preferences", element: <PreferencesPage /> },
