@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CaretUpDownIcon,
@@ -39,6 +40,17 @@ export function MailboxSwitcher() {
   const { mailboxes } = useMailboxes(projectId);
   const list = mailboxes ?? [];
   const current = list.find((m) => m.id === mailboxId) ?? list[0];
+
+  // Reconcile the view's mailboxId against the *current* project's
+  // list. Without this, switching projects (or deleting one and
+  // falling back) leaves view.mailboxId pointing at a mailbox that
+  // doesn't belong here — InboxPage then shows "Pick a mailbox" even
+  // though the fallback project has mailboxes ready to use.
+  useEffect(() => {
+    if (mailboxes === undefined) return;
+    const nextId = current?.id ?? null;
+    if (nextId !== mailboxId) setMailboxId(nextId);
+  }, [mailboxes, current, mailboxId, setMailboxId]);
 
   if (!current) {
     return (
