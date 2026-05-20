@@ -159,7 +159,7 @@ function AuthCard({ emailId }: { emailId: string }) {
 
 function AuthBody({ report }: { report: AuthReport }) {
   return (
-    <div className="px-4 pb-4">
+    <div className="px-4 pt-3 pb-4">
       <div className="grid grid-cols-3 gap-2.5">
         <AuthVerdictTile label="SPF" verdict={report.spf} />
         <AuthVerdictTile label="DKIM" verdict={report.dkim} />
@@ -373,7 +373,7 @@ function UnsubCard({ emailId }: { emailId: string }) {
 
 function UnsubBody({ report }: { report: UnsubReport }) {
   return (
-    <div className="px-4 pb-4">
+    <div className="px-4 pt-3 pb-4">
       <div className="flex flex-wrap gap-2">
         <UnsubBadge ok={report.present} label="Present" failLabel="Missing" />
         <UnsubBadge ok={report.valid} label="Valid syntax" failLabel="Invalid" />

@@ -14,12 +14,13 @@ import { unwrap } from "@/lib/bridge/ipc";
 import {
   commands,
   type A11yReport,
+  type Fidelity,
   type LintReport,
   type Profile,
   type RenderedPreview,
 } from "@/lib/bridge/bindings";
 
-export type { A11yReport, LintReport, Profile, RenderedPreview };
+export type { A11yReport, Fidelity, LintReport, Profile, RenderedPreview };
 
 // ---------------------------------------------------------------------------
 // Keys
@@ -134,6 +135,31 @@ export const PROFILE_ORDER: Profile[] = [
   "apple_mail_mac",
   "apple_mail_ios",
   "yahoo_mail",
+];
+
+/**
+ * Mirrors `Profile::fidelity()` in the engine. Kept client-side so the
+ * picker can label items without round-tripping a render.
+ */
+export const PROFILE_FIDELITY: Record<Profile, Fidelity> = {
+  gmail_web: "approximate",
+  gmail_ios: "approximate",
+  outlook_desktop: "experimental",
+  outlook_web: "approximate",
+  apple_mail_mac: "high",
+  apple_mail_ios: "high",
+  yahoo_mail: "approximate",
+};
+
+/**
+ * Profiles grouped by client family — the picker uses this to render
+ * one section per family with a separator between them.
+ */
+export const PROFILE_FAMILIES: { label: string; profiles: Profile[] }[] = [
+  { label: "Gmail", profiles: ["gmail_web", "gmail_ios"] },
+  { label: "Outlook", profiles: ["outlook_desktop", "outlook_web"] },
+  { label: "Apple Mail", profiles: ["apple_mail_mac", "apple_mail_ios"] },
+  { label: "Yahoo", profiles: ["yahoo_mail"] },
 ];
 
 export const DEFAULT_PROFILE: Profile = "gmail_web";

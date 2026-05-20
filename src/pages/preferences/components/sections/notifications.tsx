@@ -17,6 +17,7 @@ export function NotificationsSection() {
         label="System notifications"
         description="Show a native OS notification when an email arrives."
         htmlFor="desktop-new-email"
+        comingSoon
       >
         <Switch
           id="desktop-new-email"
@@ -30,6 +31,7 @@ export function NotificationsSection() {
         label="In-app toast"
         description="Show a transient toast inside postcrate."
         htmlFor="in-app-toast"
+        comingSoon
       >
         <Switch
           id="in-app-toast"
@@ -41,6 +43,7 @@ export function NotificationsSection() {
         label="Sound"
         description="Play a soft chime on each new email."
         htmlFor="sound-new-email"
+        comingSoon
       >
         <Switch
           id="sound-new-email"
@@ -54,6 +57,7 @@ export function NotificationsSection() {
         label="Dock badge"
         description="Show an unread count badge on the Dock icon."
         htmlFor="badge-unread"
+        comingSoon
       >
         <Switch
           id="badge-unread"

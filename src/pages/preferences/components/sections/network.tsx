@@ -29,12 +29,13 @@ export function NetworkSection() {
   return (
     <Section
       title="Network & Listeners"
-      description="Ports and exposure for the SMTP, HTTP, and MCP servers."
+      description="Ports and exposure for the SMTP and HTTP servers."
     >
       <Row
         label="SMTP port"
         description="Where senders connect to deliver mail."
         htmlFor="smtp-port"
+        comingSoon
       >
         {net ? (
           <PortInput
@@ -88,36 +89,6 @@ export function NetworkSection() {
           />
         ) : (
           <Skeleton className="h-8 w-56" />
-        )}
-      </Row>
-      <Row
-        label="MCP server"
-        description="Expose the inbox to MCP-compatible AI agents."
-        htmlFor="mcp-enabled"
-      >
-        {net ? (
-          <Switch
-            id="mcp-enabled"
-            checked={net.mcpEnabled}
-            onCheckedChange={(v) => commit({ mcpEnabled: v })}
-          />
-        ) : (
-          <Skeleton className="h-5 w-9 rounded-full" />
-        )}
-      </Row>
-      <Row
-        label="MCP port"
-        description="Used by Claude Code, Cursor, and other MCP clients."
-        htmlFor="mcp-port"
-      >
-        {net ? (
-          <PortInput
-            id="mcp-port"
-            value={net.mcpPort}
-            onCommit={(n) => commit({ mcpPort: n })}
-          />
-        ) : (
-          <Skeleton className="h-8 w-24" />
         )}
       </Row>
       <Row

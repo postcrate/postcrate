@@ -5,21 +5,32 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useDeferredCommit } from "@/hooks/use-deferred-commit";
 import {
   updateAgentPrefs,
+  updateNetworkPrefs,
   useBackendSettings,
   type AgentPrefs,
+  type NetworkPrefs,
 } from "@/services/settings";
 
 import { Row } from "../row";
 import { Section } from "../section";
+import { PortInput } from "../port-input";
 
 export function AgentsSection() {
   const { settings } = useBackendSettings();
   const ai = settings?.agents;
+  const net = settings?.network;
 
   function commit(patch: Partial<AgentPrefs>) {
     if (!ai) return;
     updateAgentPrefs({ ...ai, ...patch }).catch((err) =>
       reportIpcError(err, "Couldn't update agent settings"),
+    );
+  }
+
+  function commitNet(patch: Partial<NetworkPrefs>) {
+    if (!net) return;
+    updateNetworkPrefs({ ...net, ...patch }).catch((err) =>
+      reportIpcError(err, "Couldn't update MCP settings"),
     );
   }
 
@@ -33,8 +44,40 @@ export function AgentsSection() {
   return (
     <Section
       title="AI & Agents"
-      description="Behavior of the MCP server and how agents interact with the inbox."
+      description="MCP server and how agents interact with the inbox."
     >
+      <Row
+        label="MCP server"
+        description="Expose the inbox to MCP-compatible AI agents."
+        htmlFor="mcp-enabled"
+        comingSoon
+      >
+        {net ? (
+          <Switch
+            id="mcp-enabled"
+            checked={net.mcpEnabled}
+            onCheckedChange={(v) => commitNet({ mcpEnabled: v })}
+          />
+        ) : (
+          <Skeleton className="h-5 w-9 rounded-full" />
+        )}
+      </Row>
+      <Row
+        label="MCP port"
+        description="Used by Claude Code, Cursor, and other MCP clients."
+        htmlFor="mcp-port"
+        comingSoon
+      >
+        {net ? (
+          <PortInput
+            id="mcp-port"
+            value={net.mcpPort}
+            onCommit={(n) => commitNet({ mcpPort: n })}
+          />
+        ) : (
+          <Skeleton className="h-8 w-24" />
+        )}
+      </Row>
       <Row
         label="Default wait timeout"
         description={
@@ -42,6 +85,7 @@ export function AgentsSection() {
             ? `wait_for_email blocks up to ${wait.draft}s by default.`
             : "wait_for_email default timeout."
         }
+        comingSoon
       >
         {ai ? (
           <div className="flex w-56 items-center gap-3">
@@ -66,6 +110,7 @@ export function AgentsSection() {
         label="Log agent requests"
         description="Keep an audit log of every MCP tool invocation."
         htmlFor="log-agent"
+        comingSoon
       >
         {ai ? (
           <Switch
@@ -81,6 +126,7 @@ export function AgentsSection() {
         label="Confirm destructive actions"
         description="Require explicit confirmation for clear_inbox and similar tools."
         htmlFor="confirm-destructive"
+        comingSoon
       >
         {ai ? (
           <Switch

@@ -18,6 +18,7 @@ export function GeneralSection() {
         label="Launch at login"
         description="Start postcrate automatically when you sign in."
         htmlFor="launch-at-login"
+        comingSoon
       >
         <Switch
           id="launch-at-login"
@@ -29,6 +30,7 @@ export function GeneralSection() {
         label="Show in Dock"
         description="Hide to run as a menu-bar-only app."
         htmlFor="show-in-dock"
+        comingSoon
       >
         <Switch
           id="show-in-dock"
@@ -40,6 +42,7 @@ export function GeneralSection() {
         label="Show in menu bar"
         description="Quick access to the inbox and recent messages."
         htmlFor="show-in-menu-bar"
+        comingSoon
       >
         <Switch
           id="show-in-menu-bar"
@@ -51,6 +54,7 @@ export function GeneralSection() {
         label="Single instance"
         description="Activate the running app instead of launching a duplicate."
         htmlFor="single-instance"
+        comingSoon
       >
         <Switch
           id="single-instance"
@@ -62,6 +66,7 @@ export function GeneralSection() {
         label="Global shortcut"
         description="System-wide hotkey to bring up the inbox spotlight."
         htmlFor="global-shortcut"
+        comingSoon
       >
         <Input
           id="global-shortcut"

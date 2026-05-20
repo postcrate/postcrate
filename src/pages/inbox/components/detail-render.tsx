@@ -2,29 +2,42 @@ import { useMemo, useState } from "react";
 import {
   CaretDownIcon,
   CaretRightIcon,
+  CaretUpDownIcon,
+  CheckIcon,
   WarningIcon,
 } from "@phosphor-icons/react/dist/ssr";
 
 import { cn } from "@/lib/utils";
-import { useTheme } from "@/hooks/use-theme";
 import { Skeleton } from "@/components/ui/skeleton";
-import { type Fidelity, type Profile } from "@/lib/bridge/bindings";
+import { usePreferencesStore } from "@/stores/use-preferences-store";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   DEFAULT_PROFILE,
+  PROFILE_FAMILIES,
+  PROFILE_FIDELITY,
   PROFILE_LABEL,
-  PROFILE_ORDER,
   useA11yReport,
   useLintReport,
   useRenderPreview,
+  type Fidelity,
   type LintReport,
+  type Profile,
 } from "@/services/render";
+
+import { composePreviewShell } from "./preview-shell";
+import { forceColorScheme } from "./force-color-scheme";
+
+const APPLE_PROFILES: ReadonlySet<Profile> = new Set([
+  "apple_mail_mac",
+  "apple_mail_ios",
+]);
 
 type Props = {
   emailId: string;
@@ -50,9 +63,9 @@ export function DetailRender({ emailId, hasHtml }: Props) {
   }
 
   return (
-    <div className="flex min-h-0 flex-col">
+    <div className="flex min-h-0 flex-col gap-4 pb-5">
       <ProfilePreview emailId={emailId} profile={profile} onChange={setProfile} />
-      <div className="flex flex-col gap-4 px-6 pb-5">
+      <div className="flex flex-col gap-4 px-6">
         <LintCard emailId={emailId} />
         <A11yCard emailId={emailId} />
       </div>
@@ -74,11 +87,31 @@ function ProfilePreview({
   onChange: (p: Profile) => void;
 }) {
   const { data, isLoading, error } = useRenderPreview(emailId, profile);
-  const { resolved } = useTheme();
-  const composed = useMemo(
-    () => (data ? composeShell(data.html, resolved) : null),
-    [data, resolved],
-  );
+  const theme = usePreferencesStore((s) => s.inbox.emailPreviewTheme);
+  const rendered = useMemo(() => {
+    if (!data) return null;
+    const applyAppleScheme = APPLE_PROFILES.has(profile);
+    const { html, rewritten } = applyAppleScheme
+      ? forceColorScheme(data.html, theme)
+      : { html: data.html, rewritten: 0 };
+    return {
+      src: composePreviewShell(html, theme),
+      schemeRewrites: rewritten,
+    };
+  }, [data, profile, theme]);
+
+  const totalTransforms =
+    (data?.applied.length ?? 0) + (rendered?.schemeRewrites ?? 0);
+  const transformTitle = data
+    ? [
+        ...data.applied,
+        rendered && rendered.schemeRewrites > 0
+          ? `prefers-color-scheme: ${theme} activated on ${rendered.schemeRewrites} block${rendered.schemeRewrites === 1 ? "" : "s"}`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(", ")
+    : "";
 
   return (
     <section className="border-border/60 mx-6 mt-5 overflow-hidden rounded-xl border">
@@ -86,31 +119,20 @@ function ProfilePreview({
         <div className="text-muted-foreground/70 text-[10.5px] font-medium tracking-wider uppercase">
           Profile
         </div>
-        <Select value={profile} onValueChange={(v) => onChange(v as Profile)}>
-          <SelectTrigger className="h-7 w-44 text-[12px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {PROFILE_ORDER.map((p) => (
-              <SelectItem key={p} value={p}>
-                {PROFILE_LABEL[p]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <ProfilePicker value={profile} onChange={onChange} />
         {data ? <FidelityPill fidelity={data.fidelity} /> : null}
-        {data && data.applied.length > 0 ? (
+        {totalTransforms > 0 ? (
           <span
             className="text-muted-foreground/80 ml-auto truncate text-[11px]"
-            title={`Applied: ${data.applied.join(", ")}`}
+            title={`Applied: ${transformTitle}`}
           >
-            {data.applied.length}{" "}
-            {data.applied.length === 1 ? "transform" : "transforms"} applied
+            {totalTransforms}{" "}
+            {totalTransforms === 1 ? "transform" : "transforms"} applied
           </span>
         ) : null}
       </header>
       <div className="bg-muted/20 h-96">
-        {isLoading && !composed ? (
+        {isLoading && !rendered ? (
           <div className="flex h-full items-center justify-center">
             <Skeleton className="h-8 w-32" />
           </div>
@@ -120,11 +142,11 @@ function ProfilePreview({
               Couldn&apos;t render this profile — {errorMessage(error)}
             </p>
           </div>
-        ) : composed ? (
+        ) : rendered ? (
           <iframe
             title={`Preview for ${PROFILE_LABEL[profile]}`}
-            className="h-full w-full border-0 bg-transparent"
-            srcDoc={composed}
+            className="h-full w-full border-0"
+            srcDoc={rendered.src}
             sandbox=""
             referrerPolicy="no-referrer"
             loading="lazy"
@@ -132,6 +154,68 @@ function ProfilePreview({
         ) : null}
       </div>
     </section>
+  );
+}
+
+function ProfilePicker({
+  value,
+  onChange,
+}: {
+  value: Profile;
+  onChange: (p: Profile) => void;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className={cn(
+          "border-input bg-background hover:bg-muted/40 data-[state=open]:bg-muted/50",
+          "group/profile inline-flex h-7 items-center gap-1.5 rounded-md border pr-1.5 pl-2",
+          "text-foreground text-[12px] outline-none transition-colors",
+        )}
+        aria-label={`Profile: ${PROFILE_LABEL[value]}`}
+      >
+        <span className="max-w-44 truncate">{PROFILE_LABEL[value]}</span>
+        <CaretUpDownIcon
+          size={10}
+          weight="bold"
+          className="text-muted-foreground/70 shrink-0"
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" sideOffset={4} className="w-60 p-1">
+        {PROFILE_FAMILIES.map((family, familyIdx) => (
+          <div key={family.label}>
+            {familyIdx > 0 ? <DropdownMenuSeparator /> : null}
+            <DropdownMenuLabel className="text-muted-foreground/70 px-2 pt-1.5 pb-1 text-[10.5px] font-medium tracking-wider uppercase">
+              {family.label}
+            </DropdownMenuLabel>
+            {family.profiles.map((p) => {
+              const selected = p === value;
+              return (
+                <DropdownMenuItem
+                  key={p}
+                  onSelect={() => onChange(p)}
+                  className="h-8 gap-2 px-2"
+                >
+                  <span className="text-foreground flex-1 truncate text-[12.5px]">
+                    {PROFILE_LABEL[p]}
+                  </span>
+                  <FidelityPill fidelity={PROFILE_FIDELITY[p]} />
+                  {selected ? (
+                    <CheckIcon
+                      size={11}
+                      weight="bold"
+                      className="text-foreground/80 shrink-0"
+                    />
+                  ) : (
+                    <span className="size-[11px] shrink-0" aria-hidden />
+                  )}
+                </DropdownMenuItem>
+              );
+            })}
+          </div>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -428,20 +512,3 @@ function errorMessage(err: unknown): string {
   return "Couldn't load report.";
 }
 
-function composeShell(body: string, theme: "light" | "dark"): string {
-  return `<!doctype html><html data-theme="${theme}"><head>
-<meta charset="utf-8">
-<meta name="referrer" content="no-referrer">
-<base target="_blank">
-<style>
-  html,body{margin:0;padding:16px;background:transparent;color:#0a0a0a;
-    font:13px/1.55 -apple-system,BlinkMacSystemFont,Segoe UI,Inter,sans-serif}
-  html[data-theme="dark"]{color:#e9e9eb}
-  html[data-theme="dark"] body{color:#e9e9eb}
-  img{max-width:100%;height:auto}
-  a{color:#2563eb} a:hover{text-decoration:underline}
-  html[data-theme="dark"] a{color:#60a5fa}
-  table{max-width:100%}
-</style>
-</head><body>${body}</body></html>`;
-}

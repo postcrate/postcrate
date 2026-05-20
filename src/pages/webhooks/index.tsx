@@ -331,11 +331,11 @@ function TableSkeleton() {
 
 function EmptyWebhooks() {
   return (
-    <div className="border-border/60 bg-card/30 flex flex-col items-center rounded-xl border px-6 py-14 text-center">
-      <span className="bg-muted text-muted-foreground border-border/60 grid size-11 place-items-center rounded-xl border">
-        <WebhooksLogoIcon size={18} weight="regular" />
+    <div className="flex flex-col items-center px-6 py-14 text-center">
+      <span className="text-muted-foreground/80">
+        <WebhooksLogoIcon size={22} weight="regular" />
       </span>
-      <h2 className="text-foreground mt-3.5 text-[14px] font-semibold tracking-tight">
+      <h2 className="text-foreground mt-3 text-[14px] font-semibold tracking-tight">
         No webhooks yet
       </h2>
       <p className="text-muted-foreground mt-1 max-w-xs text-[12.5px] leading-snug">

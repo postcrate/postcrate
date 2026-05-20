@@ -31,6 +31,7 @@ export function AppearanceSection() {
         label="Density"
         description="Spacing between rows in the inbox and lists."
         htmlFor="density"
+        comingSoon
       >
         <Select
           value={density}
@@ -49,6 +50,7 @@ export function AppearanceSection() {
         label="Mono font for code"
         description="Use a monospace font for raw email source and headers."
         htmlFor="mono-code"
+        comingSoon
       >
         <Switch
           id="mono-code"

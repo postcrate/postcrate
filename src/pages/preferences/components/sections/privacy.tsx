@@ -18,6 +18,7 @@ export function PrivacySection() {
         label="Spam scoring"
         description="Score captured emails against SpamAssassin-equivalent heuristics. Runs locally."
         htmlFor="spam-scoring"
+        comingSoon
       >
         <Switch
           id="spam-scoring"
@@ -29,6 +30,7 @@ export function PrivacySection() {
         label="Link checking"
         description="Verify links in captured emails. Makes HEAD requests to remote hosts."
         htmlFor="link-checking"
+        comingSoon
       >
         <div className="flex items-center gap-2">
           {p.enableLinkChecking && (
@@ -49,6 +51,7 @@ export function PrivacySection() {
         label="Accessibility checks"
         description="Lint emails for color contrast, alt text, and semantic structure."
         htmlFor="a11y-checks"
+        comingSoon
       >
         <Switch
           id="a11y-checks"

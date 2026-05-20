@@ -57,6 +57,7 @@ export function InboxSection() {
         label="Default view"
         description="How emails are rendered when you open a mailbox."
         htmlFor="default-view"
+        comingSoon
       >
         <Select
           value={defaultView}
@@ -78,6 +79,7 @@ export function InboxSection() {
         label="Group related emails"
         description="Collapse same-recipient threads into a single row."
         htmlFor="thread-related"
+        comingSoon
       >
         {inbox ? (
           <Switch
@@ -93,6 +95,7 @@ export function InboxSection() {
         label="Auto-tag emails"
         description="Detect auth, billing, marketing, and system mail locally."
         htmlFor="auto-tag"
+        comingSoon
       >
         {inbox ? (
           <Switch

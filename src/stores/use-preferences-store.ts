@@ -21,6 +21,7 @@ export const PREFERENCES_STORAGE_KEY = "postcrate-preferences";
 
 export type Density = "comfortable" | "compact";
 export type InboxView = "list" | "compact" | "cards";
+export type EmailPreviewTheme = "light" | "dark";
 export type UpdateChannel = "stable" | "beta";
 
 export type AppearancePrefs = {
@@ -45,6 +46,12 @@ export type NotificationPrefs = {
 
 export type InboxViewPrefs = {
   defaultView: InboxView;
+  /**
+   * Light/dark mode of the email-body iframe in the Preview and Render
+   * tabs. Decoupled from the app theme so users can audit how an email
+   * looks in the *other* mode without switching their whole UI.
+   */
+  emailPreviewTheme: EmailPreviewTheme;
 };
 
 export type PrivacyPrefs = {
@@ -95,6 +102,7 @@ const defaults: Sections = {
   },
   inbox: {
     defaultView: "list",
+    emailPreviewTheme: "light",
   },
   privacy: {
     enableSpamScoring: true,

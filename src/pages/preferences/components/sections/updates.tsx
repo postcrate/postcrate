@@ -28,6 +28,7 @@ export function UpdatesSection() {
         label="Check automatically"
         description="Look for updates in the background once a day."
         htmlFor="auto-check"
+        comingSoon
       >
         <Switch
           id="auto-check"
@@ -39,6 +40,7 @@ export function UpdatesSection() {
         label="Channel"
         description="Stable for release builds, beta for early access."
         htmlFor="channel"
+        comingSoon
       >
         <Select
           value={u.channel}
@@ -55,7 +57,11 @@ export function UpdatesSection() {
           </SelectContent>
         </Select>
       </Row>
-      <Row label="Check now" description="Manually look for a new version.">
+      <Row
+        label="Check now"
+        description="Manually look for a new version."
+        comingSoon
+      >
         <Button variant="outline" size="sm" className="h-8 text-xs">
           Check for updates
         </Button>

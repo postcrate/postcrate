@@ -9,6 +9,7 @@ import { DetailRender } from "./detail-render";
 import { DetailHeaders } from "./detail-headers";
 import { DetailPreview } from "./detail-preview";
 import { DetailInspect } from "./detail-inspect";
+import { PreviewThemeToggle } from "./preview-theme-toggle";
 
 type Props = {
   email: EmailDetail;
@@ -38,7 +39,7 @@ export function DetailTabs({ email }: Props) {
       onValueChange={(v) => setValue(v as TabValue)}
       className="flex min-h-0 flex-1 flex-col"
     >
-      <div className="border-border/60 shrink-0 border-b px-6">
+      <div className="border-border/60 flex shrink-0 items-center justify-between gap-2 border-b px-6">
         <TabsList
           variant="line"
           className="h-auto justify-start gap-1 p-0"
@@ -56,6 +57,9 @@ export function DetailTabs({ email }: Props) {
             Render
           </Trigger>
         </TabsList>
+        {value === "preview" || value === "render" ? (
+          <PreviewThemeToggle />
+        ) : null}
       </div>
 
       <TabsContent

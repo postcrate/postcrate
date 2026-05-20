@@ -45,6 +45,7 @@ export function AdvancedSection() {
         label="Debug logging"
         description="Verbose logs for troubleshooting. Increases disk usage."
         htmlFor="debug-logging"
+        comingSoon
       >
         {a ? (
           <Switch
@@ -60,6 +61,7 @@ export function AdvancedSection() {
         label="Preserve SMTP transcript"
         description="Keep the raw conversation for each captured email."
         htmlFor="preserve-smtp"
+        comingSoon
       >
         {a ? (
           <Switch
