@@ -2,7 +2,6 @@ import type { Layout } from "react-resizable-panels";
 
 import { useCallback, useMemo } from "react";
 
-import { useEmails } from "@/services/email";
 import { useMailbox } from "@/services/mailbox";
 import { useViewStore } from "@/stores/use-view-store";
 import {
@@ -31,10 +30,13 @@ const LAYOUT_STORAGE_KEY = "postcrate.inbox.split.v3";
  */
 export function InboxLayout({ mailboxId }: Props) {
   const emailId = useViewStore((s) => s.emailId);
-  const { mailbox } = useMailbox(mailboxId);
-  const { emails, isLoading, error } = useEmails(mailboxId);
+  const { mailbox, isLoading, error } = useMailbox(mailboxId);
+  // Empty check rides on the mailbox's authoritative count (kept fresh
+  // by useMailbox's own NewEmail subscription), so we don't double-fetch
+  // the email list here and can let useEmails own its own pagination
+  // state without two subscribers fighting over it.
   const mailboxIsEmpty =
-    !isLoading && !error && (emails?.length ?? 0) === 0;
+    !isLoading && !error && (mailbox?.count ?? 0) === 0;
 
   const { defaultLayout, onLayoutChanged } = useLayoutStorage(
     LAYOUT_STORAGE_KEY,

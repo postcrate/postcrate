@@ -19,7 +19,7 @@
  * can surface their own toasts.
  */
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useSWR, {
   mutate as globalMutate,
   useSWRConfig,
@@ -45,11 +45,25 @@ export type { AttachmentMeta, EmailDetail, EmailSummary, RelayConfig };
 
 export type EmailSort = "newest" | "oldest";
 
+const DEFAULT_LIMIT = 200;
+const DEFAULT_SEARCH_LIMIT = 100;
+
+export const EMAIL_PAGE_SIZE = DEFAULT_LIMIT;
+
 /** SWR cache keys. Use as readonly tuples — never assemble on the fly. */
 export const EMAIL_KEYS = {
-  /** Emails for a mailbox, ordered newest- or oldest-first. */
-  list: (mailboxId: string, sort: EmailSort = "newest") =>
-    ["emails", mailboxId, sort] as const,
+  /**
+   * Emails for a mailbox, ordered newest- or oldest-first. `limit` is
+   * part of the key so growing the page through `loadMore()` produces
+   * a distinct cache entry instead of stomping the smaller one. Cache
+   * predicates that fan out to "any list cache for any mailbox" only
+   * check `key[0]`, so the extra element is invisible to them.
+   */
+  list: (
+    mailboxId: string,
+    sort: EmailSort = "newest",
+    limit: number = DEFAULT_LIMIT,
+  ) => ["emails", mailboxId, sort, limit] as const,
   /** Free-text search within a single mailbox. */
   search: (mailboxId: string, query: string) =>
     ["emails-search", mailboxId, query] as const,
@@ -63,9 +77,6 @@ type ListKey = ReturnType<typeof EMAIL_KEYS.list>;
 type SearchKey = ReturnType<typeof EMAIL_KEYS.search>;
 type DetailKey = ReturnType<typeof EMAIL_KEYS.detail>;
 type RawKey = ReturnType<typeof EMAIL_KEYS.raw>;
-
-const DEFAULT_LIMIT = 200;
-const DEFAULT_SEARCH_LIMIT = 100;
 
 // ---------------------------------------------------------------------------
 // Fetchers
@@ -106,11 +117,25 @@ type UseEmailsResult = {
   isValidating: boolean;
   error: unknown;
   refresh: () => Promise<EmailSummary[] | undefined>;
+  /** Bump the page limit by `EMAIL_PAGE_SIZE`. No-op when nothing more to load. */
+  loadMore: () => void;
+  /**
+   * True iff the last fetch returned exactly `limit` rows — best the
+   * engine signals without a separate total-count query. Off by one
+   * when the DB has *exactly* `limit` rows; clicking "load more" in
+   * that case fetches an extra page that returns zero new rows.
+   */
+  hasMore: boolean;
+  /** True while a load-more fetch is in flight (data already shown). */
+  isLoadingMore: boolean;
+  /** Current page size — useful for "showing N of …" copy. */
+  limit: number;
 };
 
 type UseEmailsOpts = {
   sort?: EmailSort;
-  limit?: number;
+  /** Initial page size. Defaults to `EMAIL_PAGE_SIZE`. */
+  initialLimit?: number;
 };
 
 /**
@@ -121,6 +146,12 @@ type UseEmailsOpts = {
  * for this mailbox and triggers its own bound `mutate()` — that keeps
  * the realtime path on the same cache binding SWR is using for this
  * subscription, no predicate-matching round-trip required.
+ *
+ * Pagination is page-growth, not offset paging: clicking `loadMore()`
+ * bumps the limit and re-fetches a single bigger window. The engine
+ * call is local SQLite so re-fetching the same N rows is microseconds;
+ * the trade is one flat list cache instead of two for the mutation
+ * helpers and the row renderers to reason about.
  */
 export function useEmails(
   mailboxId: string | null | undefined,
@@ -128,11 +159,19 @@ export function useEmails(
   config?: SWRConfiguration<EmailSummary[]>,
 ): UseEmailsResult {
   const sort = opts.sort ?? "newest";
-  const limit = opts.limit ?? DEFAULT_LIMIT;
+  const initialLimit = opts.initialLimit ?? DEFAULT_LIMIT;
+  const [limit, setLimit] = useState(initialLimit);
+
+  // Mailbox / sort change → reset the page size so we don't carry an
+  // inflated limit (eg from prior load-mores) into the new context.
+  useEffect(() => {
+    setLimit(initialLimit);
+  }, [mailboxId, sort, initialLimit]);
+
   const result = useSWR<EmailSummary[], unknown, ListKey | null>(
-    mailboxId ? EMAIL_KEYS.list(mailboxId, sort) : null,
+    mailboxId ? EMAIL_KEYS.list(mailboxId, sort, limit) : null,
     () => fetchEmails(mailboxId as string, limit, sort),
-    config,
+    { keepPreviousData: true, ...config },
   );
 
   const revalidate = result.mutate;
@@ -154,12 +193,25 @@ export function useEmails(
     };
   }, [mailboxId, revalidate]);
 
+  const loaded = result.data?.length ?? 0;
+  const hasMore = loaded >= limit;
+  const isLoadingMore = result.isValidating && loaded < limit;
+
+  const loadMore = useCallback(() => {
+    if (!hasMore || result.isValidating) return;
+    setLimit((prev) => prev + DEFAULT_LIMIT);
+  }, [hasMore, result.isValidating]);
+
   return {
     emails: result.data,
     isLoading: result.isLoading,
     isValidating: result.isValidating,
     error: result.error,
     refresh: () => result.mutate(),
+    loadMore,
+    hasMore,
+    isLoadingMore,
+    limit,
   };
 }
 
@@ -230,11 +282,19 @@ export function useEmailRaw(
   };
 }
 
-type UseEmailSearchResult = UseEmailsResult;
+type UseEmailSearchResult = {
+  emails: EmailSummary[] | undefined;
+  isLoading: boolean;
+  isValidating: boolean;
+  error: unknown;
+  refresh: () => Promise<EmailSummary[] | undefined>;
+};
 
 /**
  * Subscribe to full-text search results for a mailbox. Idle until the
- * trimmed query has at least one character.
+ * trimmed query has at least one character. Capped at
+ * `DEFAULT_SEARCH_LIMIT` with no load-more affordance — search is
+ * meant to converge on a small result, not browse.
  */
 export function useEmailSearch(
   mailboxId: string | null | undefined,

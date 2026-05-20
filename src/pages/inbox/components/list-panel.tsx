@@ -66,6 +66,13 @@ export function ListPanel({ mailboxId }: Props) {
     [all, filters],
   );
 
+  // Load-more affordance is only meaningful while browsing — search
+  // has its own (smaller) cap and doesn't paginate. Filters apply
+  // client-side over what we've already fetched, so the user may want
+  // to load more even when the filtered view is empty to expand the
+  // search space.
+  const showLoadMore = !searching && browse.hasMore;
+
   const checkedEmails = useMemo(
     () => visible.filter((e) => checked.has(e.id)),
     [visible, checked],
@@ -222,6 +229,10 @@ export function ListPanel({ mailboxId }: Props) {
           checked={checked}
           onSelect={setEmailId}
           onToggleChecked={toggleChecked}
+          loadedCount={all.length}
+          showLoadMore={showLoadMore}
+          isLoadingMore={browse.isLoadingMore}
+          onLoadMore={browse.loadMore}
         />
       </div>
       {checkedEmails.length > 0 ? (
@@ -244,6 +255,10 @@ function ListBody({
   checked,
   onSelect,
   onToggleChecked,
+  loadedCount,
+  showLoadMore,
+  isLoadingMore,
+  onLoadMore,
 }: {
   isLoading: boolean;
   error: unknown;
@@ -254,6 +269,10 @@ function ListBody({
   checked: Set<string>;
   onSelect: (id: string) => void;
   onToggleChecked: (id: string) => void;
+  loadedCount: number;
+  showLoadMore: boolean;
+  isLoadingMore: boolean;
+  onLoadMore: () => void;
 }) {
   if (isLoading) return <ListSkeleton />;
 
@@ -267,28 +286,70 @@ function ListBody({
 
   if (visible.length === 0) {
     return (
-      <p className="text-muted-foreground flex flex-1 items-center justify-center px-6 text-center text-[12.5px]">
-        {searching
-          ? `No messages match "${query}".`
-          : "No messages match the active filter."}
-      </p>
+      <>
+        <p className="text-muted-foreground flex flex-1 items-center justify-center px-6 text-center text-[12.5px]">
+          {searching
+            ? `No messages match "${query}".`
+            : "No messages match the active filter."}
+        </p>
+        {showLoadMore ? (
+          <LoadMoreRow
+            loadedCount={loadedCount}
+            loading={isLoadingMore}
+            onClick={onLoadMore}
+          />
+        ) : null}
+      </>
     );
   }
 
   return (
-    <ul className="flex flex-col">
-      {visible.map((email) => (
-        <li key={email.id}>
-          <EmailRow
-            email={email}
-            selected={email.id === activeId}
-            checked={checked.has(email.id)}
-            onSelect={() => onSelect(email.id)}
-            onToggleChecked={() => onToggleChecked(email.id)}
-          />
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul className="flex flex-col">
+        {visible.map((email) => (
+          <li key={email.id}>
+            <EmailRow
+              email={email}
+              selected={email.id === activeId}
+              checked={checked.has(email.id)}
+              onSelect={() => onSelect(email.id)}
+              onToggleChecked={() => onToggleChecked(email.id)}
+            />
+          </li>
+        ))}
+      </ul>
+      {showLoadMore ? (
+        <LoadMoreRow
+          loadedCount={loadedCount}
+          loading={isLoadingMore}
+          onClick={onLoadMore}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function LoadMoreRow({
+  loadedCount,
+  loading,
+  onClick,
+}: {
+  loadedCount: number;
+  loading: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={loading}
+      className="border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/30 group flex w-full items-center justify-center gap-2 border-t px-4 py-3 text-[11.5px] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      <span>{loading ? "Loading…" : "Load older messages"}</span>
+      <span className="text-muted-foreground/60 font-mono tabular-nums">
+        {loadedCount.toLocaleString()} shown
+      </span>
+    </button>
   );
 }
 
