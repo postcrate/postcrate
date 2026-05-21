@@ -1,6 +1,5 @@
 import { useViewStore } from "./use-view-store";
 import { useThemeStore } from "./use-theme-store";
-import { useServerStore } from "./use-server-store";
 import { useProjectsStore } from "./use-projects-store";
 import { useOnboardingStore } from "./use-onboarding-store";
 import { usePreferencesStore } from "./use-preferences-store";
@@ -15,7 +14,6 @@ const PERSISTED_STORES = [
   useProjectsStore,
   usePreferencesStore,
   useViewStore,
-  useServerStore,
   useThemeStore,
 ] as const;
 

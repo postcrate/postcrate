@@ -10,7 +10,6 @@ import {
 import { cn } from "@/lib/utils";
 import { Kbd } from "@/components/ui/kbd";
 import { useViewStore } from "@/stores/use-view-store";
-import { useServerStore } from "@/stores/use-server-store";
 import { useDialogsStore } from "@/stores/use-dialogs-store";
 import { useProjectsStore } from "@/stores/use-projects-store";
 import { useMailboxes, type Mailbox, type MailboxKind } from "@/services/mailbox";
@@ -23,6 +22,8 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
+import { isMailboxRunning } from "./sidebar-status";
+
 const KIND_SWATCH: Record<MailboxKind, string> = {
   primary: "bg-warn",
   ephemeral: "bg-info",
@@ -34,12 +35,15 @@ export function MailboxSwitcher() {
   const projectId = useProjectsStore((s) => s.currentId);
   const mailboxId = useViewStore((s) => s.mailboxId);
   const setMailboxId = useViewStore((s) => s.setMailboxId);
-  const running = useServerStore((s) => s.running);
   const openNewMailbox = useDialogsStore((s) => s.openNewMailbox);
 
   const { mailboxes } = useMailboxes(projectId);
   const list = mailboxes ?? [];
   const current = list.find((m) => m.id === mailboxId) ?? list[0];
+  // Live indicator reflects the *current* mailbox's actual state —
+  // not a UI-only flag — so Start/Stop changes (from the row context
+  // menu or the bottom-of-sidebar button) refresh this chip too.
+  const running = isMailboxRunning(current);
 
   // Reconcile the view's mailboxId against the *current* project's
   // list. Without this, switching projects (or deleting one and

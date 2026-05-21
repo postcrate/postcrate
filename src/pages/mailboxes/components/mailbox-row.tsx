@@ -7,14 +7,16 @@ import { reportIpcError } from "@/lib/bridge/ipc";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TableCell, TableRow } from "@/components/ui/table";
 import {
-  clearMailbox,
-  purgeMailbox,
-  type Mailbox,
-} from "@/services/mailbox";
-import {
   exportMailboxRecording,
   replayRecordingFromFile,
 } from "@/services/recording";
+import {
+  clearMailbox,
+  purgeMailbox,
+  startMailbox,
+  stopMailbox,
+  type Mailbox,
+} from "@/services/mailbox";
 import {
   ContextMenu,
   ContextMenuItem,
@@ -84,6 +86,31 @@ export function MailboxRow({
     }
   }
 
+  async function handleStart() {
+    try {
+      await startMailbox(mailbox.id);
+      toast.success(`Started — bound on ${connectionString(mailbox)}`);
+    } catch (err) {
+      // Most common: the port was taken by another process while the
+      // mailbox was stopped. Engine's PortInUse error surfaces here.
+      reportIpcError(err, "Couldn't start mailbox");
+    }
+  }
+
+  async function handleStop() {
+    try {
+      await stopMailbox(mailbox.id);
+      toast.success(`Stopped — port ${mailbox.port} released`);
+    } catch (err) {
+      reportIpcError(err, "Couldn't stop mailbox");
+    }
+  }
+
+  // A mailbox is "off" when the listener isn't running for any reason
+  // — user-stopped (paused) or a failed bind. In both cases the
+  // primary action is Start; the engine clears the failure on success.
+  const isOff = status === "stopped" || status === "failed";
+
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
@@ -123,6 +150,11 @@ export function MailboxRow({
           <TableCell className="py-2.5">
             <StatusPill
               status={status}
+              title={
+                status === "failed" && mailbox.failReason
+                  ? mailbox.failReason
+                  : undefined
+              }
               className={cn(
                 status === "failed" && "max-w-[140px] truncate",
               )}
@@ -163,6 +195,16 @@ export function MailboxRow({
         <ContextMenuItem onSelect={copyConnection}>
           Copy SMTP URL
         </ContextMenuItem>
+        <ContextMenuSeparator />
+        {isOff ? (
+          <ContextMenuItem onSelect={handleStart}>
+            Start mailbox
+          </ContextMenuItem>
+        ) : (
+          <ContextMenuItem onSelect={handleStop}>
+            Stop mailbox
+          </ContextMenuItem>
+        )}
         <ContextMenuSeparator />
         <ContextMenuItem
           onSelect={() =>

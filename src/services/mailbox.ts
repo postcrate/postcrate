@@ -238,6 +238,36 @@ export async function deleteMailbox(id: string): Promise<void> {
 }
 
 /**
+ * Bring a stopped or failed mailbox online. The engine clears
+ * `paused` + `failed` on success and emits `MailboxStateChanged`
+ * which `useMailboxSync` picks up to refresh every cache binding.
+ * Bind failures (port in use, etc.) reject so callers can surface
+ * the error.
+ */
+export async function startMailbox(id: string): Promise<void> {
+  unwrap(await commands.startMailbox(id));
+  // The engine event will re-fetch shortly, but invalidate now so any
+  // pill that's rendering immediately reflects the new state.
+  await Promise.all([
+    globalMutate(MAILBOX_KEYS.detail(id)),
+    invalidateLists(),
+  ]);
+}
+
+/**
+ * Tear down a mailbox's SMTP listener and persist the user intent so
+ * the listener stays down across app restarts. Idempotent on the
+ * engine side, so double-clicks are harmless.
+ */
+export async function stopMailbox(id: string): Promise<void> {
+  unwrap(await commands.stopMailbox(id));
+  await Promise.all([
+    globalMutate(MAILBOX_KEYS.detail(id)),
+    invalidateLists(),
+  ]);
+}
+
+/**
  * Create a TTL-bounded ephemeral mailbox. Returns the engine handle
  * (`{ id, host, port, expiresAt }`) so the caller can show the bound
  * endpoint right away.

@@ -4,12 +4,11 @@ import type { ServerStatus } from "@/lib/bridge/bindings";
 
 /**
  * Live engine status as reported by `engine:server-status-changed`.
- *
- * Distinct from `useServerStore`, which models a *user-controlled*
- * on/off toggle. This store reflects what the engine is actually doing
- * — running mailbox count, whether the HTTP API is up, and any
- * startup/runtime errors. No persistence: the engine is the source of
- * truth and replays its current status on subscribe.
+ * Reflects what the engine is actually doing — running mailbox count,
+ * HTTP API state, and any startup/runtime errors. No persistence: the
+ * engine is the source of truth and replays its current status on
+ * subscribe. Per-mailbox Start/Stop state lives on the Mailbox row
+ * (paused/failed); this store is the process-wide rollup.
  */
 type EngineStatusState = {
   status: ServerStatus | null;

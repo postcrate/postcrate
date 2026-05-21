@@ -45,6 +45,24 @@ pub async fn delete_mailbox(state: State<'_, AppState>, id: String) -> IpcResult
     Ok(state.service.delete_mailbox(&id).await?)
 }
 
+/// Bring a stopped or failed mailbox's SMTP listener online and clear
+/// the persistent `paused` intent. Errors propagate so the UI can show
+/// why a bind failed (port in use, etc.) and revert its optimistic
+/// status change.
+#[tauri::command]
+#[specta::specta]
+pub async fn start_mailbox(state: State<'_, AppState>, id: String) -> IpcResult<()> {
+    Ok(state.service.start_mailbox(&id).await?)
+}
+
+/// Tear down a mailbox's SMTP listener and remember the user intent
+/// so the listener stays down across app restarts.
+#[tauri::command]
+#[specta::specta]
+pub async fn stop_mailbox(state: State<'_, AppState>, id: String) -> IpcResult<()> {
+    Ok(state.service.stop_mailbox(&id).await?)
+}
+
 #[tauri::command]
 #[specta::specta]
 pub async fn create_ephemeral(
