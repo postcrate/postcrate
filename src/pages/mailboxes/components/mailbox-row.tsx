@@ -1,11 +1,20 @@
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  CaretRightIcon,
+  PlayIcon,
+  StopIcon,
+} from "@phosphor-icons/react/dist/ssr";
 
 import { cn } from "@/lib/utils";
 import { reportIpcError } from "@/lib/bridge/ipc";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TableCell, TableRow } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   exportMailboxRecording,
   replayRecordingFromFile,
@@ -86,7 +95,11 @@ export function MailboxRow({
     }
   }
 
+  const [lifecycleBusy, setLifecycleBusy] = useState(false);
+
   async function handleStart() {
+    if (lifecycleBusy) return;
+    setLifecycleBusy(true);
     try {
       await startMailbox(mailbox.id);
       toast.success(`Started — bound on ${connectionString(mailbox)}`);
@@ -94,15 +107,21 @@ export function MailboxRow({
       // Most common: the port was taken by another process while the
       // mailbox was stopped. Engine's PortInUse error surfaces here.
       reportIpcError(err, "Couldn't start mailbox");
+    } finally {
+      setLifecycleBusy(false);
     }
   }
 
   async function handleStop() {
+    if (lifecycleBusy) return;
+    setLifecycleBusy(true);
     try {
       await stopMailbox(mailbox.id);
       toast.success(`Stopped — port ${mailbox.port} released`);
     } catch (err) {
       reportIpcError(err, "Couldn't stop mailbox");
+    } finally {
+      setLifecycleBusy(false);
     }
   }
 
@@ -147,18 +166,32 @@ export function MailboxRow({
               </span>
             </div>
           </TableCell>
-          <TableCell className="py-2.5">
-            <StatusPill
-              status={status}
-              title={
-                status === "failed" && mailbox.failReason
-                  ? mailbox.failReason
-                  : undefined
-              }
-              className={cn(
-                status === "failed" && "max-w-[140px] truncate",
-              )}
-            />
+          <TableCell
+            className="py-2.5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2">
+              <StatusPill
+                status={status}
+                title={
+                  status === "failed" && mailbox.failReason
+                    ? mailbox.failReason
+                    : undefined
+                }
+                className={cn(
+                  status === "failed" && "max-w-[140px] truncate",
+                )}
+              />
+              {status !== "expired" ? (
+                <LifecycleButton
+                  isOff={isOff}
+                  busy={lifecycleBusy}
+                  mailboxName={mailbox.name}
+                  onStart={handleStart}
+                  onStop={handleStop}
+                />
+              ) : null}
+            </div>
           </TableCell>
           <TableCell className="text-muted-foreground py-2.5 font-mono text-[12px] tabular-nums">
             {connectionString(mailbox)}
@@ -234,6 +267,59 @@ export function MailboxRow({
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
+  );
+}
+
+type LifecycleButtonProps = {
+  isOff: boolean;
+  busy: boolean;
+  mailboxName: string;
+  onStart: () => void;
+  onStop: () => void;
+};
+
+/**
+ * Inline Start/Stop control that lives next to the status pill on
+ * every row. Mirrors the bottom-of-sidebar styling so the two
+ * affordances feel like the same control surface: brand-tinted Play
+ * when the mailbox is off (to invite the action), muted Stop when
+ * it's running (subtle, hover-highlighted). Disabled during the
+ * in-flight IPC so a fast double-click can't race itself.
+ */
+function LifecycleButton({
+  isOff,
+  busy,
+  mailboxName,
+  onStart,
+  onStop,
+}: LifecycleButtonProps) {
+  const Icon = isOff ? PlayIcon : StopIcon;
+  const label = isOff ? `Start ${mailboxName}` : `Stop ${mailboxName}`;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={label}
+          disabled={busy}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (isOff) onStart();
+            else onStop();
+          }}
+          className={cn(
+            "inline-flex size-5 items-center justify-center rounded-md transition-colors",
+            "outline-none disabled:cursor-not-allowed disabled:opacity-40",
+            isOff
+              ? "text-brand bg-brand/12 hover:bg-brand/20"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <Icon size={10} weight="fill" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   );
 }
 

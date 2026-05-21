@@ -203,6 +203,15 @@ type UseSuggestedPortResult = {
   refresh: () => Promise<number | undefined>;
 };
 
+type UseSuggestedPortOpts = {
+  /**
+   * Pass `false` to skip the fetch entirely — useful when the
+   * consumer (e.g. the edit-mode mailbox dialog) doesn't need a
+   * suggestion. Returns `undefined`/no-op refresh.
+   */
+  enabled?: boolean;
+};
+
 /**
  * Ask the engine for the first free SMTP port at or above `start`
  * (default 1025). The engine cross-references the DB AND probe-binds
@@ -215,10 +224,12 @@ type UseSuggestedPortResult = {
  */
 export function useSuggestedPort(
   start: number | null = null,
+  opts: UseSuggestedPortOpts = {},
   config?: SWRConfiguration<number>,
 ): UseSuggestedPortResult {
-  const result = useSWR<number, unknown, SuggestedPortKey>(
-    MAILBOX_KEYS.suggestedPort(start),
+  const enabled = opts.enabled ?? true;
+  const result = useSWR<number, unknown, SuggestedPortKey | null>(
+    enabled ? MAILBOX_KEYS.suggestedPort(start) : null,
     () => fetchSuggestedPort(start),
     {
       revalidateIfStale: false,

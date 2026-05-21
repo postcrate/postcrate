@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,6 +43,9 @@ const optionalNumber = (min: number, max: number) =>
     .max(max, `Must be ≤ ${max}`)
     .nullable();
 
+const TTL_MIN_SECONDS = 10;
+const TTL_MAX_SECONDS = 86400 * 30;
+
 const schema = z
   .object({
     name: z
@@ -52,18 +56,36 @@ const schema = z
       .regex(NAME_PATTERN, "Letters, numbers and hyphens only"),
     kind: z.enum(["primary", "shared", "ephemeral"] as const),
     port: optionalNumber(1, 65535),
-    ttlSeconds: optionalNumber(10, 86400 * 30),
+    // Field-conditional: only ephemerals require a TTL in range.
+    // For other kinds the form may carry whatever stale value was
+    // persisted (or none), and the submit handler will null it out
+    // before sending — so we accept any number/null at the base level
+    // and only enforce the real range in `superRefine` below.
+    ttlSeconds: z.number().int().nullable(),
     implicitTls: z.boolean(),
   })
   .superRefine((values, ctx) => {
-    if (
-      values.kind === "ephemeral" &&
-      (values.ttlSeconds == null || values.ttlSeconds <= 0)
-    ) {
+    if (values.kind !== "ephemeral") return;
+    const ttl = values.ttlSeconds;
+    if (ttl == null) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["ttlSeconds"],
         message: "Ephemeral mailboxes need a TTL",
+      });
+      return;
+    }
+    if (ttl < TTL_MIN_SECONDS) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ttlSeconds"],
+        message: `Must be ≥ ${TTL_MIN_SECONDS} seconds`,
+      });
+    } else if (ttl > TTL_MAX_SECONDS) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ttlSeconds"],
+        message: "Max TTL is 30 days",
       });
     }
   });
@@ -114,12 +136,15 @@ export function MailboxFormDialog(props: Props) {
   // outside this app too. Advisory — `createMailbox` is the
   // authoritative claim. We refresh on each open so a stale cached
   // suggestion can't outlive a manual port grab elsewhere.
+  // Skip the suggestion in edit mode — the user isn't picking a port
+  // from scratch, they're editing an existing one. Fetching here just
+  // adds an IPC round-trip and extra re-renders for no UI gain.
   const {
     port: suggested,
     isLoading: suggestionLoading,
     error: suggestionError,
     refresh: refreshSuggested,
-  } = useSuggestedPort();
+  } = useSuggestedPort(null, { enabled: !isEdit });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -175,6 +200,20 @@ export function MailboxFormDialog(props: Props) {
   }, [open, isEdit, suggested, form]);
 
   const kind = form.watch("kind");
+
+  /**
+   * Fires when zod validation blocks submission. In edit mode the
+   * `kind` and `implicitTls` fields aren't rendered, so an error on
+   * them would otherwise be invisible — the dialog would look like
+   * it ignored the click. Surface every error path explicitly.
+   */
+  function onInvalid(errors: typeof form.formState.errors) {
+    const first = Object.values(errors)[0]?.message ?? "Please check the form";
+    toast.error("Couldn't save changes", { description: first });
+    // Helpful when the error isn't on a visible field — devtools shows
+    // the full shape including which key failed and why.
+    console.warn("mailbox form invalid", errors);
+  }
 
   async function onSubmit(values: FormValues) {
     setSubmitting(true);
@@ -235,7 +274,7 @@ export function MailboxFormDialog(props: Props) {
         </DialogHeader>
 
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(onSubmit, onInvalid)}
           className="flex flex-col gap-3.5"
         >
           <Field
