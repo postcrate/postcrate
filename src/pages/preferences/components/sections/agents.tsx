@@ -1,45 +1,27 @@
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { reportIpcError } from "@/lib/bridge/ipc";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useDeferredCommit } from "@/hooks/use-deferred-commit";
-import {
-  updateAgentPrefs,
-  updateNetworkPrefs,
-  useBackendSettings,
-  type AgentPrefs,
-  type NetworkPrefs,
-} from "@/services/settings";
+import { useBackendSettings } from "@/services/settings";
 
 import { Row } from "../row";
 import { Section } from "../section";
 import { PortInput } from "../port-input";
 
+/**
+ * AI & Agents preferences.
+ *
+ * Every row here is gated on engine work that hasn't landed yet (the
+ * MCP server, agent audit logging, destructive-action confirmation,
+ * etc.), so the controls render the persisted defaults but are all
+ * disabled and carry a "Soon" badge. Once the engine ships each
+ * capability we'll re-enable the corresponding row and wire its
+ * commit handler.
+ */
+const NOOP = () => {};
+
 export function AgentsSection() {
   const { settings } = useBackendSettings();
   const ai = settings?.agents;
   const net = settings?.network;
-
-  function commit(patch: Partial<AgentPrefs>) {
-    if (!ai) return;
-    updateAgentPrefs({ ...ai, ...patch }).catch((err) =>
-      reportIpcError(err, "Couldn't update agent settings"),
-    );
-  }
-
-  function commitNet(patch: Partial<NetworkPrefs>) {
-    if (!net) return;
-    updateNetworkPrefs({ ...net, ...patch }).catch((err) =>
-      reportIpcError(err, "Couldn't update MCP settings"),
-    );
-  }
-
-  // Slider commits on release only — without this, dragging fired one
-  // IPC per intermediate value and lagged behind the thumb.
-  const wait = useDeferredCommit(
-    ai?.defaultWaitTimeoutSeconds ?? 30,
-    (v) => commit({ defaultWaitTimeoutSeconds: v }),
-  );
 
   return (
     <Section
@@ -52,15 +34,12 @@ export function AgentsSection() {
         htmlFor="mcp-enabled"
         comingSoon
       >
-        {net ? (
-          <Switch
-            id="mcp-enabled"
-            checked={net.mcpEnabled}
-            onCheckedChange={(v) => commitNet({ mcpEnabled: v })}
-          />
-        ) : (
-          <Skeleton className="h-5 w-9 rounded-full" />
-        )}
+        <Switch
+          id="mcp-enabled"
+          checked={net?.mcpEnabled ?? false}
+          onCheckedChange={NOOP}
+          disabled
+        />
       </Row>
       <Row
         label="MCP port"
@@ -68,43 +47,31 @@ export function AgentsSection() {
         htmlFor="mcp-port"
         comingSoon
       >
-        {net ? (
-          <PortInput
-            id="mcp-port"
-            value={net.mcpPort}
-            onCommit={(n) => commitNet({ mcpPort: n })}
-          />
-        ) : (
-          <Skeleton className="h-8 w-24" />
-        )}
+        <PortInput
+          id="mcp-port"
+          value={net?.mcpPort ?? 8026}
+          onCommit={NOOP}
+          disabled
+        />
       </Row>
       <Row
         label="Default wait timeout"
-        description={
-          ai
-            ? `wait_for_email blocks up to ${wait.draft}s by default.`
-            : "wait_for_email default timeout."
-        }
+        description={`wait_for_email blocks up to ${ai?.defaultWaitTimeoutSeconds ?? 30}s by default.`}
         comingSoon
       >
-        {ai ? (
-          <div className="flex w-56 items-center gap-3">
-            <Slider
-              value={[wait.draft]}
-              onValueChange={([v]) => wait.setDraft(v ?? 30)}
-              onValueCommit={([v]) => wait.commitDraft(v ?? 30)}
-              min={5}
-              max={300}
-              step={5}
-              className="flex-1"
-            />
-            <span className="text-muted-foreground w-12 text-right text-[11px] tabular-nums">
-              {wait.draft}s
-            </span>
-          </div>
-        ) : (
-          <Skeleton className="h-2 w-56" />
-        )}
+        <div className="flex w-56 items-center gap-3">
+          <Slider
+            value={[ai?.defaultWaitTimeoutSeconds ?? 30]}
+            min={5}
+            max={300}
+            step={5}
+            disabled
+            className="flex-1"
+          />
+          <span className="text-muted-foreground w-12 text-right text-[11px] tabular-nums">
+            {ai?.defaultWaitTimeoutSeconds ?? 30}s
+          </span>
+        </div>
       </Row>
       <Row
         label="Log agent requests"
@@ -112,15 +79,12 @@ export function AgentsSection() {
         htmlFor="log-agent"
         comingSoon
       >
-        {ai ? (
-          <Switch
-            id="log-agent"
-            checked={ai.logAgentRequests}
-            onCheckedChange={(v) => commit({ logAgentRequests: v })}
-          />
-        ) : (
-          <Skeleton className="h-5 w-9 rounded-full" />
-        )}
+        <Switch
+          id="log-agent"
+          checked={ai?.logAgentRequests ?? true}
+          onCheckedChange={NOOP}
+          disabled
+        />
       </Row>
       <Row
         label="Confirm destructive actions"
@@ -128,15 +92,12 @@ export function AgentsSection() {
         htmlFor="confirm-destructive"
         comingSoon
       >
-        {ai ? (
-          <Switch
-            id="confirm-destructive"
-            checked={ai.confirmDestructiveActions}
-            onCheckedChange={(v) => commit({ confirmDestructiveActions: v })}
-          />
-        ) : (
-          <Skeleton className="h-5 w-9 rounded-full" />
-        )}
+        <Switch
+          id="confirm-destructive"
+          checked={ai?.confirmDestructiveActions ?? true}
+          onCheckedChange={NOOP}
+          disabled
+        />
       </Row>
     </Section>
   );

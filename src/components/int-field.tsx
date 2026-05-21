@@ -11,6 +11,7 @@ type Props = {
   max?: number;
   step?: number;
   className?: string;
+  disabled?: boolean;
 };
 
 /**
@@ -27,6 +28,7 @@ export function IntField({
   max,
   step = 1,
   className,
+  disabled,
 }: Props) {
   const [draft, setDraft] = useState(() => String(value));
 
@@ -55,6 +57,7 @@ export function IntField({
       max={max}
       step={step}
       value={draft}
+      disabled={disabled}
       onChange={(e) => setDraft(e.currentTarget.value)}
       onBlur={commit}
       onKeyDown={(e) => {

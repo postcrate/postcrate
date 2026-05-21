@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -19,34 +20,22 @@ export function NetworkSection() {
   const { settings } = useBackendSettings();
   const net = settings?.network;
 
-  function commit(patch: Partial<NetworkPrefs>) {
+  function commit(patch: Partial<NetworkPrefs>, successLabel?: string) {
     if (!net) return;
-    updateNetworkPrefs({ ...net, ...patch }).catch((err) =>
-      reportIpcError(err, "Couldn't update network settings"),
-    );
+    updateNetworkPrefs({ ...net, ...patch })
+      .then(() => {
+        if (successLabel) toast.success(successLabel);
+      })
+      .catch((err) =>
+        reportIpcError(err, "Couldn't update network settings"),
+      );
   }
 
   return (
     <Section
       title="Network & Listeners"
-      description="Ports and exposure for the SMTP and HTTP servers."
+      description="Exposure and access for the HTTP API. Changes apply immediately — the listener rebinds in place."
     >
-      <Row
-        label="SMTP port"
-        description="Where senders connect to deliver mail."
-        htmlFor="smtp-port"
-        comingSoon
-      >
-        {net ? (
-          <PortInput
-            id="smtp-port"
-            value={net.smtpPort}
-            onCommit={(n) => commit({ smtpPort: n })}
-          />
-        ) : (
-          <Skeleton className="h-8 w-24" />
-        )}
-      </Row>
       <Row
         label="HTTP API port"
         description="Used by test matchers, the CLI, and editor extensions."
@@ -56,25 +45,12 @@ export function NetworkSection() {
           <PortInput
             id="http-port"
             value={net.httpApiPort}
-            onCommit={(n) => commit({ httpApiPort: n })}
+            onCommit={(n) =>
+              commit({ httpApiPort: n }, `API restarted on port ${n}`)
+            }
           />
         ) : (
           <Skeleton className="h-8 w-24" />
-        )}
-      </Row>
-      <Row
-        label="HTTP API over TLS"
-        description="Serve /api/v1 over HTTPS using the STARTTLS cert. Requires the tls build feature."
-        htmlFor="api-tls"
-      >
-        {net ? (
-          <Switch
-            id="api-tls"
-            checked={net.apiTls ?? false}
-            onCheckedChange={(v) => commit({ apiTls: v })}
-          />
-        ) : (
-          <Skeleton className="h-5 w-9 rounded-full" />
         )}
       </Row>
       <Row
@@ -85,7 +61,12 @@ export function NetworkSection() {
         {net ? (
           <ApiAuthTokenInput
             value={net.apiAuthToken ?? null}
-            onCommit={(token) => commit({ apiAuthToken: token })}
+            onCommit={(token) =>
+              commit(
+                { apiAuthToken: token },
+                token ? "API restarted with bearer auth" : "API restarted without auth",
+              )
+            }
           />
         ) : (
           <Skeleton className="h-8 w-56" />
@@ -106,7 +87,12 @@ export function NetworkSection() {
             <Switch
               id="expose-lan"
               checked={net.exposeOnLan}
-              onCheckedChange={(v) => commit({ exposeOnLan: v })}
+              onCheckedChange={(v) =>
+                commit(
+                  { exposeOnLan: v },
+                  v ? "API now bound to 0.0.0.0" : "API now bound to 127.0.0.1",
+                )
+              }
             />
           </div>
         ) : (

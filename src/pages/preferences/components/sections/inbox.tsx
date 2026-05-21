@@ -1,5 +1,4 @@
 import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import { reportIpcError } from "@/lib/bridge/ipc";
 import { IntField } from "@/components/int-field";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,40 +33,8 @@ export function InboxSection() {
   return (
     <Section
       title="Inbox"
-      description="Defaults for how captured email is organized and retained."
+      description="How long captured email is retained before it's pruned automatically."
     >
-      <Row
-        label="Group related emails"
-        description="Collapse same-recipient threads into a single row."
-        htmlFor="thread-related"
-        comingSoon
-      >
-        {inbox ? (
-          <Switch
-            id="thread-related"
-            checked={inbox.threadRelated}
-            onCheckedChange={(v) => commit({ threadRelated: v })}
-          />
-        ) : (
-          <Skeleton className="h-5 w-9 rounded-full" />
-        )}
-      </Row>
-      <Row
-        label="Auto-tag emails"
-        description="Detect auth, billing, marketing, and system mail locally."
-        htmlFor="auto-tag"
-        comingSoon
-      >
-        {inbox ? (
-          <Switch
-            id="auto-tag"
-            checked={inbox.autoTag}
-            onCheckedChange={(v) => commit({ autoTag: v })}
-          />
-        ) : (
-          <Skeleton className="h-5 w-9 rounded-full" />
-        )}
-      </Row>
       <Row
         label="Max retained emails"
         description="Older emails are pruned when this limit is exceeded."
