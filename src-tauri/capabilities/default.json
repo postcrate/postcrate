@@ -21,6 +21,10 @@
     "dialog:allow-open",
     "fs:allow-write-text-file",
     "fs:allow-read-text-file",
-    "notification:default"
+    "notification:default",
+    "autostart:default",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister",
+    "global-shortcut:allow-is-registered"
   ]
 }

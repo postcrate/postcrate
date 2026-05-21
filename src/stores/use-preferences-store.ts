@@ -23,10 +23,16 @@ export type AppearancePrefs = {
 };
 
 export type GeneralPrefs = {
-  launchAtLogin: boolean;
+  /**
+   * macOS dock-icon visibility. Persisted client-side because Tauri's
+   * `setDockVisibility` doesn't survive app restarts — we re-apply
+   * this on every boot.
+   */
   showInDock: boolean;
-  showInMenuBar: boolean;
-  singleInstance: boolean;
+  /**
+   * Tauri-normalized accelerator string (e.g. "CommandOrControl+Shift+P").
+   * The OS-side registration is owned by `useGlobalShortcutSync`.
+   */
   globalShortcut: string;
 };
 
@@ -80,11 +86,8 @@ const defaults: Sections = {
     monoForCode: true,
   },
   general: {
-    launchAtLogin: false,
     showInDock: true,
-    showInMenuBar: true,
-    singleInstance: true,
-    globalShortcut: "CmdOrCtrl+Shift+P",
+    globalShortcut: "CommandOrControl+Shift+P",
   },
   notifications: {
     desktopOnNewEmail: true,

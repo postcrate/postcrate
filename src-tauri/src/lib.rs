@@ -34,6 +34,10 @@ pub fn run() {
     }
 
     let app = builder
+        .plugin(tauri_plugin_autostart::init(
+            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
+            None,
+        ))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_notification::init())
@@ -91,6 +95,14 @@ pub fn run() {
             }
 
             windows::setup_preferences_lifecycle(handle);
+
+            // Global shortcut plugin — JS side registers/unregisters the
+            // specific binding so the prefs UI is the source of truth.
+            #[cfg(desktop)]
+            {
+                app.handle()
+                    .plugin(tauri_plugin_global_shortcut::Builder::new().build())?;
+            }
 
             // Kick off engine boot on the existing tokio runtime so
             // setup() returns quickly. AppState lands in `app.manage()`

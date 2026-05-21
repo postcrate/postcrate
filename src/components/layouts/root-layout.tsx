@@ -15,6 +15,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useBounceRuleSync } from "@/services/bounce-rules";
 import { useEngineStatusSync } from "@/services/engine-status";
 import { useEmailSync, useUnreadBadgeSync } from "@/services/email";
+import {
+  useDockVisibilitySync,
+  useGlobalShortcutSync,
+} from "@/services/os-integration";
 
 export default function RootLayout() {
   useTheme();
@@ -47,5 +51,7 @@ function EngineSubscriptions() {
   useBounceRuleSync();
   useChaosSync();
   useAuditSync();
+  useDockVisibilitySync();
+  useGlobalShortcutSync();
   return null;
 }
