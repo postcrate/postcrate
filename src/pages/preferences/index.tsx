@@ -24,8 +24,8 @@ import { AppearanceSection } from "./components/sections/appearance";
 import { NotificationsSection } from "./components/sections/notifications";
 
 const SECTIONS = [
-  { id: "appearance", label: "Appearance", Icon: PaintBrushIcon },
   { id: "general", label: "General", Icon: GearIcon },
+  { id: "appearance", label: "Appearance", Icon: PaintBrushIcon },
   { id: "notifications", label: "Notifications", Icon: BellIcon },
   { id: "inbox", label: "Inbox", Icon: TrayIcon },
   { id: "network", label: "Network", Icon: GlobeIcon },
@@ -50,7 +50,7 @@ const SECTION_COMPONENTS: Record<SectionId, () => React.ReactElement> = {
 };
 
 export default function PreferencesPage() {
-  const [active, setActive] = useState<SectionId>("appearance");
+  const [active, setActive] = useState<SectionId>("general");
   const ActiveSection = SECTION_COMPONENTS[active];
 
   return (

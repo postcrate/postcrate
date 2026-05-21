@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Kbd } from "@/components/ui/kbd";
 import { Switch } from "@/components/ui/switch";
+import { Skeleton } from "@/components/ui/skeleton";
 import { usePreferencesStore } from "@/stores/use-preferences-store";
 
 import { Row } from "../row";
@@ -53,21 +54,39 @@ export function GeneralSection() {
   );
 }
 
+// Cache the last known autostart state so repeat visits to Preferences
+// render the right switch position synchronously. The async re-check still
+// runs in the background and corrects the cache if the system changed.
+const AUTOSTART_CACHE_KEY = "postcrate:autostart-enabled";
+
+function readAutostartCache(): boolean | null {
+  if (typeof window === "undefined") return null;
+  const raw = window.localStorage.getItem(AUTOSTART_CACHE_KEY);
+  if (raw === "true") return true;
+  if (raw === "false") return false;
+  return null;
+}
+
+function writeAutostartCache(value: boolean) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(AUTOSTART_CACHE_KEY, value ? "true" : "false");
+}
+
 function LaunchAtLoginRow() {
-  const [enabled, setEnabled] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [enabled, setEnabled] = useState<boolean | null>(() =>
+    readAutostartCache(),
+  );
 
   useEffect(() => {
     let mounted = true;
     isAutostartEnabled()
       .then((v) => {
-        if (mounted) setEnabled(v);
+        if (!mounted) return;
+        setEnabled(v);
+        writeAutostartCache(v);
       })
       .catch(() => {
-        /* plugin unavailable; leave as false */
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
+        if (mounted && enabled === null) setEnabled(false);
       });
     return () => {
       mounted = false;
@@ -76,11 +95,13 @@ function LaunchAtLoginRow() {
 
   async function toggle(next: boolean) {
     setEnabled(next);
+    writeAutostartCache(next);
     try {
       if (next) await enableAutostart();
       else await disableAutostart();
     } catch {
       setEnabled(!next);
+      writeAutostartCache(!next);
     }
   }
 
@@ -90,12 +111,15 @@ function LaunchAtLoginRow() {
       description="Open postcrate when you sign in."
       htmlFor="launch-at-login"
     >
-      <Switch
-        id="launch-at-login"
-        checked={enabled}
-        disabled={loading}
-        onCheckedChange={toggle}
-      />
+      {enabled === null ? (
+        <Skeleton className="h-[18.4px] w-[32px] rounded-full" />
+      ) : (
+        <Switch
+          id="launch-at-login"
+          checked={enabled}
+          onCheckedChange={toggle}
+        />
+      )}
     </Row>
   );
 }
