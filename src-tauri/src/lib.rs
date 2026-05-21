@@ -1,5 +1,6 @@
 mod commands;
 mod core;
+mod log_filter;
 mod menu;
 mod windows;
 
@@ -128,12 +129,5 @@ pub fn run() {
 }
 
 fn init_tracing() {
-    use tracing_subscriber::{fmt, prelude::*, EnvFilter};
-
-    let filter = EnvFilter::try_from_env("POSTCRATE_LOG")
-        .unwrap_or_else(|_| EnvFilter::new("info,postcrate=debug"));
-    let _ = tracing_subscriber::registry()
-        .with(filter)
-        .with(fmt::layer().with_target(true))
-        .try_init();
+    log_filter::install_subscriber();
 }

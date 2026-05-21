@@ -103,6 +103,20 @@ async getEmailRaw(id: string) : Promise<Result<string, IpcError>> {
     else return { status: "error", error: e  as any };
 }
 },
+/**
+ * Load the SMTP transcript captured at ingest time, if the
+ * `Preserve SMTP transcript` pref was on when this email was
+ * received. Returns `None` when the sidecar isn't on disk — the UI
+ * uses that to hide the Transcript tab.
+ */
+async getEmailSmtpTranscript(id: string) : Promise<Result<string | null, IpcError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_email_smtp_transcript", { id }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async deleteEmail(id: string) : Promise<Result<null, IpcError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("delete_email", { id }) };

@@ -38,6 +38,14 @@ pub async fn init_service(app: AppHandle) -> postcrate_core::Result<()> {
     let cfg = CoreConfig::for_data_dir(data_dir)?;
     let sink = Arc::new(TauriEventSink::new(app.clone()));
     let service = Service::build(cfg, sink).await?;
+
+    // Install the live debug-logging controller before `start_all` so
+    // boot honors the persisted Advanced.debugLogging pref on the very
+    // first log line.
+    if let Some(ctl) = crate::log_filter::controller() {
+        service.set_log_level_controller(ctl);
+    }
+
     let service = Arc::new(service);
 
     let status = match service.start_all().await {

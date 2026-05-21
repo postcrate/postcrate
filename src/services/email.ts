@@ -82,12 +82,15 @@ export const EMAIL_KEYS = {
   detail: (id: string) => ["email", id] as const,
   /** Raw RFC 5322 bytes for an email. Immutable per id. */
   raw: (id: string) => ["email-raw", id] as const,
+  /** SMTP transcript captured at ingest. Resolves to null when missing. */
+  transcript: (id: string) => ["email-transcript", id] as const,
 } as const;
 
 type ListKey = ReturnType<typeof EMAIL_KEYS.list>;
 type SearchKey = ReturnType<typeof EMAIL_KEYS.search>;
 type DetailKey = ReturnType<typeof EMAIL_KEYS.detail>;
 type RawKey = ReturnType<typeof EMAIL_KEYS.raw>;
+type TranscriptKey = ReturnType<typeof EMAIL_KEYS.transcript>;
 
 // ---------------------------------------------------------------------------
 // Fetchers
@@ -108,6 +111,10 @@ async function fetchEmail(id: string): Promise<EmailDetail> {
 
 async function fetchEmailRaw(id: string): Promise<string> {
   return unwrap(await commands.getEmailRaw(id));
+}
+
+async function fetchEmailSmtpTranscript(id: string): Promise<string | null> {
+  return unwrap(await commands.getEmailSmtpTranscript(id));
 }
 
 async function fetchSearch(
@@ -286,6 +293,48 @@ export function useEmailRaw(
   );
   return {
     raw: result.data,
+    isLoading: result.isLoading,
+    isValidating: result.isValidating,
+    error: result.error,
+    refresh: () => result.mutate(),
+  };
+}
+
+type UseEmailSmtpTranscriptResult = {
+  /**
+   * `string` when the transcript exists on disk, `null` when the email
+   * was captured with the pref off (the tab should hide in that case),
+   * `undefined` while loading.
+   */
+  transcript: string | null | undefined;
+  isLoading: boolean;
+  isValidating: boolean;
+  error: unknown;
+  refresh: () => Promise<string | null | undefined>;
+};
+
+/**
+ * Subscribe to an email's captured SMTP transcript. Resolves to `null`
+ * when the `Preserve SMTP transcript` pref was off at ingest time —
+ * the tab uses that signal to render an empty state instead of an
+ * error. Transcripts are immutable per id.
+ */
+export function useEmailSmtpTranscript(
+  id: string | null | undefined,
+  config?: SWRConfiguration<string | null>,
+): UseEmailSmtpTranscriptResult {
+  const result = useSWR<string | null, unknown, TranscriptKey | null>(
+    id ? EMAIL_KEYS.transcript(id) : null,
+    () => fetchEmailSmtpTranscript(id as string),
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      ...config,
+    },
+  );
+  return {
+    transcript: result.data,
     isLoading: result.isLoading,
     isValidating: result.isValidating,
     error: result.error,

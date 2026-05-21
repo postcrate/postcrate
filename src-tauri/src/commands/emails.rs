@@ -102,3 +102,16 @@ pub async fn get_email_raw(state: State<'_, AppState>, id: String) -> IpcResult<
     let bytes = state.service.get_email_raw(&id).await?;
     Ok(String::from_utf8_lossy(&bytes).into_owned())
 }
+
+/// Load the SMTP transcript captured at ingest time, if the
+/// `Preserve SMTP transcript` pref was on when this email was
+/// received. Returns `None` when the sidecar isn't on disk — the UI
+/// uses that to hide the Transcript tab.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_email_smtp_transcript(
+    state: State<'_, AppState>,
+    id: String,
+) -> IpcResult<Option<String>> {
+    Ok(state.service.get_email_smtp_transcript(&id).await?)
+}

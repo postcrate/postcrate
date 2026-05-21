@@ -9,6 +9,7 @@ import { DetailRender } from "./detail-render";
 import { DetailHeaders } from "./detail-headers";
 import { DetailPreview } from "./detail-preview";
 import { DetailInspect } from "./detail-inspect";
+import { DetailTranscript } from "./detail-transcript";
 import { PreviewThemeToggle } from "./preview-theme-toggle";
 
 type Props = {
@@ -21,7 +22,8 @@ type TabValue =
   | "headers"
   | "raw"
   | "inspect"
-  | "render";
+  | "render"
+  | "transcript";
 
 /**
  * Body-view switcher. Defaults to Preview if HTML is present, falls
@@ -56,6 +58,7 @@ export function DetailTabs({ email }: Props) {
           <Trigger value="render" disabled={!email.hasHtml}>
             Render
           </Trigger>
+          <Trigger value="transcript">Transcript</Trigger>
         </TabsList>
         {value === "preview" || value === "render" ? (
           <PreviewThemeToggle />
@@ -114,6 +117,13 @@ export function DetailTabs({ email }: Props) {
         className="min-h-0 flex-1 overflow-y-auto focus-visible:outline-none"
       >
         <DetailRender emailId={email.id} hasHtml={email.hasHtml} />
+      </TabsContent>
+
+      <TabsContent
+        value="transcript"
+        className="min-h-0 flex-1 overflow-y-auto focus-visible:outline-none"
+      >
+        <DetailTranscript emailId={email.id} />
       </TabsContent>
     </Tabs>
   );

@@ -43,9 +43,8 @@ export function AdvancedSection() {
     >
       <Row
         label="Debug logging"
-        description="Verbose logs for troubleshooting. Increases disk usage."
+        description="Drop the tracing filter to `debug,postcrate=trace`. Applies live — no restart."
         htmlFor="debug-logging"
-        comingSoon
       >
         {a ? (
           <Switch
@@ -59,9 +58,8 @@ export function AdvancedSection() {
       </Row>
       <Row
         label="Preserve SMTP transcript"
-        description="Keep the raw conversation for each captured email."
+        description="Save the line-by-line wire conversation alongside each captured email. Visible in the email's Transcript tab. AUTH credentials are redacted."
         htmlFor="preserve-smtp"
-        comingSoon
       >
         {a ? (
           <Switch

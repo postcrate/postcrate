@@ -41,6 +41,7 @@ pub fn specta_builder() -> Builder<tauri::Wry> {
         emails::list_emails,
         emails::get_email,
         emails::get_email_raw,
+        emails::get_email_smtp_transcript,
         emails::delete_email,
         emails::mark_read,
         emails::set_pinned,
