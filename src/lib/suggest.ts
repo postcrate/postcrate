@@ -82,13 +82,3 @@ function pick<T>(arr: ReadonlyArray<T>): T {
 export function suggestName(): string {
   return `${pick(ADJECTIVES)}-${pick(NOUNS)}`;
 }
-
-/**
- * Lowest unused port at or above the dev convention 1025, bounded by
- * 65535. Searches a `Set<number>` of taken ports.
- */
-export function suggestPort(taken: ReadonlySet<number>, start = 1025): number {
-  let port = start;
-  while (taken.has(port) && port < 65535) port++;
-  return port;
-}

@@ -1,22 +1,21 @@
 import { z } from "zod";
-import { useSWRConfig } from "swr";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { cn } from "@/lib/utils";
+import { suggestName } from "@/lib/suggest";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { reportIpcError } from "@/lib/bridge/ipc";
-import { suggestName, suggestPort } from "@/lib/suggest";
 import { useProjectsStore } from "@/stores/use-projects-store";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   createMailbox,
   updateMailbox,
-  useMailboxes,
+  useSuggestedPort,
   type Mailbox,
   type MailboxKind,
 } from "@/services/mailbox";
@@ -108,11 +107,19 @@ export function MailboxFormDialog(props: Props) {
   const isEdit = props.mode === "edit";
 
   const currentProjectId = useProjectsStore((s) => s.currentId);
-  // Prime the SWR cache so the next-port helper has data to read.
-  useMailboxes(isEdit ? null : currentProjectId);
   const [submitting, setSubmitting] = useState(false);
 
-  const { cache } = useSWRConfig();
+  // Engine picks the next free port: skips DB-known ones AND probe-
+  // binds each candidate, so the suggestion accounts for processes
+  // outside this app too. Advisory — `createMailbox` is the
+  // authoritative claim. We refresh on each open so a stale cached
+  // suggestion can't outlive a manual port grab elsewhere.
+  const {
+    port: suggested,
+    isLoading: suggestionLoading,
+    error: suggestionError,
+    refresh: refreshSuggested,
+  } = useSuggestedPort();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -128,9 +135,11 @@ export function MailboxFormDialog(props: Props) {
       : DEFAULT_VALUES,
   });
 
-  // Re-seed only on open toggle / edited-mailbox change. Reading the
-  // SWR cache *inside* the effect avoids a fresh `Set` reference
-  // turning every render into a state update.
+  // Re-seed only on open toggle / edited-mailbox change. The port
+  // field starts empty in the create flow and is filled in by the
+  // separate "suggestion arrived" effect below — that way the user
+  // sees a momentary "Finding free port…" hint instead of a stale
+  // value that gets overwritten under their cursor.
   const editingId = isEdit ? props.mailbox.id : null;
   useEffect(() => {
     if (!open) return;
@@ -143,17 +152,27 @@ export function MailboxFormDialog(props: Props) {
         implicitTls: props.mailbox.implicitTls,
       });
     } else {
-      const taken = collectTakenPorts(cache);
       form.reset({
         name: suggestName(),
         kind: "primary",
-        port: suggestPort(taken),
+        port: null,
         ttlSeconds: null,
         implicitTls: false,
       });
+      // Force a fresh fetch each time the dialog opens — a value
+      // cached from an earlier session might already be taken now.
+      void refreshSuggested();
     }
+  }, [open, editingId, isEdit, form, refreshSuggested]);
 
-  }, [open, editingId, isEdit, form, cache]);
+  // Populate the port field once the engine has a suggestion, but
+  // only if the user hasn't typed something in the meantime.
+  useEffect(() => {
+    if (!open || isEdit || suggested == null) return;
+    if (form.formState.dirtyFields.port) return;
+    if (form.getValues("port") != null) return;
+    form.setValue("port", suggested);
+  }, [open, isEdit, suggested, form]);
 
   const kind = form.watch("kind");
 
@@ -276,7 +295,13 @@ export function MailboxFormDialog(props: Props) {
             <Field
               id="mailbox-port"
               label="Port"
-              hint={isEdit ? "Leave blank for auto." : "Blank to auto-assign."}
+              hint={portHint({
+                isEdit,
+                suggested,
+                suggestionLoading,
+                suggestionError,
+                portDirty: form.formState.dirtyFields.port === true,
+              })}
               error={form.formState.errors.port?.message}
             >
               <Input
@@ -285,7 +310,9 @@ export function MailboxFormDialog(props: Props) {
                 inputMode="numeric"
                 min={1}
                 max={65535}
-                placeholder="auto"
+                placeholder={
+                  suggestionLoading && !isEdit ? "…" : "1025"
+                }
                 className={`${INPUT_CLASS} tabular-nums`}
                 {...form.register("port", { setValueAs: nullableNumberSetter })}
               />
@@ -356,28 +383,32 @@ export function MailboxFormDialog(props: Props) {
   );
 }
 
+type PortHintArgs = {
+  isEdit: boolean;
+  suggested: number | undefined;
+  suggestionLoading: boolean;
+  suggestionError: unknown;
+  portDirty: boolean;
+};
+
 /**
- * Walk every cached mailbox list and collect the ports they occupy.
- * Called inside the open-toggle effect so we don't return a fresh
- * `Set` reference on every render.
+ * One-liner under the port field. Reflects the four real states:
+ * editing an existing mailbox, suggestion in flight, suggestion
+ * accepted but untouched, or the user has typed something.
  */
-function collectTakenPorts(
-  cache: ReturnType<typeof useSWRConfig>["cache"],
-): Set<number> {
-  const taken = new Set<number>();
-  for (const key of cache.keys()) {
-    try {
-      const parsed = JSON.parse(key) as unknown;
-      if (!Array.isArray(parsed) || parsed[0] !== "mailboxes") continue;
-      const entry = cache.get(key);
-      const list = entry?.data as Mailbox[] | undefined;
-      if (!list) continue;
-      for (const m of list) taken.add(m.port);
-    } catch {
-      // Non-JSON keys aren't ours.
-    }
-  }
-  return taken;
+function portHint({
+  isEdit,
+  suggested,
+  suggestionLoading,
+  suggestionError,
+  portDirty,
+}: PortHintArgs): string {
+  if (isEdit) return "Change the port to rebind the listener.";
+  if (portDirty) return "Use any free port 1024–65535.";
+  if (suggestionLoading) return "Finding a free port…";
+  if (suggestionError) return "Couldn't auto-suggest — type a port.";
+  if (suggested != null) return `Suggested ${suggested} — change if you'd like.`;
+  return "Use any free port 1024–65535.";
 }
 
 function kindHint(kind: MailboxKind): string {

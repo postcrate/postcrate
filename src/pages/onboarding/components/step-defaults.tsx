@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TonePicker } from "@/components/tone-picker";
+import { useSuggestedPort } from "@/services/mailbox";
 import { useOnboardingStore } from "@/stores/use-onboarding-store";
 import {
   InputGroup,
@@ -47,6 +48,16 @@ export function StepDefaults({ registerSubmit }: Props) {
   const patchDraft = useOnboardingStore((s) => s.patchDraft);
   const portInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Ask the engine to pick a real free port (probe-binds, accounts
+  // for processes outside this app). While the IPC is in flight the
+  // form keeps the draft's value as a placeholder so the field is
+  // never blank.
+  const {
+    port: suggested,
+    isLoading: suggestionLoading,
+    error: suggestionError,
+  } = useSuggestedPort();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     mode: "onBlur",
@@ -61,6 +72,17 @@ export function StepDefaults({ registerSubmit }: Props) {
   const { ref: portInputRegisterRef, ...portRegister } = register("smtpPort", {
     valueAsNumber: true,
   });
+
+  // Replace the seeded port with the engine's suggestion when it
+  // arrives — but only if the user hasn't typed in the field yet.
+  // Dirty input is sacred; we never clobber it.
+  useEffect(() => {
+    if (suggested == null) return;
+    if (formState.dirtyFields.smtpPort) return;
+    if (form.getValues("smtpPort") === suggested) return;
+    setValue("smtpPort", suggested);
+    patchDraft({ smtpPort: suggested });
+  }, [suggested, formState.dirtyFields.smtpPort, setValue, form, patchDraft]);
 
   useEffect(() => {
     const handler = async () => {
@@ -120,7 +142,12 @@ export function StepDefaults({ registerSubmit }: Props) {
         <Field
           id="smtp-port"
           label="SMTP port"
-          hint="Default: 1025."
+          hint={portHint({
+            suggested,
+            suggestionLoading,
+            suggestionError,
+            portDirty: formState.dirtyFields.smtpPort === true,
+          })}
           error={formState.errors.smtpPort?.message}
         >
           <Input
@@ -156,6 +183,26 @@ export function StepDefaults({ registerSubmit }: Props) {
       </div>
     </form>
   );
+}
+
+type PortHintArgs = {
+  suggested: number | undefined;
+  suggestionLoading: boolean;
+  suggestionError: unknown;
+  portDirty: boolean;
+};
+
+function portHint({
+  suggested,
+  suggestionLoading,
+  suggestionError,
+  portDirty,
+}: PortHintArgs): string {
+  if (portDirty) return "Use any free port 1024–65535.";
+  if (suggestionLoading) return "Finding a free port…";
+  if (suggestionError) return "Pick a free port (default 1025).";
+  if (suggested != null) return `Suggested ${suggested}.`;
+  return "Default: 1025.";
 }
 
 type FieldProps = {

@@ -21,7 +21,7 @@
 import type { UnlistenFn } from "@tauri-apps/api/event";
 
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import useSWR, {
   mutate as globalMutate,
   useSWRConfig,
@@ -61,10 +61,13 @@ export const MAILBOX_KEYS = {
     ["mailboxes", projectId] as const,
   /** A single mailbox by id. */
   detail: (id: string) => ["mailbox", id] as const,
+  /** Engine-suggested free port, parameterized by the start hint. */
+  suggestedPort: (start: number | null) => ["mailbox-suggested-port", start] as const,
 } as const;
 
 type ListKey = ReturnType<typeof MAILBOX_KEYS.list>;
 type DetailKey = ReturnType<typeof MAILBOX_KEYS.detail>;
+type SuggestedPortKey = ReturnType<typeof MAILBOX_KEYS.suggestedPort>;
 
 // ---------------------------------------------------------------------------
 // Fetchers
@@ -76,6 +79,10 @@ async function fetchMailboxes(projectId: string | null): Promise<Mailbox[]> {
 
 async function fetchMailbox(id: string): Promise<Mailbox> {
   return unwrap(await commands.getMailbox(id));
+}
+
+async function fetchSuggestedPort(start: number | null): Promise<number> {
+  return unwrap(await commands.suggestMailboxPort(start));
 }
 
 // ---------------------------------------------------------------------------
@@ -184,6 +191,56 @@ export function useMailbox(
     isValidating: result.isValidating,
     error: result.error,
     refresh: () => result.mutate(),
+  };
+}
+
+type UseSuggestedPortResult = {
+  /** Engine's pick. `undefined` while the first fetch is in flight. */
+  port: number | undefined;
+  isLoading: boolean;
+  error: unknown;
+  /** Ask the engine for a fresh suggestion (e.g. after a port-in-use error). */
+  refresh: () => Promise<number | undefined>;
+};
+
+/**
+ * Ask the engine for the first free SMTP port at or above `start`
+ * (default 1025). The engine cross-references the DB AND probe-binds
+ * each candidate, so the suggestion accounts for both existing
+ * mailboxes and external processes holding ports.
+ *
+ * Marked immutable — no auto-revalidate. The result is advisory:
+ * `createMailbox` is what actually claims the port. If a racing
+ * create steals the suggestion, call `refresh()` to ask again.
+ */
+export function useSuggestedPort(
+  start: number | null = null,
+  config?: SWRConfiguration<number>,
+): UseSuggestedPortResult {
+  const result = useSWR<number, unknown, SuggestedPortKey>(
+    MAILBOX_KEYS.suggestedPort(start),
+    () => fetchSuggestedPort(start),
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      ...config,
+    },
+  );
+
+  // Keep `refresh` identity stable across renders. SWR's bound
+  // `mutate` is itself stable per key, but wrapping it in a fresh
+  // arrow function each render would re-trigger any `useEffect` that
+  // lists `refresh` in its deps — which is exactly how we shipped an
+  // infinite-loop bug from the mailbox dialog calling it on open.
+  const { mutate } = result;
+  const refresh = useCallback(() => mutate(), [mutate]);
+
+  return {
+    port: result.data,
+    isLoading: result.isLoading,
+    error: result.error,
+    refresh,
   };
 }
 

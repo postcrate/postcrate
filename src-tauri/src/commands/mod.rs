@@ -38,6 +38,7 @@ pub fn specta_builder() -> Builder<tauri::Wry> {
         mailboxes::delete_mailbox,
         mailboxes::start_mailbox,
         mailboxes::stop_mailbox,
+        mailboxes::suggest_mailbox_port,
         mailboxes::create_ephemeral,
         // emails
         emails::list_emails,
