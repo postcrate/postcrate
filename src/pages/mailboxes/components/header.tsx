@@ -50,7 +50,7 @@ export function MailboxesHeader({ mailboxes, onCreate }: Props) {
             Mailboxes
           </h1>
           <p className="text-muted-foreground mt-1 text-[12px] leading-snug">
-            Manage the listeners your apps and CI talk to.
+            The SMTP listeners your apps and CI send to.
           </p>
         </div>
       </div>

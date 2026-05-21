@@ -69,7 +69,7 @@ function SpamCard({ emailId }: { emailId: string }) {
   return (
     <Card
       title="Spam"
-      subtitle="Local heuristic score. No DNS/RBL lookups."
+      subtitle="Local heuristic score. No DNS or RBL lookups."
       action={data ? <SpamVerdictPill report={data} /> : null}
     >
       {isLoading && !data ? (
@@ -78,7 +78,7 @@ function SpamCard({ emailId }: { emailId: string }) {
         <CardError message={errorMessage(error)} />
       ) : data ? (
         data.factors.length === 0 ? (
-          <CardEmpty message="No factors triggered — score is the baseline." />
+          <CardEmpty message="No rules fired. Score sits at the baseline." />
         ) : (
           <Table>
             <TableHeader>
@@ -154,7 +154,7 @@ function AuthCard({ emailId }: { emailId: string }) {
   return (
     <Card
       title="Authentication"
-      subtitle="SPF / DKIM / DMARC verdict from Authentication-Results header."
+      subtitle="SPF, DKIM, and DMARC results read from the Authentication-Results header."
     >
       {isLoading && !data ? (
         <CardSkeleton rows={2} />
@@ -264,7 +264,7 @@ function LinksCard({ emailId }: { emailId: string }) {
   return (
     <Card
       title="Links"
-      subtitle="URL extraction + classification. No network checks."
+      subtitle="URLs pulled from the body and classified locally. No network checks."
       action={data ? <LinkCountsRow counts={data.counts} /> : null}
     >
       {isLoading && !data ? (
@@ -273,7 +273,7 @@ function LinksCard({ emailId }: { emailId: string }) {
         <CardError message={errorMessage(error)} />
       ) : data ? (
         data.links.length === 0 ? (
-          <CardEmpty message="No links found in this email." />
+          <CardEmpty message="No links in this message." />
         ) : (
           <LinksTable report={data} />
         )
@@ -368,7 +368,7 @@ function UnsubCard({ emailId }: { emailId: string }) {
   return (
     <Card
       title="List-Unsubscribe"
-      subtitle="RFC 2369 / RFC 8058 one-click unsubscribe header check."
+      subtitle="Checks the one-click unsubscribe header against RFC 2369 and RFC 8058."
     >
       {isLoading && !data ? (
         <CardSkeleton rows={2} />
@@ -583,5 +583,5 @@ function SeverityChip({ severity }: { severity: string }) {
 
 function errorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
-  return "Couldn't load report.";
+  return "Couldn't load this report.";
 }

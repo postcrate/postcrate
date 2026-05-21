@@ -33,8 +33,8 @@ export function NetworkSection() {
 
   return (
     <Section
-      title="Network & Listeners"
-      description="Exposure and access for the HTTP API. Changes apply immediately — the listener rebinds in place."
+      title="Network"
+      description="Access and exposure for the HTTP API. Changes take effect right away."
     >
       <Row
         label="HTTP API port"
@@ -46,7 +46,7 @@ export function NetworkSection() {
             id="http-port"
             value={net.httpApiPort}
             onCommit={(n) =>
-              commit({ httpApiPort: n }, `API restarted on port ${n}`)
+              commit({ httpApiPort: n }, `API moved to port ${n}`)
             }
           />
         ) : (
@@ -55,7 +55,7 @@ export function NetworkSection() {
       </Row>
       <Row
         label="API auth token"
-        description="Required as `Authorization: Bearer …` on every /api/v1 request. Leave empty to disable."
+        description="Sent as `Authorization: Bearer …` on every /api/v1 request. Leave empty to turn off auth."
         htmlFor="api-auth-token"
       >
         {net ? (
@@ -64,7 +64,7 @@ export function NetworkSection() {
             onCommit={(token) =>
               commit(
                 { apiAuthToken: token },
-                token ? "API restarted with bearer auth" : "API restarted without auth",
+                token ? "Bearer auth on" : "Bearer auth off",
               )
             }
           />
@@ -74,14 +74,14 @@ export function NetworkSection() {
       </Row>
       <Row
         label="Expose on LAN"
-        description="Allow other devices on your network to connect. Off by default for safety."
+        description="Let other devices on your network connect. Off by default."
         htmlFor="expose-lan"
       >
         {net ? (
           <div className="flex items-center gap-2">
             {net.exposeOnLan && (
               <Badge variant="destructive" className="text-[10px]">
-                Not local-only
+                Reachable on LAN
               </Badge>
             )}
             <Switch
@@ -90,7 +90,7 @@ export function NetworkSection() {
               onCheckedChange={(v) =>
                 commit(
                   { exposeOnLan: v },
-                  v ? "API now bound to 0.0.0.0" : "API now bound to 127.0.0.1",
+                  v ? "Now bound to 0.0.0.0" : "Now bound to 127.0.0.1",
                 )
               }
             />
@@ -122,7 +122,7 @@ function ApiAuthTokenInput({ value, onCommit }: TokenProps) {
       id="api-auth-token"
       type="password"
       autoComplete="off"
-      placeholder="empty = no auth"
+      placeholder="Empty for no auth"
       value={draft}
       onChange={(e) => setDraft(e.currentTarget.value)}
       onBlur={flush}

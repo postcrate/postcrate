@@ -27,7 +27,7 @@ export function DetailRaw({ emailId }: Props) {
   if (error) {
     return (
       <p className="text-destructive px-6 py-5 text-[12.5px]">
-        {error instanceof Error ? error.message : "Couldn't load raw source"}
+        {error instanceof Error ? error.message : "Couldn't load the raw source"}
       </p>
     );
   }

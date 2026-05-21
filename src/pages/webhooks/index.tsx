@@ -69,7 +69,7 @@ export default function WebhooksPage() {
         <PageHeader
           icon={WebhooksLogoIcon}
           title="Webhooks"
-          description="POST a JSON payload to a URL whenever new mail arrives."
+          description="POST a JSON payload to a URL when new mail arrives."
           action={
             <Button
               size="sm"
@@ -77,7 +77,7 @@ export default function WebhooksPage() {
               className="gap-2 text-[12.5px]"
             >
               <PlusIcon size={12} weight="bold" />
-              New webhook
+              Add webhook
             </Button>
           }
         />
@@ -115,7 +115,7 @@ export default function WebhooksPage() {
                       colSpan={5}
                       className="text-muted-foreground py-10 text-center text-[12.5px]"
                     >
-                      No webhooks matching &ldquo;{query}&rdquo;.
+                      No webhooks match &ldquo;{query}&rdquo;.
                     </td>
                   </TableRow>
                 ) : (
@@ -336,11 +336,11 @@ function EmptyWebhooks() {
         <WebhooksLogoIcon size={22} weight="regular" />
       </span>
       <h2 className="text-foreground mt-3 text-[14px] font-semibold tracking-tight">
-        No webhooks yet
+        Forward mail to your own URL
       </h2>
       <p className="text-muted-foreground mt-1 max-w-xs text-[12.5px] leading-snug">
-        Forward every captured email to your own service — Slack, a CI hook, a
-        dev relay.
+        Add a webhook to POST every captured email to your service. Slack, a CI
+        hook, a dev relay.
       </p>
     </div>
   );
@@ -408,7 +408,7 @@ function DeleteWebhookAlert({
           <AlertDialogDescription>
             {webhook ? (
               <>
-                Captured email will no longer be forwarded to{" "}
+                Mail will stop being forwarded to{" "}
                 <span className="text-foreground font-mono">{webhook.url}</span>
                 .
               </>

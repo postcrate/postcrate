@@ -17,7 +17,7 @@ export function buildSnippets(draft: OnboardingDraft): Snippet[] {
       id: "env",
       label: "ENV",
       language: "ini",
-      hint: "Drop into the app you're testing. Most SMTP libraries pick these up automatically.",
+      hint: "Add to the app you're testing. Most SMTP libraries pick these up automatically.",
       body: [
         `SMTP_HOST=127.0.0.1`,
         `SMTP_PORT=${smtpPort}`,
@@ -30,7 +30,7 @@ export function buildSnippets(draft: OnboardingDraft): Snippet[] {
       id: "mcp",
       label: "MCP",
       language: "json",
-      hint: "Add to Claude Desktop or any MCP-compatible client to give agents inbox access.",
+      hint: "Add to Claude Desktop or any MCP client to give agents inbox access.",
       body: JSON.stringify(
         {
           mcpServers: {
@@ -52,7 +52,7 @@ export function buildSnippets(draft: OnboardingDraft): Snippet[] {
       id: "nodemailer",
       label: "Nodemailer",
       language: "ts",
-      hint: "Run this once to confirm captures are landing in the inbox.",
+      hint: "Run once to check that messages land in the inbox.",
       body: [
         `import nodemailer from "nodemailer";`,
         ``,
@@ -66,7 +66,7 @@ export function buildSnippets(draft: OnboardingDraft): Snippet[] {
         `  from: "dev@${mailboxName}.local",`,
         `  to: "you@example.com",`,
         `  subject: "Hello from postcrate",`,
-        `  text: "If you see this in the inbox, you're wired up.",`,
+        `  text: "If you see this in the inbox, you're set.",`,
         `});`,
       ].join("\n"),
     },

@@ -43,7 +43,7 @@ export function AdvancedSection() {
     >
       <Row
         label="Debug logging"
-        description="Drop the tracing filter to `debug,postcrate=trace`. Applies live — no restart."
+        description="Write detailed logs to help diagnose issues. Applies live."
         htmlFor="debug-logging"
       >
         {a ? (
@@ -58,7 +58,7 @@ export function AdvancedSection() {
       </Row>
       <Row
         label="Preserve SMTP transcript"
-        description="Save the line-by-line wire conversation alongside each captured email. Visible in the email's Transcript tab. AUTH credentials are redacted."
+        description="Save the wire conversation with each captured email. Visible in the Transcript tab. AUTH credentials are redacted."
         htmlFor="preserve-smtp"
       >
         {a ? (
@@ -73,7 +73,7 @@ export function AdvancedSection() {
       </Row>
       <Row
         label="Audit log retention"
-        description="Days to keep audit entries before automatic pruning."
+        description="Days to keep audit entries before they're pruned."
         htmlFor="audit-retain"
       >
         {a ? (
@@ -90,7 +90,7 @@ export function AdvancedSection() {
       </Row>
       <Row
         label={<span className="text-destructive">Reset UI preferences</span>}
-        description="Restore appearance, notifications, and other client-side settings. Engine settings (network, agents, inbox, advanced) are unaffected."
+        description="Restore appearance, notifications, and other app settings. Engine settings (network, agents, inbox, advanced) stay as they are."
       >
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -103,8 +103,8 @@ export function AdvancedSection() {
               <AlertDialogTitle>Reset UI preferences?</AlertDialogTitle>
               <AlertDialogDescription>
                 Appearance, general, notifications, privacy, updates, and the
-                inbox view will return to their defaults. Engine-backed
-                settings and your captured emails are not affected.
+                inbox view return to their defaults. Engine settings and your
+                captured emails stay as they are.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

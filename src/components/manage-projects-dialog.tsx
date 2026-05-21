@@ -59,7 +59,7 @@ export function ManageProjectsDialog({ open, onOpenChange }: Props) {
       }
       setPendingDelete(null);
     } catch (err) {
-      reportIpcError(err, "Couldn't fully clean up project mailboxes");
+      reportIpcError(err, "Couldn't delete project mailboxes");
     } finally {
       setDeletePending(false);
     }
@@ -75,8 +75,7 @@ export function ManageProjectsDialog({ open, onOpenChange }: Props) {
           <DialogHeader>
             <DialogTitle>Manage projects</DialogTitle>
             <DialogDescription>
-              Remove projects you no longer need. Deleted projects can't
-              be recovered.
+              Rename or delete projects. Deleted projects can't be recovered.
             </DialogDescription>
           </DialogHeader>
 
@@ -117,7 +116,7 @@ export function ManageProjectsDialog({ open, onOpenChange }: Props) {
                         type="button"
                         variant="ghost"
                         size="icon-sm"
-                        aria-label={`Edit project ${project.name}`}
+                        aria-label={`Edit ${project.name}`}
                         title={`Edit ${project.name}`}
                         onClick={() => setEditing(project)}
                         className="text-muted-foreground hover:text-foreground"
@@ -128,11 +127,11 @@ export function ManageProjectsDialog({ open, onOpenChange }: Props) {
                         type="button"
                         variant="ghost"
                         size="icon-sm"
-                        aria-label={`Delete project ${project.name}`}
+                        aria-label={`Delete ${project.name}`}
                         disabled={disabled}
                         title={
                           disabled
-                            ? "At least one project is required"
+                            ? "Keep at least one project"
                             : `Delete ${project.name}`
                         }
                         onClick={() => setPendingDelete(project)}
@@ -182,8 +181,8 @@ export function ManageProjectsDialog({ open, onOpenChange }: Props) {
                   <span className="text-foreground font-medium">
                     {pendingDelete.name}
                   </span>{" "}
-                  and every mailbox it owns will be removed. Captured email
-                  and attachments for those mailboxes are deleted from disk.
+                  and every mailbox in it will be deleted. Captured mail
+                  and attachments are removed from disk.
                 </>
               ) : null}
             </AlertDialogDescription>

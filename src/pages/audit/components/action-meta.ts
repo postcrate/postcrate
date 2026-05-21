@@ -28,46 +28,46 @@ export type ActionMeta = {
  * explicit entry.
  */
 const TABLE: Record<string, ActionMeta> = {
-  "mailbox.create": { verb: "Created mailbox", Icon: PlusIcon, tone: "default" },
+  "mailbox.create": { verb: "Mailbox created", Icon: PlusIcon, tone: "default" },
   "mailbox.update": {
-    verb: "Updated mailbox",
+    verb: "Mailbox updated",
     Icon: PencilSimpleIcon,
     tone: "default",
   },
   "mailbox.delete": {
-    verb: "Deleted mailbox",
+    verb: "Mailbox deleted",
     Icon: TrashIcon,
     tone: "destructive",
   },
   "email.delete": {
-    verb: "Deleted email",
+    verb: "Email deleted",
     Icon: TrashIcon,
     tone: "destructive",
   },
-  "email.note": { verb: "Edited note", Icon: NotePencilIcon, tone: "default" },
-  "email.tag": { verb: "Tagged email", Icon: TagIcon, tone: "default" },
+  "email.note": { verb: "Note edited", Icon: NotePencilIcon, tone: "default" },
+  "email.tag": { verb: "Email tagged", Icon: TagIcon, tone: "default" },
   "bounce.create": {
-    verb: "Created bounce rule",
+    verb: "Bounce rule added",
     Icon: PlusIcon,
     tone: "default",
   },
   "bounce.update": {
-    verb: "Updated bounce rule",
+    verb: "Bounce rule updated",
     Icon: PencilSimpleIcon,
     tone: "default",
   },
   "bounce.delete": {
-    verb: "Deleted bounce rule",
+    verb: "Bounce rule deleted",
     Icon: TrashIcon,
     tone: "destructive",
   },
   "webhook.create": {
-    verb: "Created webhook",
+    verb: "Webhook added",
     Icon: PlusIcon,
     tone: "default",
   },
   "webhook.delete": {
-    verb: "Deleted webhook",
+    verb: "Webhook deleted",
     Icon: TrashIcon,
     tone: "destructive",
   },
@@ -77,12 +77,12 @@ const TABLE: Record<string, ActionMeta> = {
     tone: "warn",
   },
   "forwarding.create": {
-    verb: "Created forwarding rule",
+    verb: "Forwarding rule added",
     Icon: PlusIcon,
     tone: "default",
   },
   "forwarding.delete": {
-    verb: "Deleted forwarding rule",
+    verb: "Forwarding rule deleted",
     Icon: TrashIcon,
     tone: "destructive",
   },
@@ -92,7 +92,7 @@ const TABLE: Record<string, ActionMeta> = {
     tone: "warn",
   },
   "settings.update": {
-    verb: "Updated settings",
+    verb: "Settings updated",
     Icon: GearIcon,
     tone: "default",
   },

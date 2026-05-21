@@ -15,11 +15,11 @@ export function NoMailboxEmpty() {
           <PackageIcon size={18} weight="regular" />
         </span>
         <h2 className="text-foreground mt-3.5 text-[14px] font-semibold tracking-tight">
-          Pick a mailbox to start
+          Pick a mailbox to get started
         </h2>
         <p className="text-muted-foreground mt-1 max-w-xs text-[12.5px] leading-snug">
-          Captured mail lives inside a mailbox. Open one from the sidebar
-          or create a new one to begin testing.
+          Captured mail lives inside a mailbox. Open one from the sidebar,
+          or create a new one to start testing.
         </p>
         <Button asChild size="sm" className="mt-4 text-[12.5px]">
           <Link to="/mailboxes">Manage mailboxes</Link>

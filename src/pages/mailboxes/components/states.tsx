@@ -9,10 +9,10 @@ export function EmptyMailboxes() {
         <TrayIcon size={18} weight="regular" />
       </span>
       <h2 className="text-foreground mt-3.5 text-[14px] font-semibold tracking-tight">
-        No mailboxes yet
+        Add your first mailbox
       </h2>
       <p className="text-muted-foreground mt-1 max-w-xs text-[12.5px] leading-snug">
-        Create a mailbox to capture SMTP traffic from your app, tests, or CI.
+        A mailbox catches SMTP traffic from your app, tests, or CI on a local port.
       </p>
     </div>
   );

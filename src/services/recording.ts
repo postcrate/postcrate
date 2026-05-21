@@ -57,10 +57,10 @@ export async function exportMailboxRecording(
   })();
 
   toast.promise(work, {
-    loading: "Exporting recording…",
+    loading: "Exporting recording",
     success: (count) =>
       count === 0
-        ? "Exported an empty recording"
+        ? "Exported empty recording"
         : `Exported ${count} ${count === 1 ? "message" : "messages"}`,
     error: (err) => toastError(err, "Couldn't export recording"),
   });
@@ -85,20 +85,20 @@ export async function replayRecordingFromFile(mailboxId: string): Promise<void> 
     try {
       recording = JSON.parse(raw) as Recording;
     } catch {
-      throw new Error("File isn't a valid recording (couldn't parse JSON)");
+      throw new Error("Couldn't read this file as a recording");
     }
     if (
       !recording ||
       typeof recording.version !== "number" ||
       !Array.isArray(recording.messages)
     ) {
-      throw new Error("File isn't a Postcrate recording");
+      throw new Error("Not a Postcrate recording");
     }
     return unwrap(await commands.replayRecording(mailboxId, recording));
   })();
 
   toast.promise(work, {
-    loading: "Replaying messages…",
+    loading: "Replaying messages",
     success: (count) =>
       `Replayed ${count} ${count === 1 ? "message" : "messages"}`,
     error: (err) => toastError(err, "Couldn't replay recording"),

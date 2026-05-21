@@ -39,13 +39,13 @@ export function ChaosBanner({ mailboxId }: Props) {
             <span className="font-mono">{mailbox.name}</span>
           </>
         ) : null}
-        {" — incoming mail is being faulted."}
+        {". Incoming mail is being faulted."}
       </p>
       <Link
         to="/scenarios"
         className="text-warn hover:text-warn/80 inline-flex items-center gap-1 text-[11.5px] font-medium tracking-tight"
       >
-        Open Scenarios
+        Open scenarios
         <ArrowRightIcon size={10} weight="bold" />
       </Link>
     </div>

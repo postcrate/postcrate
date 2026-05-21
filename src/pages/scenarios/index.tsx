@@ -24,7 +24,7 @@ export default function ScenariosPage() {
         <PageHeader
           icon={FlaskIcon}
           title="Scenarios"
-          description="Inject failure conditions into a mailbox to test how your sender behaves under stress."
+          description="Fault-inject a mailbox to see how your sender holds up."
           action={mailbox ? <ChaosPill mailboxId={mailbox.id} /> : undefined}
         />
 
@@ -82,8 +82,8 @@ function NoMailboxState() {
         Pick a mailbox first
       </h2>
       <p className="text-muted-foreground mt-1 max-w-xs text-[12.5px] leading-snug">
-        Scenarios are scoped per mailbox. Create one or switch to an existing
-        mailbox in the sidebar to get started.
+        Scenarios are set per mailbox. Pick one in the sidebar, or create a new
+        mailbox to start.
       </p>
       <Button asChild size="sm" className="mt-4 gap-2 text-[12.5px]">
         <Link to="/mailboxes">

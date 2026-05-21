@@ -102,12 +102,12 @@ export function ListEmpty({ port }: Props) {
       <div className="flex w-full max-w-md flex-col">
         <div className="flex flex-col items-center text-center">
           <h2 className="text-foreground text-[14.5px] font-medium tracking-tight">
-            No messages yet
+            Waiting for your first message
           </h2>
           <p className="text-muted-foreground mt-1.5 flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-[12.5px] leading-snug">
             <span>Send mail to</span>
             <EndpointPill host={HOST} port={port} />
-            <span>and it&rsquo;ll show up here.</span>
+            <span>and it shows up here.</span>
           </p>
         </div>
 
@@ -151,7 +151,7 @@ function EndpointPill({ host, port }: { host: string; port: number }) {
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1400);
     } catch {
-      toast.error("Couldn't access the clipboard");
+      toast.error("Couldn't copy to the clipboard");
     }
   }
 

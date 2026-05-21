@@ -36,7 +36,7 @@ export function TonePicker({ value, onChange }: Props) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label={`Project color: ${TONE_LABEL[value]}`}
+        aria-label={`Project color, ${TONE_LABEL[value]}`}
         className={cn(
           "group/swatch grid size-[14px] shrink-0 cursor-pointer place-items-center rounded-[4px] outline-none",
           "ring-offset-background transition-shadow",

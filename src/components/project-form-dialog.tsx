@@ -36,7 +36,7 @@ const schema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, "Give your project a name")
+    .min(1, "Add a project name")
     .max(48, "Keep it under 48 characters"),
 });
 
@@ -121,9 +121,9 @@ export function ProjectFormDialog(props: Props) {
 
   const title = isEdit ? "Edit project" : "New project";
   const description = isEdit
-    ? "Update the project's name and color."
-    : "Organize mailboxes under a project. You can rename or change the color anytime.";
-  const submitLabel = isEdit ? "Save changes" : "Create project";
+    ? "Change the name or color."
+    : "Group mailboxes under a project. You can rename or recolor it later.";
+  const submitLabel = isEdit ? "Save changes" : "Create";
   const placeholder = isEdit ? props.project.name : "Acme";
 
   return (

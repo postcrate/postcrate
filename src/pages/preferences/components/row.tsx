@@ -43,7 +43,7 @@ export function Row({
 function SoonPill() {
   return (
     <span
-      title="UI only — not wired to the engine yet"
+      title="Coming soon"
       className="bg-muted/70 text-muted-foreground/90 inline-flex h-[14px] items-center rounded-full px-1.5 text-[9px] font-semibold tracking-wider uppercase"
     >
       Soon

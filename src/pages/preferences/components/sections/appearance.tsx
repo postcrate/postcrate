@@ -22,14 +22,14 @@ export function AppearanceSection() {
   return (
     <Section
       title="Appearance"
-      description="How postcrate looks on your machine."
+      description="How postcrate looks."
     >
-      <Row label="Theme" description="Light, dark, or follow the system.">
+      <Row label="Theme" description="Light, dark, or match the system.">
         <ThemeToggle />
       </Row>
       <Row
         label="Density"
-        description="Comfortable shows three lines per email. Compact pulls recipients onto the subject line so each row uses two."
+        description="Comfortable shows three lines per email. Compact shows two."
         htmlFor="density"
       >
         <Select
@@ -47,7 +47,7 @@ export function AppearanceSection() {
       </Row>
       <Row
         label="Mono font for code"
-        description="Use a monospace font for raw email source and headers."
+        description="Show raw source and headers in a monospace font."
         htmlFor="mono-code"
       >
         <Switch

@@ -74,7 +74,7 @@ export function MailboxSwitcher() {
               No mailbox yet
             </span>
             <span className="text-muted-foreground/80 truncate text-[10.5px]">
-              Create one to capture mail
+              Create one to start receiving mail
             </span>
           </span>
           <Kbd className="h-4 text-[10px]">⌘N</Kbd>

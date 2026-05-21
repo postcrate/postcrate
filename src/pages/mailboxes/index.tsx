@@ -49,7 +49,7 @@ export default function MailboxesPage() {
             {error ? (
               <ErrorBanner
                 message={
-                  error instanceof Error ? error.message : "Unknown error"
+                  error instanceof Error ? error.message : "Something went wrong"
                 }
                 onRetry={() => refresh()}
               />

@@ -55,7 +55,7 @@ export function DetailPanel({ emailId }: Props) {
   if (error || !email) {
     return (
       <div className="text-destructive flex h-full items-center justify-center px-6 text-center text-[12.5px]">
-        {error instanceof Error ? error.message : "Couldn't load message"}
+        {error instanceof Error ? error.message : "Couldn't load this message"}
       </div>
     );
   }

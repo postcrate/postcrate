@@ -157,7 +157,7 @@ export function ListPanel({ mailboxId }: Props) {
           if (!selected) return;
           e.preventDefault();
           markEmailRead(selected.id, !selected.read).catch((err) =>
-            reportIpcError(err, "Couldn't toggle read"),
+            reportIpcError(err, "Couldn't change read state"),
           );
           return;
         }
@@ -165,7 +165,7 @@ export function ListPanel({ mailboxId }: Props) {
           if (!selected) return;
           e.preventDefault();
           setEmailStarred(selected.id, !selected.starred).catch((err) =>
-            reportIpcError(err, "Couldn't toggle star"),
+            reportIpcError(err, "Couldn't change star"),
           );
           return;
         }
@@ -173,7 +173,7 @@ export function ListPanel({ mailboxId }: Props) {
           if (!selected) return;
           e.preventDefault();
           setEmailPinned(selected.id, !selected.pinned).catch((err) =>
-            reportIpcError(err, "Couldn't toggle pin"),
+            reportIpcError(err, "Couldn't change pin"),
           );
           return;
         }
@@ -183,7 +183,7 @@ export function ListPanel({ mailboxId }: Props) {
           e.preventDefault();
           deleteEmail(selected.id)
             .then(() => setEmailId(null))
-            .catch((err) => reportIpcError(err, "Couldn't delete"));
+            .catch((err) => reportIpcError(err, "Couldn't delete the message"));
           return;
         }
         case "/": {
@@ -279,7 +279,7 @@ function ListBody({
   if (error) {
     return (
       <p className="text-destructive flex flex-1 items-center justify-center px-6 text-center text-[12.5px]">
-        {error instanceof Error ? error.message : "Couldn't load messages"}
+        {error instanceof Error ? error.message : "Couldn't load messages."}
       </p>
     );
   }
@@ -289,8 +289,8 @@ function ListBody({
       <>
         <p className="text-muted-foreground flex flex-1 items-center justify-center px-6 text-center text-[12.5px]">
           {searching
-            ? `No messages match "${query}".`
-            : "No messages match the active filter."}
+            ? `Nothing matches "${query}".`
+            : "Nothing matches the active filter."}
         </p>
         {showLoadMore ? (
           <LoadMoreRow
@@ -345,7 +345,7 @@ function LoadMoreRow({
       disabled={loading}
       className="border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/30 group flex w-full items-center justify-center gap-2 border-t px-4 py-3 text-[11.5px] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
     >
-      <span>{loading ? "Loading…" : "Load older messages"}</span>
+      <span>{loading ? "Loading…" : "Load older"}</span>
       <span className="text-muted-foreground/60 font-mono tabular-nums">
         {loadedCount.toLocaleString()} shown
       </span>

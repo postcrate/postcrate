@@ -30,16 +30,15 @@ export function DetailTranscript({ emailId }: Props) {
   if (error) {
     return (
       <p className="text-destructive px-6 py-5 text-[12.5px]">
-        {error instanceof Error ? error.message : "Couldn't load transcript"}
+        {error instanceof Error ? error.message : "Couldn't load the transcript"}
       </p>
     );
   }
   if (!transcript) {
     return (
       <p className="text-muted-foreground px-6 py-10 text-center text-[12.5px]">
-        This email was captured before SMTP transcript preservation was
-        enabled. Turn it on in Preferences → Advanced to capture future
-        sessions.
+        This message was captured before SMTP transcripts were turned on.
+        Open Preferences → Advanced to capture future sessions.
       </p>
     );
   }

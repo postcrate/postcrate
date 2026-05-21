@@ -60,7 +60,7 @@ export function DetailRender({ emailId, hasHtml }: Props) {
   if (!hasHtml) {
     return (
       <p className="text-muted-foreground px-6 py-10 text-center text-[12.5px]">
-        This message has no HTML body to render.
+        No HTML body to render for this message.
       </p>
     );
   }
@@ -142,7 +142,7 @@ function ProfilePreview({
         ) : error ? (
           <div className="flex h-full items-center justify-center px-6">
             <p className="text-destructive text-[12.5px]">
-              Couldn&apos;t render this profile — {errorMessage(error)}
+              Couldn&apos;t render this profile. {errorMessage(error)}
             </p>
           </div>
         ) : rendered ? (
@@ -245,11 +245,11 @@ function FidelityPill({ fidelity }: { fidelity: Fidelity }) {
 function fidelityHint(f: Fidelity): string {
   switch (f) {
     case "high":
-      return "Render is very close to the real client";
+      return "Close to the real client";
     case "approximate":
-      return "Common cases approximated; edge cases may differ";
+      return "Common cases match. Edge cases may differ";
     case "experimental":
-      return "Best-effort — this client is hard to simulate";
+      return "Best effort. This client is hard to simulate";
   }
 }
 
@@ -265,7 +265,7 @@ function LintCard({ emailId }: { emailId: string }) {
   return (
     <Collapsible
       title="HTML lint"
-      subtitle="Known compatibility issues with major email clients."
+      subtitle="Known compatibility issues across major email clients."
       count={count}
       tone={count > 0 ? "warn" : "ok"}
       open={open}
@@ -277,7 +277,7 @@ function LintCard({ emailId }: { emailId: string }) {
         <CardError message={errorMessage(error)} />
       ) : data ? (
         data.warnings.length === 0 ? (
-          <CardEmpty message="No lint warnings — clean across the board." />
+          <CardEmpty message="No lint warnings. Clean across the board." />
         ) : (
           <LintRows report={data} />
         )
@@ -340,7 +340,7 @@ function A11yCard({ emailId }: { emailId: string }) {
   return (
     <Collapsible
       title="Accessibility"
-      subtitle="Light source-level checks: alt text, color contrast hints, semantic structure."
+      subtitle="Source-level checks for alt text, contrast hints, and semantic structure."
       count={count}
       tone={count > 0 ? "warn" : "ok"}
       open={open}
@@ -352,7 +352,7 @@ function A11yCard({ emailId }: { emailId: string }) {
         <CardError message={errorMessage(error)} />
       ) : data ? (
         data.findings.length === 0 ? (
-          <CardEmpty message="No accessibility findings." />
+          <CardEmpty message="Nothing to flag." />
         ) : (
           <ul className="border-border/60 divide-border/60 divide-y border-t">
             {data.findings.map((f, i) => (
@@ -512,6 +512,6 @@ function CardEmpty({ message }: { message: string }) {
 
 function errorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
-  return "Couldn't load report.";
+  return "Couldn't load this report.";
 }
 

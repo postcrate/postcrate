@@ -22,15 +22,15 @@ type StepCopy = { title: string; subtitle: string };
 const COPY: Record<OnboardingStep, StepCopy> = {
   0: {
     title: "Welcome to postcrate",
-    subtitle: "An offline-first inbox for the email your apps send while you build.",
+    subtitle: "A local inbox for the email your apps send while you build.",
   },
   1: {
     title: "Set your defaults",
-    subtitle: "These power the first project, the SMTP listener, and the mailbox.",
+    subtitle: "Your first project, SMTP port, and mailbox.",
   },
   2: {
-    title: "Plug it in",
-    subtitle: "Drop these into the project you're testing and you're ready.",
+    title: "Wire it up",
+    subtitle: "Paste one of these into the app you're testing.",
   },
 };
 
@@ -122,7 +122,7 @@ export default function OnboardingPage() {
       primary={
         isLast
           ? {
-              label: finishing ? "Setting up…" : "Ready to go",
+              label: finishing ? "Setting up…" : "Open postcrate",
               onClick: finish,
               disabled: finishing,
             }

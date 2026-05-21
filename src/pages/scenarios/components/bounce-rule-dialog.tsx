@@ -30,19 +30,19 @@ const schema = z.object({
   addressPattern: z
     .string()
     .trim()
-    .min(1, "Pattern is required")
-    .max(256, "Keep it under 256 chars"),
+    .min(1, "Add a pattern")
+    .max(256, "Keep it under 256 characters"),
   bounceKind: z.enum(["hard", "soft"] as const),
   smtpCode: z
-    .number({ message: "Must be a number" })
+    .number({ message: "Enter a number" })
     .int("Whole numbers only")
-    .min(400, "Must be a 4xx or 5xx code")
-    .max(599, "Must be ≤ 599"),
+    .min(400, "Use a 4xx or 5xx code")
+    .max(599, "Use 599 or lower"),
   smtpMessage: z
     .string()
     .trim()
-    .min(1, "Message is required")
-    .max(256, "Keep it under 256 chars"),
+    .min(1, "Add a message")
+    .max(256, "Keep it under 256 characters"),
   enabled: z.boolean(),
 });
 
@@ -138,7 +138,7 @@ export function BounceRuleDialog({
         <DialogHeader>
           <DialogTitle>{isEdit ? "Edit bounce rule" : "New bounce rule"}</DialogTitle>
           <DialogDescription>
-            Reject mail to addresses matching this pattern with a synthetic SMTP
+            Reject mail to addresses matching this pattern with a canned SMTP
             response.
           </DialogDescription>
         </DialogHeader>
@@ -150,7 +150,7 @@ export function BounceRuleDialog({
           <Field
             id="bounce-pattern"
             label="Address pattern"
-            hint="Glob over the RCPT address. Examples: *@bounce.test, bob@*"
+            hint="Glob matched against the RCPT address. Examples: *@bounce.test, bob@*"
             error={form.formState.errors.addressPattern?.message}
           >
             <Input
@@ -167,7 +167,7 @@ export function BounceRuleDialog({
           <Field
             id="bounce-kind"
             label="Kind"
-            hint="Hard = permanent failure (5xx). Soft = transient (4xx)."
+            hint="Hard is a permanent failure (5xx). Soft is transient (4xx)."
             error={form.formState.errors.bounceKind?.message}
           >
             <Controller
@@ -224,7 +224,7 @@ export function BounceRuleDialog({
             <Field
               id="bounce-code"
               label="Code"
-              hint="SMTP status."
+              hint="SMTP status code."
               error={form.formState.errors.smtpCode?.message}
             >
               <Input
@@ -240,7 +240,7 @@ export function BounceRuleDialog({
             <Field
               id="bounce-message"
               label="Message"
-              hint="Returned verbatim to the SMTP client."
+              hint="Sent verbatim to the SMTP client."
               error={form.formState.errors.smtpMessage?.message}
             >
               <Input
@@ -262,7 +262,7 @@ export function BounceRuleDialog({
                 Enabled
               </span>
               <span className="text-muted-foreground block text-[11.5px] leading-snug">
-                Disable to keep the rule but stop matching new mail.
+                Turn off to keep the rule but stop matching new mail.
               </span>
             </span>
             <Controller
@@ -295,7 +295,7 @@ export function BounceRuleDialog({
                   : "Creating…"
                 : isEdit
                   ? "Save changes"
-                  : "Create rule"}
+                  : "Add rule"}
             </Button>
           </DialogFooter>
         </form>

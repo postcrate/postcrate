@@ -29,7 +29,7 @@ export function CopyBlock({ code, language }: Props) {
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1400);
     } catch {
-      toast.error("Couldn't access the clipboard");
+      toast.error("Couldn't copy to clipboard");
     }
   }
 
@@ -40,7 +40,7 @@ export function CopyBlock({ code, language }: Props) {
         <button
           type="button"
           onClick={copy}
-          aria-label="Copy snippet"
+          aria-label="Copy code"
           className={cn(
             "text-muted-foreground hover:text-foreground inline-flex h-5 items-center gap-1 rounded px-1.5",
             "text-[10.5px] font-medium tracking-normal normal-case transition-colors",

@@ -34,7 +34,7 @@ const schema = z.object({
     .trim()
     .min(1, "Name your default mailbox")
     .max(32, "Keep it under 32 characters")
-    .regex(NAME_PATTERN, "Letters, numbers and hyphens only"),
+    .regex(NAME_PATTERN, "Letters, numbers, and hyphens only"),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -114,7 +114,7 @@ export function StepDefaults({ registerSubmit }: Props) {
       <Field
         id="project-name"
         label="Project name"
-        hint="Shown in the sidebar. You can rename it later."
+        hint="Shown in the sidebar. Rename anytime."
         error={formState.errors.projectName?.message}
       >
         <InputGroup>
@@ -168,7 +168,7 @@ export function StepDefaults({ registerSubmit }: Props) {
         <Field
           id="mailbox-name"
           label="Default mailbox"
-          hint="Letters and hyphens."
+          hint="Letters, numbers, and hyphens."
           error={formState.errors.mailboxName?.message}
         >
           <Input
@@ -198,11 +198,11 @@ function portHint({
   suggestionError,
   portDirty,
 }: PortHintArgs): string {
-  if (portDirty) return "Use any free port 1024–65535.";
+  if (portDirty) return "Any free port from 1024 to 65535.";
   if (suggestionLoading) return "Finding a free port…";
-  if (suggestionError) return "Pick a free port (default 1025).";
+  if (suggestionError) return "Pick a free port. Default is 1025.";
   if (suggested != null) return `Suggested ${suggested}.`;
-  return "Default: 1025.";
+  return "Default 1025.";
 }
 
 type FieldProps = {

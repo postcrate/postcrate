@@ -56,7 +56,7 @@ export function DetailToolbar({ email }: Props) {
     try {
       await setEmailStarred(email.id, !email.starred);
     } catch (err) {
-      reportIpcError(err, "Couldn't toggle star");
+      reportIpcError(err, "Couldn't update star");
     }
   }
 
@@ -64,7 +64,7 @@ export function DetailToolbar({ email }: Props) {
     try {
       await setEmailPinned(email.id, !email.pinned);
     } catch (err) {
-      reportIpcError(err, "Couldn't toggle pin");
+      reportIpcError(err, "Couldn't update pin");
     }
   }
 
@@ -74,7 +74,7 @@ export function DetailToolbar({ email }: Props) {
       await navigator.clipboard.writeText(raw);
       toast.success("Raw source copied");
     } catch (err) {
-      reportIpcError(err, "Couldn't copy raw source");
+      reportIpcError(err, "Couldn't copy the raw source");
     }
   }
 
@@ -86,7 +86,7 @@ export function DetailToolbar({ email }: Props) {
       setConfirming(false);
       toast.success("Message deleted");
     } catch (err) {
-      reportIpcError(err, "Couldn't delete message");
+      reportIpcError(err, "Couldn't delete the message");
     } finally {
       setDeleting(false);
     }
@@ -163,8 +163,8 @@ export function DetailToolbar({ email }: Props) {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this message?</AlertDialogTitle>
             <AlertDialogDescription>
-              The message will be removed from the mailbox permanently,
-              including any attachments.
+              The message and its attachments will be removed from the
+              mailbox for good.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -118,11 +118,11 @@ export function MailboxTable({ mailboxes, onEdit, onDelete }: Props) {
     );
     for (const r of results) {
       if (r.status === "fulfilled") totalCleared += r.value;
-      else reportIpcError(r.reason, "A mailbox failed to clear");
+      else reportIpcError(r.reason, "Couldn't clear a mailbox");
     }
     toast.success(
       totalCleared === 0
-        ? "Mailboxes already empty"
+        ? "Already empty"
         : `Cleared ${totalCleared} message${totalCleared === 1 ? "" : "s"}`,
     );
     setSelected(new Set());
@@ -135,7 +135,7 @@ export function MailboxTable({ mailboxes, onEdit, onDelete }: Props) {
     let succeeded = 0;
     for (const r of results) {
       if (r.status === "fulfilled") succeeded++;
-      else reportIpcError(r.reason, "A mailbox failed to delete");
+      else reportIpcError(r.reason, "Couldn't delete a mailbox");
     }
     if (succeeded > 0) {
       toast.success(
@@ -198,8 +198,8 @@ export function MailboxTable({ mailboxes, onEdit, onDelete }: Props) {
                 className="text-muted-foreground py-10 text-center text-[12.5px]"
               >
                 {query
-                  ? `No mailboxes matching "${query}".`
-                  : "No mailboxes match the active filter."}
+                  ? `Nothing matches "${query}".`
+                  : "Nothing matches the active filter."}
               </td>
             </TableRow>
           ) : null}

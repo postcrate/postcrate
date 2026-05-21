@@ -99,7 +99,7 @@ export function DetailNote({ emailId, initialNote }: Props) {
         value={draft}
         onChange={(e) => setDraft(e.currentTarget.value)}
         onBlur={() => flushRef.current()}
-        placeholder="Add a personal note about this message…"
+        placeholder="Jot down anything you want to remember about this message…"
         rows={3}
         className={cn(
           "border-border/60 bg-card/30 text-[12.5px] leading-relaxed",

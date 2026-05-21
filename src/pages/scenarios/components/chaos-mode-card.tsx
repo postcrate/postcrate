@@ -89,7 +89,8 @@ export function ChaosModeCard({ mailbox }: Props) {
             Chaos mode
           </h2>
           <p className="text-muted-foreground mt-1 truncate text-[11.5px]">
-            Inject faults into <span className="font-mono">{mailbox.name}</span>{" "}
+            Random delays, rejections, and drops on{" "}
+            <span className="font-mono">{mailbox.name}</span>{" "}
             <span className="font-mono">:{mailbox.port}</span>
           </p>
         </div>
@@ -108,7 +109,7 @@ export function ChaosModeCard({ mailbox }: Props) {
       >
         <div className="flex flex-col gap-5">
           <SliderRow
-            label="Random 4xx rejection"
+            label="Random 4xx rejections"
             value={percent(draft.reject4XxProb)}
             valueLabel={`${percent(draft.reject4XxProb)}%`}
             valueClassName="text-warn"
@@ -118,7 +119,7 @@ export function ChaosModeCard({ mailbox }: Props) {
             onCommit={(p) => commit({ ...draft, reject4XxProb: p / 100 })}
           />
           <SliderRow
-            label="Random 5xx rejection"
+            label="Random 5xx rejections"
             value={percent(draft.reject5XxProb)}
             valueLabel={`${percent(draft.reject5XxProb)}%`}
             valueClassName="text-destructive"
@@ -128,7 +129,7 @@ export function ChaosModeCard({ mailbox }: Props) {
             onCommit={(p) => commit({ ...draft, reject5XxProb: p / 100 })}
           />
           <SliderRow
-            label="Artificial response delay"
+            label="Added response delay"
             value={draft.delayMsMax ?? 0}
             valueLabel={`${draft.delayMsMax ?? 0}ms`}
             valueClassName="text-info"
@@ -147,7 +148,7 @@ export function ChaosModeCard({ mailbox }: Props) {
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <ToggleTile
             label="Drop connection mid-DATA"
-            description="Disconnect after the client starts sending the message body."
+            description="Hang up after the client starts sending the message body."
             checked={(draft.dropDuringDataProb ?? 0) > 0}
             disabled={!enabled}
             onCheckedChange={(v) =>
@@ -156,7 +157,7 @@ export function ChaosModeCard({ mailbox }: Props) {
           />
           <ToggleTile
             label="Send malformed SMTP response"
-            description="Reply with bytes that violate the SMTP grammar."
+            description="Reply with bytes that break the SMTP grammar."
             checked={(draft.malformedRespProb ?? 0) > 0}
             disabled={!enabled}
             onCheckedChange={(v) =>
@@ -172,8 +173,8 @@ export function ChaosModeCard({ mailbox }: Props) {
             className="text-warn mt-0.5 shrink-0"
           />
           <p className="text-warn/90 text-[11.5px] leading-snug">
-            Chaos mode persists per mailbox. The inbox shows a banner while
-            it&apos;s on so you don&apos;t forget.
+            Chaos mode stays on per mailbox. The inbox shows a banner while
+            it&apos;s active so you don&apos;t forget.
           </p>
         </div>
       </div>

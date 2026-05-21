@@ -40,13 +40,13 @@ const schema = z
     scope: z.enum(["all", "mailbox"]),
     mailboxId: z.string().nullable(),
     targetAddresses: z
-      .array(z.string().email("Each entry must be a valid email"))
-      .min(1, "At least one address"),
+      .array(z.string().email("Each entry needs to be a valid email"))
+      .min(1, "Add at least one address"),
     relay: z.object({
-      host: z.string().trim().min(1, "Relay host is required"),
+      host: z.string().trim().min(1, "Add a relay host"),
       port: z
-        .number({ message: "Must be a number" })
-        .int("Whole numbers only")
+        .number({ message: "Enter a number" })
+        .int("Use whole numbers")
         .min(1, "Must be ≥ 1")
         .max(65535, "Must be ≤ 65535"),
     }),
@@ -122,7 +122,7 @@ export function ForwardingFormDialog({ open, onOpenChange }: Props) {
         <DialogHeader>
           <DialogTitle>New forwarding rule</DialogTitle>
           <DialogDescription>
-            Relay captured email to one or more upstream addresses.
+            Relay captured mail to one or more upstream addresses.
           </DialogDescription>
         </DialogHeader>
 
@@ -135,8 +135,8 @@ export function ForwardingFormDialog({ open, onOpenChange }: Props) {
             label="Scope"
             hint={
               scope === "all"
-                ? "Forward mail from every mailbox in every project."
-                : "Forward mail from one specific mailbox only."
+                ? "Forwards mail from every mailbox in every project."
+                : "Forwards mail from one specific mailbox."
             }
             error={form.formState.errors.scope?.message}
           >
@@ -178,7 +178,7 @@ export function ForwardingFormDialog({ open, onOpenChange }: Props) {
             <Field
               id="fwd-mailbox"
               label="Mailbox"
-              hint="Source mailbox for this rule."
+              hint="The source mailbox for this rule."
               error={form.formState.errors.mailboxId?.message}
             >
               <Controller
@@ -211,7 +211,7 @@ export function ForwardingFormDialog({ open, onOpenChange }: Props) {
           <Field
             id="fwd-recipients"
             label="Forward to"
-            hint="Press Enter or comma to add. Each must be a valid email."
+            hint="Press Enter or comma to add an address."
             error={form.formState.errors.targetAddresses?.message}
           >
             <Controller
@@ -235,7 +235,7 @@ export function ForwardingFormDialog({ open, onOpenChange }: Props) {
             <Field
               id="relay-host"
               label="Host"
-              hint="e.g. smtp.resend.com, smtp.gmail.com, 127.0.0.1."
+              hint="For example smtp.resend.com, smtp.gmail.com, or 127.0.0.1."
               error={form.formState.errors.relay?.host?.message}
             >
               <Input
@@ -251,7 +251,7 @@ export function ForwardingFormDialog({ open, onOpenChange }: Props) {
             <Field
               id="relay-port"
               label="Port"
-              hint="25 for legacy, 587 for submission, 1025 for local."
+              hint="Usually 587 for submission, 25 for legacy, 1025 for local."
               error={form.formState.errors.relay?.port?.message}
             >
               <Input

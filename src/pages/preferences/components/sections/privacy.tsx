@@ -12,11 +12,11 @@ export function PrivacySection() {
   return (
     <Section
       title="Privacy"
-      description="postcrate is local-by-default. Telemetry is never collected."
+      description="postcrate runs locally. No telemetry, ever."
     >
       <Row
         label="Spam scoring"
-        description="Show the local-heuristic spam score in the Inspect tab. No DNS or RBL lookups."
+        description="Show a local spam score in the Inspect tab. No DNS or RBL lookups."
         htmlFor="spam-scoring"
       >
         <Switch
@@ -27,7 +27,7 @@ export function PrivacySection() {
       </Row>
       <Row
         label="Link checking"
-        description="Show the extracted-links report in the Inspect tab. Parsing only — no network requests."
+        description="Show extracted links in the Inspect tab. Parsing only, no network requests."
         htmlFor="link-checking"
       >
         <Switch
@@ -40,7 +40,7 @@ export function PrivacySection() {
       </Row>
       <Row
         label="Accessibility checks"
-        description="Show the a11y findings (contrast, alt text, semantic structure) in the Render tab."
+        description="Show contrast, alt text, and structure findings in the Render tab."
         htmlFor="a11y-checks"
       >
         <Switch
@@ -51,7 +51,7 @@ export function PrivacySection() {
       </Row>
       <Row
         label="Telemetry"
-        description="postcrate does not collect telemetry. This is enforced at the source."
+        description="None. The app has no telemetry code."
       >
         <Badge variant="outline" className="text-[10px]">
           Always off

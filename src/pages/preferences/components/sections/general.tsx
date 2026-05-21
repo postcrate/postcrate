@@ -31,7 +31,7 @@ export function GeneralSection() {
       <LaunchAtLoginRow />
       <Row
         label="Show in Dock"
-        description="Hide the dock icon to run postcrate as a background utility. Re-show via the global shortcut."
+        description="Turn off to run in the background. Use the global shortcut to bring postcrate back."
         htmlFor="show-in-dock"
       >
         <Switch
@@ -42,7 +42,7 @@ export function GeneralSection() {
       </Row>
       <Row
         label="Global shortcut"
-        description="System-wide hotkey to bring postcrate to the front."
+        description="Press anywhere to bring postcrate to the front."
       >
         <ShortcutRecorder
           value={general.globalShortcut}
@@ -87,7 +87,7 @@ function LaunchAtLoginRow() {
   return (
     <Row
       label="Launch at login"
-      description="Start postcrate automatically when you sign in."
+      description="Open postcrate when you sign in."
       htmlFor="launch-at-login"
     >
       <Switch
@@ -156,7 +156,7 @@ function ShortcutRecorder({
     >
       {recording ? (
         <Kbd className="h-6 px-2 text-[11px] font-medium">
-          Press shortcut…
+          Press keys…
         </Kbd>
       ) : value ? (
         value.split("+").map((part, i) => (

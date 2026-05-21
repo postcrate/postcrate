@@ -72,7 +72,7 @@ export function DetailTabs({ email }: Props) {
         {email.htmlBody ? (
           <DetailPreview html={email.htmlBody} />
         ) : (
-          <EmptyTab message="This message has no HTML body." />
+          <EmptyTab message="No HTML body in this message." />
         )}
       </TabsContent>
 
@@ -83,7 +83,7 @@ export function DetailTabs({ email }: Props) {
         {email.textBody ? (
           <DetailText text={email.textBody} />
         ) : (
-          <EmptyTab message="This message has no plain-text body." />
+          <EmptyTab message="No plain-text body in this message." />
         )}
       </TabsContent>
 

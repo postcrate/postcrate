@@ -34,9 +34,9 @@ const schema = z
     url: z
       .string()
       .trim()
-      .min(1, "URL is required")
-      .url("Must be a valid http:// or https:// URL"),
-    authHeader: z.string().trim().max(512, "Keep it under 512 chars"),
+      .min(1, "Add a URL")
+      .url("Use a valid http:// or https:// URL"),
+    authHeader: z.string().trim().max(512, "Keep it under 512 characters"),
     scope: z.enum(["all", "mailbox"]),
     mailboxId: z.string().nullable(),
   })
@@ -106,7 +106,7 @@ export function WebhookFormDialog({ open, onOpenChange }: Props) {
         <DialogHeader>
           <DialogTitle>New webhook</DialogTitle>
           <DialogDescription>
-            POST the email payload to a URL whenever new mail arrives.
+            POST the email payload to a URL when new mail arrives.
           </DialogDescription>
         </DialogHeader>
 
@@ -117,7 +117,7 @@ export function WebhookFormDialog({ open, onOpenChange }: Props) {
           <Field
             id="webhook-url"
             label="URL"
-            hint="Receives a POST with the email JSON payload."
+            hint="Gets a POST with the email JSON payload."
             error={form.formState.errors.url?.message}
           >
             <Input
@@ -134,7 +134,7 @@ export function WebhookFormDialog({ open, onOpenChange }: Props) {
           <Field
             id="webhook-auth"
             label="Authorization header"
-            hint="Sent verbatim — e.g. `Bearer abc123` or basic-auth. Optional."
+            hint="Sent verbatim, e.g. `Bearer abc123` or basic-auth. Optional."
             error={form.formState.errors.authHeader?.message}
           >
             <Input
@@ -142,7 +142,7 @@ export function WebhookFormDialog({ open, onOpenChange }: Props) {
               type="password"
               autoComplete="off"
               spellCheck={false}
-              placeholder="empty = no auth"
+              placeholder="leave empty for no auth"
               className={`${INPUT_CLASS} font-mono`}
               {...form.register("authHeader")}
             />
@@ -154,7 +154,7 @@ export function WebhookFormDialog({ open, onOpenChange }: Props) {
             hint={
               scope === "all"
                 ? "Fires for every mailbox in every project."
-                : "Fires for one specific mailbox only."
+                : "Fires for one mailbox only."
             }
             error={form.formState.errors.scope?.message}
           >
@@ -196,7 +196,7 @@ export function WebhookFormDialog({ open, onOpenChange }: Props) {
             <Field
               id="webhook-mailbox"
               label="Mailbox"
-              hint="Which mailbox's traffic triggers this webhook."
+              hint="Mail to this mailbox triggers the webhook."
               error={form.formState.errors.mailboxId?.message}
             >
               <Controller
@@ -237,7 +237,7 @@ export function WebhookFormDialog({ open, onOpenChange }: Props) {
               Cancel
             </Button>
             <Button type="submit" size="sm" disabled={submitting}>
-              {submitting ? "Creating…" : "Create webhook"}
+              {submitting ? "Adding…" : "Add webhook"}
             </Button>
           </DialogFooter>
         </form>

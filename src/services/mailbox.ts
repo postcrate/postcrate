@@ -431,10 +431,10 @@ export function useMailboxSync(): void {
 
       switch (change.kind) {
         case "expired":
-          toast.info(`${name} expired`, { description: "TTL reached." });
+          toast.info(`${name} expired`, { description: "Reached its TTL" });
           break;
         case "failed":
-          toast.error(`${name} listener failed`, { description: change.error });
+          toast.error(`${name} couldn't start`, { description: change.error });
           break;
         case "started":
         case "stopped":

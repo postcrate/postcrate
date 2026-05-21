@@ -25,12 +25,12 @@ export function AgentsSection() {
 
   return (
     <Section
-      title="AI & Agents"
-      description="MCP server and how agents interact with the inbox."
+      title="Agents"
+      description="MCP server and how agents reach the inbox."
     >
       <Row
         label="MCP server"
-        description="Expose the inbox to MCP-compatible AI agents."
+        description="Open the inbox to MCP-compatible agents."
         htmlFor="mcp-enabled"
         comingSoon
       >
@@ -56,7 +56,7 @@ export function AgentsSection() {
       </Row>
       <Row
         label="Default wait timeout"
-        description={`wait_for_email blocks up to ${ai?.defaultWaitTimeoutSeconds ?? 30}s by default.`}
+        description={`wait_for_email blocks up to ${ai?.defaultWaitTimeoutSeconds ?? 30}s.`}
         comingSoon
       >
         <div className="flex w-56 items-center gap-3">
@@ -75,7 +75,7 @@ export function AgentsSection() {
       </Row>
       <Row
         label="Log agent requests"
-        description="Keep an audit log of every MCP tool invocation."
+        description="Record every MCP tool call to the audit log."
         htmlFor="log-agent"
         comingSoon
       >
@@ -88,7 +88,7 @@ export function AgentsSection() {
       </Row>
       <Row
         label="Confirm destructive actions"
-        description="Require explicit confirmation for clear_inbox and similar tools."
+        description="Ask before running clear_inbox and similar tools."
         htmlFor="confirm-destructive"
         comingSoon
       >

@@ -74,7 +74,7 @@ export function MailboxRow({
       const count = await clearMailbox(mailbox.id);
       toast.success(
         count === 0
-          ? "Mailbox already empty"
+          ? "Already empty"
           : `Cleared ${count} ${count === 1 ? "message" : "messages"}`,
       );
     } catch (err) {
@@ -90,6 +90,7 @@ export function MailboxRow({
           ? "Nothing to purge"
           : `Purged ${count} ${count === 1 ? "message" : "messages"} and attachments`,
       );
+
     } catch (err) {
       reportIpcError(err, "Couldn't purge mailbox");
     }
@@ -102,7 +103,7 @@ export function MailboxRow({
     setLifecycleBusy(true);
     try {
       await startMailbox(mailbox.id);
-      toast.success(`Started — bound on ${connectionString(mailbox)}`);
+      toast.success(`Started on ${connectionString(mailbox)}`);
     } catch (err) {
       // Most common: the port was taken by another process while the
       // mailbox was stopped. Engine's PortInUse error surfaces here.
@@ -117,7 +118,7 @@ export function MailboxRow({
     setLifecycleBusy(true);
     try {
       await stopMailbox(mailbox.id);
-      toast.success(`Stopped — port ${mailbox.port} released`);
+      toast.success(`Stopped. Port ${mailbox.port} released`);
     } catch (err) {
       reportIpcError(err, "Couldn't stop mailbox");
     } finally {

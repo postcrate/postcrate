@@ -52,7 +52,7 @@ export function ListBulkBar({ selected, onClear }: Props) {
   async function starAll() {
     const targets = selected.filter((e) => !e.starred);
     if (targets.length === 0) {
-      toast.info("All selected messages are already starred");
+      toast.info("Already starred");
       return;
     }
     const results = await Promise.allSettled(

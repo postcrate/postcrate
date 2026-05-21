@@ -60,8 +60,8 @@ export function BounceRulesCard({ mailbox }: Props) {
             </h2>
             <p className="text-muted-foreground mt-1 truncate text-[11.5px]">
               {list.length === 0
-                ? "Pretend specific recipients fail at SMTP time"
-                : `${list.length} ${list.length === 1 ? "rule" : "rules"} applied to incoming mail`}
+                ? "Make specific recipients fail at SMTP time"
+                : `${list.length} ${list.length === 1 ? "rule" : "rules"} matched against incoming mail`}
             </p>
           </div>
           <Button
@@ -70,7 +70,7 @@ export function BounceRulesCard({ mailbox }: Props) {
             className="gap-2 text-[12.5px]"
           >
             <PlusIcon size={12} weight="bold" />
-            Add address
+            Add rule
           </Button>
         </header>
 
@@ -233,8 +233,8 @@ function EmptyRules() {
         No bounce rules yet
       </h3>
       <p className="text-muted-foreground mt-1 max-w-xs text-[11.5px] leading-snug">
-        Reject mail to a specific address with a fake SMTP code. Useful for
-        testing retry and dead-letter logic.
+        Reject mail to a specific address with a chosen SMTP code. Good for
+        testing retry and dead-letter paths.
       </p>
     </div>
   );

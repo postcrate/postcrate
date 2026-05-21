@@ -33,11 +33,11 @@ export function InboxSection() {
   return (
     <Section
       title="Inbox"
-      description="How long captured email is retained before it's pruned automatically."
+      description="How long captured mail is kept before it's pruned."
     >
       <Row
         label="Max retained emails"
-        description="Older emails are pruned when this limit is exceeded."
+        description="Older mail is pruned past this limit."
         htmlFor="max-retained"
       >
         {inbox ? (
@@ -56,8 +56,8 @@ export function InboxSection() {
         label="Auto-clear after"
         description={
           inbox
-            ? `Currently set to ${autoClear.draft} days. Set to 0 to disable.`
-            : "Days to retain captured email."
+            ? `Set to ${autoClear.draft} days. Use 0 to turn off.`
+            : "Days to keep captured mail."
         }
       >
         {inbox ? (

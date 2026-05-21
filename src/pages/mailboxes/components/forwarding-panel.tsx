@@ -50,7 +50,7 @@ export function ForwardingPanel() {
     <>
       <div className="flex flex-col gap-3">
         <PanelHeader
-          description="Relay captured email to upstream SMTP. Use this for staged delivery or pre-prod review."
+          description="Relay captured mail to an upstream SMTP server. Good for staged delivery or pre-prod review."
           action={
             <Button
               size="sm"
@@ -230,10 +230,10 @@ function EmptyState() {
       />
       <div>
         <p className="text-foreground text-[13px] font-medium">
-          No forwarding rules yet
+          Add a forwarding rule
         </p>
         <p className="text-muted-foreground mt-1 max-w-sm text-[12px] leading-snug">
-          Relay matched email to an upstream SMTP server.
+          Send matched mail upstream to a real SMTP server.
         </p>
       </div>
     </div>
@@ -269,11 +269,11 @@ function DeleteForwardingAlert({
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete forwarding rule?</AlertDialogTitle>
+          <AlertDialogTitle>Delete this rule?</AlertDialogTitle>
           <AlertDialogDescription>
             {rule ? (
               <>
-                Mail will no longer be relayed to{" "}
+                Mail will stop being relayed to{" "}
                 <span className="text-foreground font-mono">
                   {rule.relay.host}:{rule.relay.port}
                 </span>

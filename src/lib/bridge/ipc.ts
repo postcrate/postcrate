@@ -32,7 +32,7 @@ export function unwrap<T>(
  * Surface an IPC failure as a toast. Designed for `onError` callbacks
  * and `try/catch` blocks in mutations; the error is not re-thrown.
  */
-export function reportIpcError(err: unknown, fallback = "Something went wrong") {
+export function reportIpcError(err: unknown, fallback = "Couldn't reach the engine. Try restarting the app.") {
   if (err instanceof IpcCallError) {
     toast.error(err.message || fallback, { description: err.code });
   } else if (err instanceof Error) {

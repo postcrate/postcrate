@@ -59,7 +59,7 @@ export function ClearAuditAlert({ open, onOpenChange, onCleared }: Props) {
         <AlertDialogHeader>
           <AlertDialogTitle>Clear audit log?</AlertDialogTitle>
           <AlertDialogDescription>
-            Audit entries are kept for diagnostics. Clearing them is permanent.
+            Cleared entries can&apos;t be recovered.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -77,7 +77,7 @@ export function ClearAuditAlert({ open, onOpenChange, onCleared }: Props) {
               Only entries older than…
             </span>
             <span className="text-muted-foreground block text-[11.5px] leading-snug">
-              Off = clear every entry, including today's.
+              Off clears every entry, including today&apos;s.
             </span>
           </span>
         </label>

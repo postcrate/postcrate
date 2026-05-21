@@ -59,11 +59,10 @@ export function DeleteMailboxAlert({ mailbox, onOpenChange, onDeleted }: Props) 
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete mailbox?</AlertDialogTitle>
+          <AlertDialogTitle>Delete this mailbox?</AlertDialogTitle>
           <AlertDialogDescription>
             {mailbox ? (
               <>
-                The mailbox{" "}
                 <span className="text-foreground font-medium">
                   {mailbox.name}
                 </span>{" "}
@@ -88,7 +87,7 @@ export function DeleteMailboxAlert({ mailbox, onOpenChange, onDeleted }: Props) 
                 Also delete stored mail
               </span>
               <span className="text-muted-foreground block text-[11.5px] leading-snug">
-                Permanently removes {mailbox.count}{" "}
+                Removes {mailbox.count}{" "}
                 {mailbox.count === 1 ? "message" : "messages"} and their
                 attachments from disk.
               </span>

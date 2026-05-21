@@ -50,7 +50,7 @@ function ComfortableRow({
 }: Props) {
   const unread = !email.read;
   const display = displayFrom(email.from);
-  const subject = email.subject?.trim() || "(no subject)";
+  const subject = email.subject?.trim() || "No subject";
 
   return (
     <RowShell
@@ -110,7 +110,7 @@ function CompactRow({
 }: Props) {
   const unread = !email.read;
   const display = displayFrom(email.from);
-  const subject = email.subject?.trim() || "(no subject)";
+  const subject = email.subject?.trim() || "No subject";
   const recipients = email.to.join(", ");
 
   return (
@@ -154,7 +154,7 @@ function CompactRow({
             </span>
             {recipients ? (
               <span className="text-muted-foreground/80 ml-1.5 text-[11.5px]">
-                — {recipients}
+                to {recipients}
               </span>
             ) : null}
           </div>

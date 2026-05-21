@@ -48,9 +48,7 @@ export function SidebarStatus() {
   const status = current ? deriveStatus(current) : null;
   const running = status === "running";
   const ToggleIcon = running ? StopIcon : PlayIcon;
-  const toggleLabel = running
-    ? `Stop ${current?.name ?? "mailbox"}`
-    : `Start ${current?.name ?? "mailbox"}`;
+  const toggleLabel = running ? "Stop mailbox" : "Start mailbox";
 
   async function handleToggle() {
     if (!current || busy) return;
@@ -58,10 +56,10 @@ export function SidebarStatus() {
     try {
       if (running) {
         await stopMailbox(current.id);
-        toast.success(`Stopped — port ${current.port} released`);
+        toast.success(`Stopped, port ${current.port} released`);
       } else {
         await startMailbox(current.id);
-        toast.success(`Started — bound on 127.0.0.1:${current.port}`);
+        toast.success(`Listening on 127.0.0.1:${current.port}`);
       }
     } catch (err) {
       reportIpcError(

@@ -7,18 +7,18 @@ import {
 const BULLETS = [
   {
     Icon: EnvelopeIcon,
-    title: "Capture every email",
-    body: "A local SMTP listener catches everything your apps send while you build.",
+    title: "Catch every email",
+    body: "A local SMTP listener captures what your apps send while you build.",
   },
   {
     Icon: ShieldCheckIcon,
-    title: "Inspect like a pro",
-    body: "Headers, HTML, text, links, attachments — all offline, all local.",
+    title: "Inspect anything",
+    body: "Headers, HTML, text, links, attachments. All local, all offline.",
   },
   {
     Icon: RobotIcon,
-    title: "Agent-ready",
-    body: "An MCP server lets Claude, Cursor and other agents read and act on captures.",
+    title: "Ready for agents",
+    body: "An MCP server lets Claude, Cursor, and other agents read your inbox.",
   },
 ];
 
@@ -44,7 +44,7 @@ export function StepIntro() {
       </ul>
 
       <p className="text-muted-foreground/80 mt-4 text-[11.5px] leading-relaxed">
-        Three quick steps — name a project, pick a port, copy a snippet.
+        Three steps: name a project, pick a port, copy a snippet.
         Nothing leaves your machine.
       </p>
     </div>

@@ -56,12 +56,12 @@ export function ClearInboxButton({ mailboxId }: Props) {
         : await clearMailbox(mailboxId);
       toast.success(
         deleted === 0
-          ? "Mailbox already empty"
+          ? "Mailbox was already empty"
           : `Cleared ${deleted} ${deleted === 1 ? "message" : "messages"}`,
       );
       setOpen(false);
     } catch (err) {
-      reportIpcError(err, "Couldn't clear mailbox");
+      reportIpcError(err, "Couldn't clear the mailbox");
     } finally {
       setPending(false);
     }
@@ -89,8 +89,8 @@ export function ClearInboxButton({ mailboxId }: Props) {
           <AlertDialogHeader>
             <AlertDialogTitle>Clear inbox?</AlertDialogTitle>
             <AlertDialogDescription>
-              Removes every captured message from this mailbox. The mailbox
-              itself and its SMTP listener stay running.
+              Deletes every captured message in this mailbox. The mailbox
+              and its SMTP listener stay running.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -108,7 +108,7 @@ export function ClearInboxButton({ mailboxId }: Props) {
                 Also delete attachments
               </span>
               <span className="text-muted-foreground block text-[11.5px] leading-snug">
-                Vacuums the underlying blob store. Slower, but reclaims disk.
+                Vacuums the blob store. Slower, but reclaims disk space.
               </span>
             </span>
           </label>

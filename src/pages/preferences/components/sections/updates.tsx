@@ -22,11 +22,11 @@ export function UpdatesSection() {
   return (
     <Section
       title="Updates"
-      description="How and when postcrate looks for new versions."
+      description="When postcrate looks for new versions."
     >
       <Row
         label="Check automatically"
-        description="Look for updates in the background once a day."
+        description="Check for updates once a day in the background."
         htmlFor="auto-check"
         comingSoon
       >
@@ -38,7 +38,7 @@ export function UpdatesSection() {
       </Row>
       <Row
         label="Channel"
-        description="Stable for release builds, beta for early access."
+        description="Stable for releases. Beta for early access."
         htmlFor="channel"
         comingSoon
       >
@@ -59,7 +59,7 @@ export function UpdatesSection() {
       </Row>
       <Row
         label="Check now"
-        description="Manually look for a new version."
+        description="Look for a new version right now."
         comingSoon
       >
         <Button variant="outline" size="sm" className="h-8 text-xs">

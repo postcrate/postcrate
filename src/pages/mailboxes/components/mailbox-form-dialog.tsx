@@ -37,8 +37,8 @@ const NAME_PATTERN = /^[a-z0-9][a-z0-9-]*$/i;
 
 const optionalNumber = (min: number, max: number) =>
   z
-    .number({ message: "Must be a number" })
-    .int("Whole numbers only")
+    .number({ message: "Enter a number" })
+    .int("Use whole numbers")
     .min(min, `Must be ≥ ${min}`)
     .max(max, `Must be ≤ ${max}`)
     .nullable();
@@ -51,9 +51,9 @@ const schema = z
     name: z
       .string()
       .trim()
-      .min(1, "Give your mailbox a name")
+      .min(1, "Give the mailbox a name")
       .max(48, "Keep it under 48 characters")
-      .regex(NAME_PATTERN, "Letters, numbers and hyphens only"),
+      .regex(NAME_PATTERN, "Use letters, numbers, and hyphens"),
     kind: z.enum(["primary", "shared", "ephemeral"] as const),
     port: optionalNumber(1, 65535),
     // Field-conditional: only ephemerals require a TTL in range.
@@ -85,7 +85,7 @@ const schema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["ttlSeconds"],
-        message: "Max TTL is 30 days",
+        message: "Max is 30 days",
       });
     }
   });
@@ -208,7 +208,7 @@ export function MailboxFormDialog(props: Props) {
    * it ignored the click. Surface every error path explicitly.
    */
   function onInvalid(errors: typeof form.formState.errors) {
-    const first = Object.values(errors)[0]?.message ?? "Please check the form";
+    const first = Object.values(errors)[0]?.message ?? "Check the form for errors";
     toast.error("Couldn't save changes", { description: first });
     // Helpful when the error isn't on a visible field — devtools shows
     // the full shape including which key failed and why.
@@ -227,7 +227,7 @@ export function MailboxFormDialog(props: Props) {
         props.onSaved?.(updated);
       } else {
         if (!currentProjectId) {
-          throw new Error("Pick a project before creating a mailbox");
+          throw new Error("Pick a project first");
         }
         const created = await createMailbox({
           projectId: currentProjectId,
@@ -252,8 +252,8 @@ export function MailboxFormDialog(props: Props) {
 
   const title = isEdit ? "Edit mailbox" : "New mailbox";
   const description = isEdit
-    ? "Rename, repoint, or extend the TTL of this mailbox."
-    : "Add a mailbox to capture SMTP traffic on a port. Ephemerals are TTL-bounded and auto-cleaned.";
+    ? "Rename it, change the port, or extend the TTL."
+    : "A mailbox captures SMTP traffic on one port. Ephemerals clean up after their TTL.";
   const submitLabel = isEdit
     ? submitting
       ? "Saving…"
@@ -280,7 +280,7 @@ export function MailboxFormDialog(props: Props) {
           <Field
             id="mailbox-name"
             label="Name"
-            hint="Letters, numbers and hyphens."
+            hint="Letters, numbers, and hyphens."
             error={form.formState.errors.name?.message}
           >
             <Input
@@ -361,7 +361,7 @@ export function MailboxFormDialog(props: Props) {
               <Field
                 id="mailbox-ttl"
                 label="TTL (seconds)"
-                hint="Auto-deletes after this."
+                hint="Deletes itself after this."
                 error={form.formState.errors.ttlSeconds?.message}
               >
                 <Input
@@ -391,7 +391,7 @@ export function MailboxFormDialog(props: Props) {
                   Implicit TLS
                 </span>
                 <span className="text-muted-foreground block text-[11.5px] leading-snug">
-                  Wrap the socket in TLS before the SMTP banner (port‑465 style).
+                  Wraps the socket in TLS before the SMTP banner (port‑465 style).
                 </span>
               </span>
               <Switch
@@ -443,17 +443,17 @@ function portHint({
   portDirty,
 }: PortHintArgs): string {
   if (isEdit) return "Change the port to rebind the listener.";
-  if (portDirty) return "Use any free port 1024–65535.";
+  if (portDirty) return "Use any free port between 1024 and 65535.";
   if (suggestionLoading) return "Finding a free port…";
-  if (suggestionError) return "Couldn't auto-suggest — type a port.";
-  if (suggested != null) return `Suggested ${suggested} — change if you'd like.`;
-  return "Use any free port 1024–65535.";
+  if (suggestionError) return "Couldn't pick one for you. Type a port.";
+  if (suggested != null) return `${suggested} is free. Change it if you'd like.`;
+  return "Use any free port between 1024 and 65535.";
 }
 
 function kindHint(kind: MailboxKind): string {
   if (kind === "primary") return "The default mailbox for this project.";
-  if (kind === "shared") return "A named mailbox for shared dev/staging traffic.";
-  return "Short-lived mailbox; cleaned up after its TTL.";
+  if (kind === "shared") return "A named mailbox for shared dev or staging traffic.";
+  return "Short-lived. Cleaned up after its TTL.";
 }
 
 type FieldProps = {

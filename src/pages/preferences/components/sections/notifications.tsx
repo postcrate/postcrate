@@ -11,11 +11,11 @@ export function NotificationsSection() {
   return (
     <Section
       title="Notifications"
-      description="How postcrate tells you about incoming mail."
+      description="How postcrate tells you about new mail."
     >
       <Row
         label="System notifications"
-        description="Show a native OS notification for mail in mailboxes you aren't currently viewing."
+        description="Post a native notification for mail in mailboxes you're not viewing."
         htmlFor="desktop-new-email"
       >
         <Switch
@@ -28,7 +28,7 @@ export function NotificationsSection() {
       </Row>
       <Row
         label="In-app toast"
-        description="Show a transient toast for new mail in mailboxes you aren't currently viewing."
+        description="Show a brief toast for new mail in mailboxes you're not viewing."
         htmlFor="in-app-toast"
       >
         <Switch
@@ -39,7 +39,7 @@ export function NotificationsSection() {
       </Row>
       <Row
         label="Sound"
-        description="Play a soft chime when mail arrives in a mailbox you aren't currently viewing."
+        description="Play a soft chime when mail arrives in another mailbox."
         htmlFor="sound-new-email"
       >
         <Switch
@@ -52,7 +52,7 @@ export function NotificationsSection() {
       </Row>
       <Row
         label="Dock badge"
-        description="Show a count of new emails received while you were outside the inbox. Resets when you return."
+        description="Count new mail received while you were away. Resets when you return."
         htmlFor="badge-unread"
       >
         <Switch

@@ -61,7 +61,7 @@ export function ReplayDialog({
       toast.success(`Replayed to ${name}`);
       onOpenChange(false);
     } catch (err) {
-      reportIpcError(err, "Couldn't replay message");
+      reportIpcError(err, "Couldn't replay the message");
     } finally {
       setSubmitting(false);
     }
@@ -71,7 +71,7 @@ export function ReplayDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Replay to mailbox</DialogTitle>
+          <DialogTitle>Replay to another mailbox</DialogTitle>
           <DialogDescription>
             Pick a mailbox to receive a fresh copy of this message.
           </DialogDescription>
@@ -88,12 +88,12 @@ export function ReplayDialog({
             <Label className="text-[12px] font-medium">Target mailbox</Label>
             {candidates.length === 0 ? (
               <p className="text-muted-foreground text-[12px]">
-                No other mailboxes available. Create one to replay into.
+                No other mailboxes yet. Create one to replay into.
               </p>
             ) : (
               <Select value={target} onValueChange={setTarget}>
                 <SelectTrigger className="h-8 text-[12.5px]">
-                  <SelectValue placeholder="Pick a mailbox…" />
+                  <SelectValue placeholder="Pick a mailbox" />
                 </SelectTrigger>
                 <SelectContent>
                   {candidates.map((m) => (

@@ -42,10 +42,10 @@ export function ReleaseDialog({ emailId, open, onOpenChange }: Props) {
     setSubmitting(true);
     try {
       await releaseEmail(emailId, to.trim(), { host: host.trim(), port });
-      toast.success(`Released to ${to.trim()}`);
+      toast.success(`Sent to ${to.trim()}`);
       onOpenChange(false);
     } catch (err) {
-      reportIpcError(err, "Couldn't release message");
+      reportIpcError(err, "Couldn't release the message");
     } finally {
       setSubmitting(false);
     }
@@ -58,10 +58,10 @@ export function ReleaseDialog({ emailId, open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Release to relay</DialogTitle>
+          <DialogTitle>Release to a relay</DialogTitle>
           <DialogDescription>
-            Forward this captured message to an external SMTP relay. The
-            relay credentials live in your engine settings.
+            Forward this message through an external SMTP relay. Relay
+            credentials live in your engine settings.
           </DialogDescription>
         </DialogHeader>
 
@@ -116,7 +116,7 @@ export function ReleaseDialog({ emailId, open, onOpenChange }: Props) {
               Cancel
             </Button>
             <Button type="submit" size="sm" disabled={!canSubmit}>
-              {submitting ? "Releasing…" : "Release"}
+              {submitting ? "Sending…" : "Release"}
             </Button>
           </DialogFooter>
         </form>

@@ -101,7 +101,7 @@ export default function AuditPage() {
         <PageHeader
           icon={ClipboardTextIcon}
           title="Audit log"
-          description="Records every consequential action taken in postcrate."
+          description="Every meaningful action the engine took, in order."
           action={
             <Button
               size="sm"
@@ -154,7 +154,7 @@ export default function AuditPage() {
 
             {filtered.length === 0 ? (
               <div className="text-muted-foreground py-12 text-center text-[12.5px]">
-                No entries match the active filters.
+                No entries match the current filters.
               </div>
             ) : (
               <Table>
@@ -193,7 +193,7 @@ export default function AuditPage() {
                 >
                   {isValidating
                     ? "Loading…"
-                    : `Load ${AUDIT_PAGE_SIZE} older entries`}
+                    : `Load ${AUDIT_PAGE_SIZE} more`}
                 </Button>
               </footer>
             )}
@@ -585,11 +585,11 @@ function EmptyAudit() {
         <ClipboardTextIcon size={22} weight="regular" />
       </span>
       <h2 className="text-foreground mt-3 text-[14px] font-semibold tracking-tight">
-        No audit entries yet
+        Nothing logged yet
       </h2>
       <p className="text-muted-foreground mt-1 max-w-xs text-[12.5px] leading-snug">
-        Activity will show up here the moment you send mail, change settings,
-        or an MCP agent calls a tool.
+        Send mail, change settings, or have an MCP agent call a tool. The
+        activity shows up here.
       </p>
     </div>
   );

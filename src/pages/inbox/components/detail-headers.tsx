@@ -76,7 +76,7 @@ function IdentityRow({
       await navigator.clipboard.writeText(value);
       toast.success(`${label} copied`);
     } catch {
-      toast.error("Couldn't access the clipboard");
+      toast.error("Couldn't reach the clipboard");
     }
   }
   return (
