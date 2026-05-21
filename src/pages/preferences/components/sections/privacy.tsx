@@ -16,9 +16,8 @@ export function PrivacySection() {
     >
       <Row
         label="Spam scoring"
-        description="Score captured emails against SpamAssassin-equivalent heuristics. Runs locally."
+        description="Show the local-heuristic spam score in the Inspect tab. No DNS or RBL lookups."
         htmlFor="spam-scoring"
-        comingSoon
       >
         <Switch
           id="spam-scoring"
@@ -28,30 +27,21 @@ export function PrivacySection() {
       </Row>
       <Row
         label="Link checking"
-        description="Verify links in captured emails. Makes HEAD requests to remote hosts."
+        description="Show the extracted-links report in the Inspect tab. Parsing only — no network requests."
         htmlFor="link-checking"
-        comingSoon
       >
-        <div className="flex items-center gap-2">
-          {p.enableLinkChecking && (
-            <Badge variant="secondary" className="text-[10px]">
-              Network
-            </Badge>
-          )}
-          <Switch
-            id="link-checking"
-            checked={p.enableLinkChecking}
-            onCheckedChange={(v) =>
-              update("privacy", { enableLinkChecking: v })
-            }
-          />
-        </div>
+        <Switch
+          id="link-checking"
+          checked={p.enableLinkChecking}
+          onCheckedChange={(v) =>
+            update("privacy", { enableLinkChecking: v })
+          }
+        />
       </Row>
       <Row
         label="Accessibility checks"
-        description="Lint emails for color contrast, alt text, and semantic structure."
+        description="Show the a11y findings (contrast, alt text, semantic structure) in the Render tab."
         htmlFor="a11y-checks"
-        comingSoon
       >
         <Switch
           id="a11y-checks"

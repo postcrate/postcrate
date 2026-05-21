@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { type AuthVerdict } from "@/lib/bridge/bindings";
+import { usePreferencesStore } from "@/stores/use-preferences-store";
 import {
   Table,
   TableBody,
@@ -33,17 +34,26 @@ type Props = {
 };
 
 /**
- * "Inspect" tab on the email detail panel. Four deliverability /
+ * "Inspect" tab on the email detail panel. Up to four deliverability /
  * safety reports stacked vertically, each loading independently so a
- * slow one doesn't block the others. Card chrome and typography
- * mirror the section-card pattern used on Mailboxes / Webhooks pages.
+ * slow one doesn't block the others. Card chrome and typography mirror
+ * the section-card pattern used on Mailboxes / Webhooks pages.
+ *
+ * Spam and Links are gated by Privacy prefs — flipping them off in
+ * preferences skips both the engine call and the card render, so a
+ * user opting out doesn't see (or pay for) those reports. Auth and
+ * List-Unsubscribe always show; they're inspection of bytes the email
+ * already shipped, not a separate scoring pass.
  */
 export function DetailInspect({ emailId }: Props) {
+  const enableSpam = usePreferencesStore((s) => s.privacy.enableSpamScoring);
+  const enableLinks = usePreferencesStore((s) => s.privacy.enableLinkChecking);
+
   return (
     <div className="flex flex-col gap-4 px-6 py-5">
-      <SpamCard emailId={emailId} />
+      {enableSpam ? <SpamCard emailId={emailId} /> : null}
       <AuthCard emailId={emailId} />
-      <LinksCard emailId={emailId} />
+      {enableLinks ? <LinksCard emailId={emailId} /> : null}
       <UnsubCard emailId={emailId} />
     </div>
   );

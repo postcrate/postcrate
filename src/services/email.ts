@@ -19,6 +19,7 @@
  * can surface their own toasts.
  */
 
+import { toast } from "sonner";
 import { useCallback, useEffect, useState } from "react";
 import useSWR, {
   mutate as globalMutate,
@@ -29,6 +30,7 @@ import useSWR, {
 import { unwrap } from "@/lib/bridge/ipc";
 import { useViewStore } from "@/stores/use-view-store";
 import { EngineEvent, listenEngine } from "@/lib/bridge/events";
+import { usePreferencesStore } from "@/stores/use-preferences-store";
 import {
   commands,
   type AttachmentMeta,
@@ -490,22 +492,27 @@ function tally(results: PromiseSettledResult<unknown>[]): BulkOutcome {
 // ---------------------------------------------------------------------------
 
 /**
- * Wire engine cross-cutting concerns into SWR cache eviction. Install
- * once at React root via `<RootLayout />` alongside `useMailboxSync`.
+ * Wire engine cross-cutting concerns. Install once at React root via
+ * `<RootLayout />` alongside `useMailboxSync`. Two slices live here:
  *
- * NewEmail is handled directly by `useEmails` / `useMailbox` /
- * `useMailboxes` — each hook subscribes to its own slice of the event
- * and calls its bound `mutate()`, which is the safest cache binding
- * we can ask SWR for. This hook only owns the mailbox-deletion
- * cascade: every per-email cache entry belonging to a gone mailbox is
- * evicted and the active selection is cleared if it pointed there.
+ *   1. Mailbox-deletion cascade: every per-email cache entry belonging
+ *      to a gone mailbox is evicted and the active selection is cleared
+ *      if it pointed there.
+ *   2. New-email toast: when `notifications.inAppToast` is on, surface
+ *      a toast for incoming mail the user isn't already watching. We
+ *      suppress when the inbox page is open for that mailbox — the row
+ *      will appear in the list, no toast needed.
+ *
+ * The per-mailbox NewEmail cache fan-out (list revalidation, count
+ * bumps) is owned by `useEmails` / `useMailbox` / `useMailboxes` and
+ * not duplicated here.
  */
 export function useEmailSync(): void {
   const { cache } = useSWRConfig();
 
   useEffect(() => {
     let cancelled = false;
-    let unlisten: (() => void) | undefined;
+    const unlistens: (() => void)[] = [];
 
     listenEngine(EngineEvent.MailboxStateChanged, (event) => {
       if (event.payload.kind !== "mailboxStateChanged") return;
@@ -530,14 +537,69 @@ export function useEmailSync(): void {
       }
     }).then((un) => {
       if (cancelled) un();
-      else unlisten = un;
+      else unlistens.push(un);
+    });
+
+    listenEngine(EngineEvent.NewEmail, (event) => {
+      if (event.payload.kind !== "newEmail") return;
+      if (!usePreferencesStore.getState().notifications.inAppToast) return;
+
+      const { mailboxId, email } = event.payload;
+      const viewingThisInbox =
+        useViewStore.getState().mailboxId === mailboxId &&
+        window.location.pathname.startsWith("/inbox");
+      if (viewingThisInbox) return;
+
+      const mailboxName = lookupMailboxName(cache, mailboxId);
+      const sender = displaySender(email.from);
+      const subject = email.subject?.trim() || "(no subject)";
+      toast(`${sender}${mailboxName ? ` → ${mailboxName}` : ""}`, {
+        description: subject,
+        duration: 5000,
+      });
+    }).then((un) => {
+      if (cancelled) un();
+      else unlistens.push(un);
     });
 
     return () => {
       cancelled = true;
-      unlisten?.();
+      for (const un of unlistens) un();
     };
   }, [cache]);
+}
+
+/** Extract display name from an RFC 5322 address; fall back to raw. */
+function displaySender(from: string): string {
+  const match = /^\s*"?([^"<]+?)"?\s*<.+>\s*$/.exec(from);
+  return match ? match[1].trim() : from;
+}
+
+/**
+ * Pull a mailbox's name from any live cache (detail entry first, then
+ * any mailbox-list entry). Returns undefined when the user hasn't
+ * landed on a screen that loads mailbox metadata yet — we degrade by
+ * omitting the name from the toast rather than blocking on a fetch.
+ */
+function lookupMailboxName(
+  cache: ReturnType<typeof useSWRConfig>["cache"],
+  mailboxId: string,
+): string | undefined {
+  for (const key of cache.keys()) {
+    if (!Array.isArray(key)) continue;
+    if (key[0] === "mailbox" && key[1] === mailboxId) {
+      const entry = cache.get(key)?.data as { name?: string } | undefined;
+      if (entry?.name) return entry.name;
+    }
+    if (key[0] === "mailboxes") {
+      const list = cache.get(key)?.data as
+        | { id: string; name: string }[]
+        | undefined;
+      const found = list?.find((m) => m.id === mailboxId);
+      if (found) return found.name;
+    }
+  }
+  return undefined;
 }
 
 // ---------------------------------------------------------------------------

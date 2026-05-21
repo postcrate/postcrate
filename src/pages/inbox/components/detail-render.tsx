@@ -53,6 +53,9 @@ type Props = {
  */
 export function DetailRender({ emailId, hasHtml }: Props) {
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
+  const enableA11y = usePreferencesStore(
+    (s) => s.privacy.enableA11yChecking,
+  );
 
   if (!hasHtml) {
     return (
@@ -67,7 +70,7 @@ export function DetailRender({ emailId, hasHtml }: Props) {
       <ProfilePreview emailId={emailId} profile={profile} onChange={setProfile} />
       <div className="flex flex-col gap-4 px-6">
         <LintCard emailId={emailId} />
-        <A11yCard emailId={emailId} />
+        {enableA11y ? <A11yCard emailId={emailId} /> : null}
       </div>
     </div>
   );

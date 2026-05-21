@@ -29,9 +29,8 @@ export function NotificationsSection() {
       </Row>
       <Row
         label="In-app toast"
-        description="Show a transient toast inside postcrate."
+        description="Show a transient toast for new mail in mailboxes you aren't currently viewing."
         htmlFor="in-app-toast"
-        comingSoon
       >
         <Switch
           id="in-app-toast"
