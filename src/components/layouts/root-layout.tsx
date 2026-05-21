@@ -4,7 +4,6 @@ import { domAnimation, LazyMotion } from "motion/react";
 
 import { fetcher } from "@/lib/fetcher";
 import { useTheme } from "@/hooks/use-theme";
-import { useEmailSync } from "@/services/email";
 import { useAuditSync } from "@/services/audit";
 import { useChaosSync } from "@/services/chaos";
 import { Toaster } from "@/components/ui/sonner";
@@ -15,6 +14,7 @@ import { useForwardingSync } from "@/services/forwarding";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useBounceRuleSync } from "@/services/bounce-rules";
 import { useEngineStatusSync } from "@/services/engine-status";
+import { useEmailSync, useUnreadBadgeSync } from "@/services/email";
 
 export default function RootLayout() {
   useTheme();
@@ -39,6 +39,7 @@ export default function RootLayout() {
 function EngineSubscriptions() {
   useMailboxSync();
   useEmailSync();
+  useUnreadBadgeSync();
   useSettingsSync();
   useEngineStatusSync();
   useWebhookSync();

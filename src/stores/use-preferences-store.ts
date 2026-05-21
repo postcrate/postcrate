@@ -9,18 +9,11 @@ import { persist, createJSONStorage } from "zustand/middleware";
  * the Rust engine. Anything in *this* store is purely cosmetic / OS
  * integration / view state — it has no engine counterpart and is safe
  * to persist client-side.
- *
- * The split intentionally leaks one engine concept here: `defaultView`
- * is a UI choice (list vs cards vs compact) and the engine doesn't
- * track it, so it lives next to the rest of the inbox section in the
- * Preferences window even though everything else in that section is
- * engine-backed.
  */
 
 export const PREFERENCES_STORAGE_KEY = "postcrate-preferences";
 
 export type Density = "comfortable" | "compact";
-export type InboxView = "list" | "compact" | "cards";
 export type EmailPreviewTheme = "light" | "dark";
 export type UpdateChannel = "stable" | "beta";
 
@@ -45,7 +38,6 @@ export type NotificationPrefs = {
 };
 
 export type InboxViewPrefs = {
-  defaultView: InboxView;
   /**
    * Light/dark mode of the email-body iframe in the Preview and Render
    * tabs. Decoupled from the app theme so users can audit how an email
@@ -101,7 +93,6 @@ const defaults: Sections = {
     badgeUnreadCount: true,
   },
   inbox: {
-    defaultView: "list",
     emailPreviewTheme: "light",
   },
   privacy: {

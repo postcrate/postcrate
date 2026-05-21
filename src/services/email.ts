@@ -20,17 +20,26 @@
  */
 
 import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import useSWR, {
   mutate as globalMutate,
   useSWRConfig,
   type SWRConfiguration,
 } from "swr";
+import {
+  isPermissionGranted,
+  requestPermission,
+  sendNotification,
+} from "@tauri-apps/plugin-notification";
 
+import { playChime } from "@/lib/chime";
 import { unwrap } from "@/lib/bridge/ipc";
 import { useViewStore } from "@/stores/use-view-store";
 import { EngineEvent, listenEngine } from "@/lib/bridge/events";
 import { usePreferencesStore } from "@/stores/use-preferences-store";
+import { useNotificationsStore } from "@/stores/use-notifications-store";
 import {
   commands,
   type AttachmentMeta,
@@ -542,21 +551,39 @@ export function useEmailSync(): void {
 
     listenEngine(EngineEvent.NewEmail, (event) => {
       if (event.payload.kind !== "newEmail") return;
-      if (!usePreferencesStore.getState().notifications.inAppToast) return;
+      const prefs = usePreferencesStore.getState().notifications;
 
       const { mailboxId, email } = event.payload;
-      const viewingThisInbox =
-        useViewStore.getState().mailboxId === mailboxId &&
-        window.location.pathname.startsWith("/inbox");
-      if (viewingThisInbox) return;
+      const onInboxRoute = window.location.pathname.startsWith("/inbox");
+      const viewingThisMailbox =
+        useViewStore.getState().mailboxId === mailboxId;
+      const viewingThisInbox = onInboxRoute && viewingThisMailbox;
 
       const mailboxName = lookupMailboxName(cache, mailboxId);
       const sender = displaySender(email.from);
       const subject = email.subject?.trim() || "(no subject)";
-      toast(`${sender}${mailboxName ? ` → ${mailboxName}` : ""}`, {
-        description: subject,
-        duration: 5000,
-      });
+      const heading = `${sender}${mailboxName ? ` → ${mailboxName}` : ""}`;
+
+      // Toast, sound, and system notifications all share the same
+      // "don't tell me about email I'm already watching" suppression.
+      if (!viewingThisInbox) {
+        if (prefs.inAppToast) {
+          toast(heading, { description: subject, duration: 5000 });
+        }
+        if (prefs.soundOnNewEmail) {
+          playChime();
+        }
+        if (prefs.desktopOnNewEmail) {
+          void emitSystemNotification(heading, subject);
+        }
+      }
+
+      // Dock badge tracks emails the user hasn't "looked at the inbox"
+      // for at all — broader scope than the per-mailbox suppression
+      // above, since the badge says "you have unread mail somewhere".
+      if (prefs.badgeUnreadCount && !onInboxRoute) {
+        useNotificationsStore.getState().bump();
+      }
     }).then((un) => {
       if (cancelled) un();
       else unlistens.push(un);
@@ -569,10 +596,65 @@ export function useEmailSync(): void {
   }, [cache]);
 }
 
+/**
+ * Push the unread-since-last-visit counter to the OS dock badge, and
+ * clear it whenever the user lands on `/inbox`. Install once at root
+ * (alongside `useEmailSync`) so a single subscriber owns the badge.
+ *
+ * Wrapped in try/catch because `setBadgeCount` is a no-op on platforms
+ * that don't support dock badges — we don't want a benign platform
+ * limitation to spam the console.
+ */
+export function useUnreadBadgeSync(): void {
+  const location = useLocation();
+  const count = useNotificationsStore((s) => s.unreadSinceLastVisit);
+  const clear = useNotificationsStore((s) => s.clear);
+
+  useEffect(() => {
+    if (location.pathname.startsWith("/inbox")) clear();
+  }, [location.pathname, clear]);
+
+  useEffect(() => {
+    const value = count > 0 ? count : undefined;
+    getCurrentWindow()
+      .setBadgeCount(value)
+      .catch(() => {
+        // Dock badge unsupported on this platform; silently degrade.
+      });
+  }, [count]);
+}
+
 /** Extract display name from an RFC 5322 address; fall back to raw. */
 function displaySender(from: string): string {
   const match = /^\s*"?([^"<]+?)"?\s*<.+>\s*$/.exec(from);
   return match ? match[1].trim() : from;
+}
+
+/**
+ * Cached permission probe. The OS prompt is shown at most once per
+ * session; subsequent calls reuse the result.
+ */
+let notificationGranted: boolean | null = null;
+
+async function emitSystemNotification(
+  title: string,
+  body: string,
+): Promise<void> {
+  try {
+    if (notificationGranted === null) {
+      notificationGranted = await isPermissionGranted();
+      if (!notificationGranted) {
+        const decision = await requestPermission();
+        notificationGranted = decision === "granted";
+      }
+    }
+    if (!notificationGranted) return;
+    sendNotification({ title, body });
+  } catch {
+    // Quietly swallow — notifications are non-critical. If they
+    // permanently fail (denied, unsupported), the user has the toast
+    // and badge fallbacks.
+  }
 }
 
 /**

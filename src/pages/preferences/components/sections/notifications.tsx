@@ -15,9 +15,8 @@ export function NotificationsSection() {
     >
       <Row
         label="System notifications"
-        description="Show a native OS notification when an email arrives."
+        description="Show a native OS notification for mail in mailboxes you aren't currently viewing."
         htmlFor="desktop-new-email"
-        comingSoon
       >
         <Switch
           id="desktop-new-email"
@@ -40,9 +39,8 @@ export function NotificationsSection() {
       </Row>
       <Row
         label="Sound"
-        description="Play a soft chime on each new email."
+        description="Play a soft chime when mail arrives in a mailbox you aren't currently viewing."
         htmlFor="sound-new-email"
-        comingSoon
       >
         <Switch
           id="sound-new-email"
@@ -54,9 +52,8 @@ export function NotificationsSection() {
       </Row>
       <Row
         label="Dock badge"
-        description="Show an unread count badge on the Dock icon."
+        description="Show a count of new emails received while you were outside the inbox. Resets when you return."
         htmlFor="badge-unread"
-        comingSoon
       >
         <Switch
           id="badge-unread"

@@ -12,6 +12,7 @@
     "core:window:allow-close",
     "core:window:allow-set-focus",
     "core:window:allow-unminimize",
+    "core:window:allow-set-badge-count",
     "core:event:allow-listen",
     "core:event:allow-unlisten",
     "opener:default",
@@ -19,6 +20,7 @@
     "dialog:allow-save",
     "dialog:allow-open",
     "fs:allow-write-text-file",
-    "fs:allow-read-text-file"
+    "fs:allow-read-text-file",
+    "notification:default"
   ]
 }

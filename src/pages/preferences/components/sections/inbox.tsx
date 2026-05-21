@@ -5,21 +5,10 @@ import { IntField } from "@/components/int-field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDeferredCommit } from "@/hooks/use-deferred-commit";
 import {
-  usePreferencesStore,
-  type InboxView,
-} from "@/stores/use-preferences-store";
-import {
   updateInboxPrefs,
   useBackendSettings,
   type InboxPrefs,
 } from "@/services/settings";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import { Row } from "../row";
 import { Section } from "../section";
@@ -27,12 +16,6 @@ import { Section } from "../section";
 export function InboxSection() {
   const { settings } = useBackendSettings();
   const inbox = settings?.inbox;
-
-  // defaultView is purely a render-time choice and has no engine
-  // counterpart; it stays in the local zustand store. Everything else
-  // round-trips through the engine.
-  const defaultView = usePreferencesStore((s) => s.inbox.defaultView);
-  const updateLocal = usePreferencesStore((s) => s.update);
 
   function commit(patch: Partial<InboxPrefs>) {
     if (!inbox) return;
@@ -53,28 +36,6 @@ export function InboxSection() {
       title="Inbox"
       description="Defaults for how captured email is organized and retained."
     >
-      <Row
-        label="Default view"
-        description="How emails are rendered when you open a mailbox."
-        htmlFor="default-view"
-        comingSoon
-      >
-        <Select
-          value={defaultView}
-          onValueChange={(v) =>
-            updateLocal("inbox", { defaultView: v as InboxView })
-          }
-        >
-          <SelectTrigger id="default-view" className="h-8 w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="list">List</SelectItem>
-            <SelectItem value="compact">Compact</SelectItem>
-            <SelectItem value="cards">Cards</SelectItem>
-          </SelectContent>
-        </Select>
-      </Row>
       <Row
         label="Group related emails"
         description="Collapse same-recipient threads into a single row."
