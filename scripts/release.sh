@@ -13,10 +13,11 @@
 #   5. Commits as "release: vX.Y.Z" and pushes `dev`.
 #   6. Opens a PR `dev` -> `main`.
 #
-# After merging the PR, the Release workflow on `main` builds bundles for
-# macOS (universal), Windows, and Linux in parallel, signs each with the
-# Tauri updater key, and creates the GitHub release with the bundles and
-# `latest.json` (the updater manifest). Build takes ~15-25 minutes.
+# After merging the PR, the Release workflow on `main` builds the macOS
+# universal bundle, signs it with the Tauri updater key, and creates the
+# GitHub release with the bundle and `latest.json` (the updater manifest).
+# Build takes ~10-15 minutes. (Windows and Linux builds are deferred; the
+# matrix in release.yml is easy to extend when ready.)
 #
 # Requires: jq, pnpm, cargo, node, gh CLI authenticated.
 
@@ -92,11 +93,11 @@ PR_URL=$(gh pr create \
   --body "Bumps Postcrate to \`v$VERSION\`.
 
 After merge, the Release workflow on \`main\` will:
-1. Build bundles for macOS (universal), Windows, and Linux in parallel.
-2. Sign each bundle with the Tauri updater key.
-3. Publish the GitHub release with bundles and \`latest.json\`.
+1. Build the macOS universal bundle.
+2. Sign it with the Tauri updater key.
+3. Publish the GitHub release with the bundle and \`latest.json\`.
 
-Build takes about 15-25 minutes.")
+Build takes about 10-15 minutes.")
 
 echo ""
 echo "Release PR opened: $PR_URL"

@@ -48,6 +48,8 @@ jobs:
     if: needs.check-version.outputs.needed == 'true'
     permissions:
       contents: write
+    # macOS only for now. To add Windows/Linux later, append entries to
+    # this matrix (and re-add the Linux apt-get step they need).
     strategy:
       fail-fast: false
       matrix:
@@ -55,25 +57,9 @@ jobs:
           - platform: macos-latest
             args: '--target universal-apple-darwin'
             rust_targets: 'aarch64-apple-darwin,x86_64-apple-darwin'
-          - platform: ubuntu-22.04
-            args: ''
-            rust_targets: ''
-          - platform: windows-latest
-            args: ''
-            rust_targets: ''
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Linux deps for Tauri
-        if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
-            librsvg2-dev \
-            patchelf
 
       - uses: pnpm/action-setup@v4
         with:
@@ -106,13 +92,11 @@ jobs:
           tagName: ${{ needs.check-version.outputs.tag }}
           releaseName: Postcrate ${{ needs.check-version.outputs.tag }}
           releaseBody: |
-            Download the bundle for your platform from the assets below.
+            Download the `.dmg` from the assets below, then drag Postcrate to your Applications folder.
 
-            ## Install notes
+            First launch: right-click → Open to bypass the unsigned-developer warning (until code-signing is set up).
 
-            - **macOS**: download the `.dmg`, drag Postcrate to Applications. First launch: right-click → Open to bypass the unsigned-developer warning (until code-signing is set up).
-            - **Windows**: download the `.msi`, run it. First launch: "More info" → "Run anyway" to bypass SmartScreen (until code-signing is set up).
-            - **Linux**: download the `.AppImage` (any distro) or `.deb` (Ubuntu/Debian).
+            _Windows and Linux builds are not shipped yet._
           releaseDraft: true   # remains draft until publish-release flips it
           prerelease: false
           includeUpdaterJson: true
