@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="src-tauri/app-icon.png" alt="Postcrate" width="128" height="128">
+</p>
+
 <h1 align="center">Postcrate</h1>
 
 <p align="center">
