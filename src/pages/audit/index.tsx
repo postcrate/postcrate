@@ -100,7 +100,7 @@ export default function AuditPage() {
       <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-5 px-6 py-5">
         <PageHeader
           icon={ClipboardTextIcon}
-          title="Audit log"
+          title="Logs"
           description="Every meaningful action the engine took, in order."
           action={
             <Button
@@ -402,7 +402,7 @@ function FilterMenu({
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label="Filter audit log"
+              aria-label="Filter logs"
               className="relative"
             >
               <FunnelIcon size={14} weight="regular" />
@@ -606,7 +606,7 @@ function ErrorBanner({
     <div className="border-destructive/30 bg-destructive/5 flex items-start gap-3 rounded-xl border px-4 py-3">
       <div className="min-w-0 flex-1">
         <div className="text-destructive text-[12.5px] font-medium">
-          Couldn&apos;t load audit log
+          Couldn&apos;t load logs
         </div>
         <div className="text-destructive/80 mt-0.5 text-[11.5px] leading-snug">
           {message}

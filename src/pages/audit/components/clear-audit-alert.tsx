@@ -47,7 +47,7 @@ export function ClearAuditAlert({ open, onOpenChange, onCleared }: Props) {
       onCleared?.(deleted);
       onOpenChange(false);
     } catch (err) {
-      reportIpcError(err, "Couldn't clear audit log");
+      reportIpcError(err, "Couldn't clear logs");
     } finally {
       setPending(false);
     }
@@ -57,7 +57,7 @@ export function ClearAuditAlert({ open, onOpenChange, onCleared }: Props) {
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Clear audit log?</AlertDialogTitle>
+          <AlertDialogTitle>Clear logs?</AlertDialogTitle>
           <AlertDialogDescription>
             Cleared entries can&apos;t be recovered.
           </AlertDialogDescription>

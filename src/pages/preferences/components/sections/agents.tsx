@@ -75,7 +75,7 @@ export function AgentsSection() {
       </Row>
       <Row
         label="Log agent requests"
-        description="Record every MCP tool call to the audit log."
+        description="Record every MCP tool call to the log."
         htmlFor="log-agent"
         comingSoon
       >

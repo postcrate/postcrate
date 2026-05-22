@@ -222,20 +222,16 @@ function SkeletonList({ count }: { count: number }) {
 
 function EmptyState() {
   return (
-    <div className="border-border/60 bg-muted/20 flex flex-col items-center justify-center gap-2.5 rounded-xl border border-dashed px-6 py-12 text-center">
-      <PaperPlaneTiltIcon
-        size={22}
-        weight="regular"
-        className="text-muted-foreground/70"
-      />
-      <div>
-        <p className="text-foreground text-[13px] font-medium">
-          Add a forwarding rule
-        </p>
-        <p className="text-muted-foreground mt-1 max-w-sm text-[12px] leading-snug">
-          Send matched mail upstream to a real SMTP server.
-        </p>
-      </div>
+    <div className="flex flex-col items-center px-6 py-14 text-center">
+      <span className="text-muted-foreground/80">
+        <PaperPlaneTiltIcon size={22} weight="regular" />
+      </span>
+      <h2 className="text-foreground mt-3 text-[14px] font-semibold tracking-tight">
+        Add a forwarding rule
+      </h2>
+      <p className="text-muted-foreground mt-1 max-w-xs text-[12.5px] leading-snug">
+        Send matched mail upstream to a real SMTP server.
+      </p>
     </div>
   );
 }

@@ -46,7 +46,7 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "Observe",
     items: [
       { id: "webhooks", label: "Webhooks", icon: WebhooksLogoIcon },
-      { id: "audit", label: "Audit log", icon: ClipboardTextIcon },
+      { id: "audit", label: "Logs", icon: ClipboardTextIcon },
     ],
   },
 ];
@@ -56,7 +56,7 @@ export const VIEW_TITLES: Record<ViewId, string> = {
   mailboxes: "Mailboxes",
   scenarios: "Scenarios",
   webhooks: "Webhooks",
-  audit: "Audit log",
+  audit: "Logs",
 };
 
 export const VIEW_SUBTITLES: Partial<Record<ViewId, string>> = {

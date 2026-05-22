@@ -92,7 +92,7 @@ export function CommandPalette({ open, onOpenChange }: Props) {
             keywords={["log", "history", "activity"]}
           >
             <ClipboardTextIcon />
-            Audit log
+            Logs
           </CommandItem>
           <CommandItem
             onSelect={() => run(() => navigate("/preferences"))}

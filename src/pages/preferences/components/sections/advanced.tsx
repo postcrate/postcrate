@@ -72,8 +72,8 @@ export function AdvancedSection() {
         )}
       </Row>
       <Row
-        label="Audit log retention"
-        description="Days to keep audit entries before they're pruned."
+        label="Log retention"
+        description="Days to keep entries before they're pruned."
         htmlFor="audit-retain"
       >
         {a ? (
