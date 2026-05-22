@@ -36,6 +36,7 @@ import {
 
 import { playChime } from "@/lib/chime";
 import { unwrap } from "@/lib/bridge/ipc";
+import { isMainWindow } from "@/lib/window-label";
 import { useViewStore } from "@/stores/use-view-store";
 import { EngineEvent, listenEngine } from "@/lib/bridge/events";
 import { usePreferencesStore } from "@/stores/use-preferences-store";
@@ -600,6 +601,13 @@ export function useEmailSync(): void {
 
     listenEngine(EngineEvent.NewEmail, (event) => {
       if (event.payload.kind !== "newEmail") return;
+
+      // Side effects (toast, chime, system notification, badge bump)
+      // run once per email. RootLayout mounts this subscription in
+      // every Tauri window, so without this guard Preferences and
+      // Onboarding would each fire their own duplicate toast.
+      if (!isMainWindow()) return;
+
       const prefs = usePreferencesStore.getState().notifications;
 
       const { mailboxId, email } = event.payload;

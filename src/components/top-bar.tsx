@@ -1,11 +1,11 @@
-import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
-import { BellIcon } from "@phosphor-icons/react/dist/ssr";
+import { useEffect, useMemo, useState } from "react";
 
-import { IconButton } from "@/components/icon-button";
+import { useAudit } from "@/services/audit";
 import { useViewStore } from "@/stores/use-view-store";
 import { useMailbox, useMailboxes } from "@/services/mailbox";
 import { useProjectsStore } from "@/stores/use-projects-store";
+import { actionMeta } from "@/pages/audit/components/action-meta";
 import {
   VIEW_SUBTITLES,
   VIEW_TITLES,
@@ -14,10 +14,25 @@ import {
 
 import { Breadcrumb } from "./breadcrumb";
 import { SearchTrigger } from "./search-trigger";
+import { NotificationsPopover } from "./notifications-popover";
 
 type Props = {
   onOpenPalette: () => void;
 };
+
+const LAST_SEEN_KEY = "postcrate:notifications-last-seen";
+
+function readLastSeen(): number {
+  if (typeof window === "undefined") return 0;
+  const raw = window.localStorage.getItem(LAST_SEEN_KEY);
+  const n = raw ? Number(raw) : 0;
+  return Number.isFinite(n) ? n : 0;
+}
+
+function writeLastSeen(value: number) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(LAST_SEEN_KEY, String(value));
+}
 
 export function TopBar({ onOpenPalette }: Props) {
   const { pathname } = useLocation();
@@ -36,6 +51,27 @@ export function TopBar({ onOpenPalette }: Props) {
           : VIEW_SUBTITLES[view]
         : VIEW_SUBTITLES[view];
 
+  const { entries } = useAudit();
+  const [lastSeen, setLastSeen] = useState<number>(() => readLastSeen());
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  const unreadCount = useMemo(() => {
+    if (!entries) return 0;
+    let n = 0;
+    for (const e of entries) {
+      if (e.at <= lastSeen) break;
+      if (actionMeta(e.action).tone === "warn") n += 1;
+    }
+    return n;
+  }, [entries, lastSeen]);
+
+  useEffect(() => {
+    if (!notificationsOpen) return;
+    const now = Date.now();
+    setLastSeen(now);
+    writeLastSeen(now);
+  }, [notificationsOpen]);
+
   return (
     <header
       data-tauri-drag-region
@@ -44,10 +80,10 @@ export function TopBar({ onOpenPalette }: Props) {
       <Breadcrumb title={VIEW_TITLES[view]} subtitle={subtitle} />
       <div className="flex-1" />
       <SearchTrigger onOpen={onOpenPalette} />
-      <IconButton
-        icon={BellIcon}
-        title="Notifications"
-        onClick={() => toast("You're all caught up")}
+      <NotificationsPopover
+        open={notificationsOpen}
+        onOpenChange={setNotificationsOpen}
+        unreadCount={unreadCount}
       />
     </header>
   );

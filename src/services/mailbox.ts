@@ -29,6 +29,7 @@ import useSWR, {
 } from "swr";
 
 import { unwrap } from "@/lib/bridge/ipc";
+import { isMainWindow } from "@/lib/window-label";
 import { useViewStore } from "@/stores/use-view-store";
 import { EngineEvent, listenEngine } from "@/lib/bridge/events";
 import {
@@ -429,20 +430,28 @@ export function useMailboxSync(): void {
       )?.data ?? findInLists(cache, mailboxId)) as Mailbox | undefined;
       const name = previous?.name ?? "Mailbox";
 
-      switch (change.kind) {
-        case "expired":
-          toast.info(`${name} expired`, { description: "Reached its TTL" });
-          break;
-        case "failed":
-          toast.error(`${name} couldn't start`, { description: change.error });
-          break;
-        case "started":
-        case "stopped":
-        case "created":
-        case "updated":
-        case "deleted":
-          // No-op for toast — the table re-renders is enough feedback.
-          break;
+      // Toasts only fire in the main window. RootLayout mounts this
+      // subscription in every Tauri window, so without this guard the
+      // Preferences and Onboarding windows would each surface their
+      // own duplicate of the same event.
+      if (isMainWindow()) {
+        switch (change.kind) {
+          case "expired":
+            toast.info(`${name} expired`, { description: "Reached its TTL" });
+            break;
+          case "failed":
+            toast.error(`${name} couldn't start`, {
+              description: change.error,
+            });
+            break;
+          case "started":
+          case "stopped":
+          case "created":
+          case "updated":
+          case "deleted":
+            // No-op for toast — the table re-renders is enough feedback.
+            break;
+        }
       }
 
       if (change.kind === "deleted") {
