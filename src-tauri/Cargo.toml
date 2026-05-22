@@ -27,7 +27,7 @@ tauri-plugin-notification = "2"
 tauri-plugin-opener = "2"
 tauri-plugin-window-state = "2"
 
-postcrate-core = { path = "../../postcrate-core/crates/postcrate-core", features = ["specta"] }
+postcrate-core = { version = "0.1", features = ["specta"] }
 
 specta = { version = "=2.0.0-rc.20", default-features = false, features = ["derive", "serde", "serde_json"] }
 specta-typescript = "=0.0.7"

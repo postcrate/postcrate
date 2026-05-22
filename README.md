@@ -30,7 +30,7 @@ Postcrate runs a real SMTP server on your machine, captures the mail your apps s
 ```bash
 # Build from source (binary releases coming next)
 git clone git@github.com:postcrate/postcrate.git
-git clone git@github.com:postcrate/postcrate-core.git
+git clone git@github.com:postcrate/core.git
 cd postcrate && pnpm install && pnpm tauri dev
 ```
 
@@ -85,7 +85,7 @@ swaks --to test@local --server 127.0.0.1:1025 \
 * Typed end-to-end via tauri-specta. No raw fetch() from the renderer.
 ```
 
-- **Engine:** [`postcrate/postcrate-core`](https://github.com/postcrate/postcrate-core). Rust. No UI dependencies. Embeddable into a CLI or service.
+- **Engine:** [`postcrate-core`](https://crates.io/crates/postcrate-core) on crates.io ([source](https://github.com/postcrate/core)). Rust. No UI dependencies. Embeddable into a CLI or service.
 - **Shell:** this repo. Tauri 2, React 19, TypeScript. SWR for engine-derived data, zustand for UI state, engine events drive live cache mutations.
 - **Storage:** `~/Library/Application Support/dev.postcrate.app/` on macOS. SQLite + flat blobs. Portable. Removable.
 
@@ -129,7 +129,7 @@ Requires Rust (stable), Node 20+, pnpm 9+, plus your platform's Tauri [prerequis
 # Sibling repos in a shared parent directory
 mkdir postcrate && cd postcrate
 git clone git@github.com:postcrate/postcrate.git
-git clone git@github.com:postcrate/postcrate-core.git
+git clone git@github.com:postcrate/core.git
 
 cd postcrate
 pnpm install
