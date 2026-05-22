@@ -23,12 +23,7 @@
   </picture>
 </p>
 
----
-
-> **TL;DR**
-> Postcrate runs a real SMTP server on your machine, captures the mail your apps send during development, and shows you whether it would land in production. Spam scoring, DKIM, link audits, and client-by-client previews. Local-first. No SaaS.
-
-
+Postcrate runs a real SMTP server on your machine, captures the mail your apps send during development, and shows you whether it would land in production. Spam scoring, DKIM, link audits, and client-by-client previews. Local-first. No SaaS.
 
 ## Quick start
 
@@ -48,31 +43,31 @@ swaks --to test@local --server 127.0.0.1:1025 \
 
 ## Features
 
-| Area | What's included |
-|------|-----------------|
-| **SMTP** | EHLO advertisement, STARTTLS, AUTH PLAIN/LOGIN, SMTPUTF8 (RFC 6531), 8BITMIME (RFC 1652), PIPELINING |
-| **Mailboxes** | Persistent or ephemeral with TTL. Auto-suggested free ports. Per-mailbox stats |
-| **Inspection** | Spam score with rule breakdown, link audit, SPF/DKIM/DMARC verification, list-unsubscribe validation |
-| **Rendering** | Client previews for Gmail Web/iOS, Outlook Desktop/Web, Apple Mail Mac/iOS, Yahoo. HTML lint + a11y audit |
-| **Scenarios** | Chaos mode (delays, drops, transient rejects). Bounce rules with custom SMTP reply codes |
-| **Integrations** | Forwarding rules to upstream SMTP. Webhooks with optional bearer auth |
-| **Recording** | Export any mailbox to JSON. Replay through the full ingest pipeline |
-| **Observability** | Append-only audit log. Per-message SMTP session transcripts |
-| **UX** | Command palette (`⌘K`), system notifications, dock badge, global shortcut, launch at login |
+| Area              | What's included                                                                                           |
+| ----------------- | --------------------------------------------------------------------------------------------------------- |
+| **SMTP**          | EHLO advertisement, STARTTLS, AUTH PLAIN/LOGIN, SMTPUTF8 (RFC 6531), 8BITMIME (RFC 1652), PIPELINING      |
+| **Mailboxes**     | Persistent or ephemeral with TTL. Auto-suggested free ports. Per-mailbox stats                            |
+| **Inspection**    | Spam score with rule breakdown, link audit, SPF/DKIM/DMARC verification, list-unsubscribe validation      |
+| **Rendering**     | Client previews for Gmail Web/iOS, Outlook Desktop/Web, Apple Mail Mac/iOS, Yahoo. HTML lint + a11y audit |
+| **Scenarios**     | Chaos mode (delays, drops, transient rejects). Bounce rules with custom SMTP reply codes                  |
+| **Integrations**  | Forwarding rules to upstream SMTP. Webhooks with optional bearer auth                                     |
+| **Recording**     | Export any mailbox to JSON. Replay through the full ingest pipeline                                       |
+| **Observability** | Append-only audit log. Per-message SMTP session transcripts                                               |
+| **UX**            | Command palette (`⌘K`), system notifications, dock badge, global shortcut, launch at login                |
 
 ## Why Postcrate?
 
-|                          | Postcrate | MailHog | Mailtrap | Mailpit |
-|--------------------------|:---------:|:-------:|:--------:|:-------:|
-| Native desktop app       | ✓         |         |          |         |
-| Offline / local-first    | ✓         | ✓       |          | ✓       |
-| Client render previews   | ✓         |         | ✓        |         |
-| SPF/DKIM/DMARC verdicts  | ✓         |         | ✓        |         |
-| Fault injection (chaos)  | ✓         |         |          |         |
-| Recording & replay       | ✓         |         |          |         |
-| Per-session SMTP transcript | ✓      |         |          | ✓       |
-| Forwarding to real SMTP  | ✓         |         |          | ✓       |
-| Webhooks                 | ✓         | ✓       |          | ✓       |
+|                             | Postcrate | MailHog | Mailtrap | Mailpit |
+| --------------------------- | :-------: | :-----: | :------: | :-----: |
+| Native desktop app          |     ✓     |         |          |         |
+| Offline / local-first       |     ✓     |    ✓    |          |    ✓    |
+| Client render previews      |     ✓     |         |    ✓     |         |
+| SPF/DKIM/DMARC verdicts     |     ✓     |         |    ✓     |         |
+| Fault injection (chaos)     |     ✓     |         |          |         |
+| Recording & replay          |     ✓     |         |          |         |
+| Per-session SMTP transcript |     ✓     |         |          |    ✓    |
+| Forwarding to real SMTP     |     ✓     |         |          |    ✓    |
+| Webhooks                    |     ✓     |    ✓    |          |    ✓    |
 
 ## How it works
 
@@ -141,13 +136,13 @@ pnpm install
 pnpm tauri dev          # full app, hot-reloaded
 ```
 
-| Script              | Purpose                                        |
-|---------------------|------------------------------------------------|
-| `pnpm dev`          | Vite-only. UI iteration without the shell.    |
-| `pnpm tauri dev`    | Full desktop app, hot-reloaded.               |
-| `pnpm tauri build`  | Production bundle.                            |
-| `pnpm tsc --noEmit` | Type check.                                   |
-| `pnpm lint --fix`   | Lint with autofix.                            |
+| Script              | Purpose                                    |
+| ------------------- | ------------------------------------------ |
+| `pnpm dev`          | Vite-only. UI iteration without the shell. |
+| `pnpm tauri dev`    | Full desktop app, hot-reloaded.            |
+| `pnpm tauri build`  | Production bundle.                         |
+| `pnpm tsc --noEmit` | Type check.                                |
+| `pnpm lint --fix`   | Lint with autofix.                         |
 
 When you change a Tauri command on the engine side, regenerate the typed bindings:
 
@@ -157,14 +152,14 @@ cd src-tauri && cargo test --features generate-bindings
 
 ## Roadmap
 
-| Item                                                | State              |
-|-----------------------------------------------------|--------------------|
-| Signed macOS `.dmg` with auto-update                | In progress        |
-| Homebrew Cask                                       | After macOS GA     |
-| Windows MSI, Linux AppImage                         | Planned            |
-| MCP server for local AI agents                      | Engine work next   |
-| Hits column on bounce rules                         | Engine work next   |
-| Live SMTP session log sidebar                       | Engine work next   |
+| Item                                 | State            |
+| ------------------------------------ | ---------------- |
+| Signed macOS `.dmg` with auto-update | In progress      |
+| Homebrew Cask                        | After macOS GA   |
+| Windows MSI, Linux AppImage          | Planned          |
+| MCP server for local AI agents       | Engine work next |
+| Hits column on bounce rules          | Engine work next |
+| Live SMTP session log sidebar        | Engine work next |
 
 ## License
 
