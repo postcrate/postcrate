@@ -16,6 +16,13 @@
   <img alt="linux" src="https://img.shields.io/badge/Linux-planned-lightgrey?style=flat-square">
 </p>
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/screenshots/inbox-dark.png">
+    <img alt="Postcrate inbox" src=".github/screenshots/inbox-light.png" width="100%">
+  </picture>
+</p>
+
 ---
 
 > **TL;DR**
