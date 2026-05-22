@@ -27,18 +27,73 @@ Postcrate runs a real SMTP server on your machine, captures the mail your apps s
 
 ## Quick start
 
-```bash
-# Build from source (binary releases coming next)
-git clone git@github.com:postcrate/postcrate.git
-git clone git@github.com:postcrate/postcrate-core.git
-cd postcrate && pnpm install && pnpm tauri dev
-```
+Build from source (binary releases coming next):
 
 ```bash
-# Send mail to the default mailbox
+git clone git@github.com:postcrate/postcrate.git
+cd postcrate && npm install && npm run tauri dev
+```
+
+Send a test message to the default mailbox at `127.0.0.1:1025`:
+
+**Bash · [swaks](https://github.com/jetmore/swaks)**
+
+```bash
 swaks --to test@local --server 127.0.0.1:1025 \
-      --header "Subject: Hello Postcrate" \
-      --body "Captured."
+      --header "Subject: Hello Postcrate" --body "Captured."
+```
+
+**Node.js · [nodemailer](https://nodemailer.com)**
+
+```js
+import nodemailer from "nodemailer";
+
+const transport = nodemailer.createTransport({
+  host: "127.0.0.1",
+  port: 1025,
+  secure: false,
+});
+
+await transport.sendMail({
+  from: "you@dev.local",
+  to: "test@local",
+  subject: "Hello Postcrate",
+  text: "Captured.",
+});
+```
+
+**Python · `smtplib`**
+
+```py
+import smtplib
+from email.message import EmailMessage
+
+msg = EmailMessage()
+msg["From"] = "you@dev.local"
+msg["To"] = "test@local"
+msg["Subject"] = "Hello Postcrate"
+msg.set_content("Captured.")
+
+with smtplib.SMTP("127.0.0.1", 1025) as s:
+    s.send_message(msg)
+```
+
+**Go · `net/smtp`**
+
+```go
+package main
+
+import "net/smtp"
+
+func main() {
+    msg := []byte("Subject: Hello Postcrate\r\n\r\nCaptured.\r\n")
+    if err := smtp.SendMail(
+        "127.0.0.1:1025", nil,
+        "you@dev.local", []string{"test@local"}, msg,
+    ); err != nil {
+        panic(err)
+    }
+}
 ```
 
 ## Features
@@ -85,7 +140,7 @@ swaks --to test@local --server 127.0.0.1:1025 \
 * Typed end-to-end via tauri-specta. No raw fetch() from the renderer.
 ```
 
-- **Engine:** [`postcrate/postcrate-core`](https://github.com/postcrate/postcrate-core). Rust. No UI dependencies. Embeddable into a CLI or service.
+- **Engine:** [`postcrate-core`](https://crates.io/crates/postcrate-core) on crates.io ([source](https://github.com/postcrate/core)). Rust. No UI dependencies. Embeddable into a CLI or service.
 - **Shell:** this repo. Tauri 2, React 19, TypeScript. SWR for engine-derived data, zustand for UI state, engine events drive live cache mutations.
 - **Storage:** `~/Library/Application Support/dev.postcrate.app/` on macOS. SQLite + flat blobs. Portable. Removable.
 
@@ -123,43 +178,22 @@ Lint and accessibility audits run beneath the preview, calling out the propertie
 
 ## Development
 
-Requires Rust (stable), Node 20+, pnpm 9+, plus your platform's Tauri [prerequisites](https://v2.tauri.app/start/prerequisites/).
+Requires Rust (stable), Node 20+, plus your platform's Tauri [prerequisites](https://v2.tauri.app/start/prerequisites/).
 
 ```bash
-# Sibling repos in a shared parent directory
-mkdir postcrate && cd postcrate
 git clone git@github.com:postcrate/postcrate.git
-git clone git@github.com:postcrate/postcrate-core.git
-
 cd postcrate
-pnpm install
-pnpm tauri dev          # full app, hot-reloaded
+npm install
+npm run tauri dev          # full app, hot-reloaded
 ```
 
-| Script              | Purpose                                    |
-| ------------------- | ------------------------------------------ |
-| `pnpm dev`          | Vite-only. UI iteration without the shell. |
-| `pnpm tauri dev`    | Full desktop app, hot-reloaded.            |
-| `pnpm tauri build`  | Production bundle.                         |
-| `pnpm tsc --noEmit` | Type check.                                |
-| `pnpm lint --fix`   | Lint with autofix.                         |
-
-When you change a Tauri command on the engine side, regenerate the typed bindings:
-
-```bash
-cd src-tauri && cargo test --features generate-bindings
-```
-
-## Roadmap
-
-| Item                                 | State            |
-| ------------------------------------ | ---------------- |
-| Signed macOS `.dmg` with auto-update | In progress      |
-| Homebrew Cask                        | After macOS GA   |
-| Windows MSI, Linux AppImage          | Planned          |
-| MCP server for local AI agents       | Engine work next |
-| Hits column on bounce rules          | Engine work next |
-| Live SMTP session log sidebar        | Engine work next |
+| Script                | Purpose                                    |
+| --------------------- | ------------------------------------------ |
+| `npm run dev`         | Vite-only. UI iteration without the shell. |
+| `npm run tauri dev`   | Full desktop app, hot-reloaded.            |
+| `npm run tauri build` | Production bundle.                         |
+| `npx tsc --noEmit`    | Type check.                                |
+| `npm run lint:fix`    | Lint with autofix.                         |
 
 ## License
 
