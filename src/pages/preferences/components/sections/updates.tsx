@@ -22,7 +22,7 @@ export function UpdatesSection() {
   return (
     <Section
       title="Updates"
-      description="When postcrate looks for new versions."
+      description="When Postcrate looks for new versions."
     >
       <Row
         label="Check automatically"

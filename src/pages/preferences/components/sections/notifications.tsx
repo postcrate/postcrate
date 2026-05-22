@@ -11,7 +11,7 @@ export function NotificationsSection() {
   return (
     <Section
       title="Notifications"
-      description="How postcrate tells you about new mail."
+      description="How Postcrate tells you about new mail."
     >
       <Row
         label="System notifications"

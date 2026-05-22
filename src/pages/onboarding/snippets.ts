@@ -23,7 +23,7 @@ export function buildSnippets(draft: OnboardingDraft): Snippet[] {
         `SMTP_PORT=${smtpPort}`,
         `SMTP_USER=`,
         `SMTP_PASS=`,
-        `SMTP_FROM="postcrate <dev@${mailboxName}.local>"`,
+        `SMTP_FROM="Postcrate <dev@${mailboxName}.local>"`,
       ].join("\n"),
     },
     {
@@ -65,7 +65,7 @@ export function buildSnippets(draft: OnboardingDraft): Snippet[] {
         `await transport.sendMail({`,
         `  from: "dev@${mailboxName}.local",`,
         `  to: "you@example.com",`,
-        `  subject: "Hello from postcrate",`,
+        `  subject: "Hello from Postcrate",`,
         `  text: "If you see this in the inbox, you're set.",`,
         `});`,
       ].join("\n"),

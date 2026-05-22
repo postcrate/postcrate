@@ -32,7 +32,7 @@ export function GeneralSection() {
       <LaunchAtLoginRow />
       <Row
         label="Show in Dock"
-        description="Turn off to run in the background. Use the global shortcut to bring postcrate back."
+        description="Turn off to run in the background. Use the global shortcut to bring Postcrate back."
         htmlFor="show-in-dock"
       >
         <Switch
@@ -43,7 +43,7 @@ export function GeneralSection() {
       </Row>
       <Row
         label="Global shortcut"
-        description="Press anywhere to bring postcrate to the front."
+        description="Press anywhere to bring Postcrate to the front."
       >
         <ShortcutRecorder
           value={general.globalShortcut}
@@ -108,7 +108,7 @@ function LaunchAtLoginRow() {
   return (
     <Row
       label="Launch at login"
-      description="Open postcrate when you sign in."
+      description="Open Postcrate when you sign in."
       htmlFor="launch-at-login"
     >
       {enabled === null ? (

@@ -1,4 +1,4 @@
-<h1 align="center">postcrate</h1>
+<h1 align="center">Postcrate</h1>
 
 <p align="center">
   A native SMTP inbox for the email your apps send while you build.
@@ -17,6 +17,8 @@
 > **TL;DR**
 > Postcrate runs a real SMTP server on your machine, captures the mail your apps send during development, and shows you whether it would land in production. Spam scoring, DKIM, link audits, and client-by-client previews. Local-first. No SaaS.
 
+
+
 ## Quick start
 
 ```bash
@@ -29,7 +31,7 @@ cd postcrate && pnpm install && pnpm tauri dev
 ```bash
 # Send mail to the default mailbox
 swaks --to test@local --server 127.0.0.1:1025 \
-      --header "Subject: Hello postcrate" \
+      --header "Subject: Hello Postcrate" \
       --body "Captured."
 ```
 
@@ -47,7 +49,7 @@ swaks --to test@local --server 127.0.0.1:1025 \
 | **Observability** | Append-only audit log. Per-message SMTP session transcripts |
 | **UX** | Command palette (`⌘K`), system notifications, dock badge, global shortcut, launch at login |
 
-## Why postcrate?
+## Why Postcrate?
 
 |                          | Postcrate | MailHog | Mailtrap | Mailpit |
 |--------------------------|:---------:|:-------:|:--------:|:-------:|

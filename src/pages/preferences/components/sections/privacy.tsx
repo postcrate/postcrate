@@ -12,7 +12,7 @@ export function PrivacySection() {
   return (
     <Section
       title="Privacy"
-      description="postcrate runs locally. No telemetry, ever."
+      description="Postcrate runs locally. No telemetry, ever."
     >
       <Row
         label="Spam scoring"

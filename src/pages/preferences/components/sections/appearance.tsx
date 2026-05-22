@@ -22,7 +22,7 @@ export function AppearanceSection() {
   return (
     <Section
       title="Appearance"
-      description="How postcrate looks."
+      description="How Postcrate looks."
     >
       <Row label="Theme" description="Light, dark, or match the system.">
         <ThemeToggle />

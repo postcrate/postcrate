@@ -21,7 +21,7 @@ type StepCopy = { title: string; subtitle: string };
 
 const COPY: Record<OnboardingStep, StepCopy> = {
   0: {
-    title: "Welcome to postcrate",
+    title: "Welcome to Postcrate",
     subtitle: "A local inbox for the email your apps send while you build.",
   },
   1: {
@@ -122,7 +122,7 @@ export default function OnboardingPage() {
       primary={
         isLast
           ? {
-              label: finishing ? "Setting up…" : "Open postcrate",
+              label: finishing ? "Setting up…" : "Open Postcrate",
               onClick: finish,
               disabled: finishing,
             }
