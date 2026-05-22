@@ -39,6 +39,11 @@ const TABLE: Record<string, ActionMeta> = {
     Icon: TrashIcon,
     tone: "destructive",
   },
+  "mailbox.failed": {
+    verb: "Mailbox couldn't start",
+    Icon: WarningIcon,
+    tone: "warn",
+  },
   "email.delete": {
     verb: "Email deleted",
     Icon: TrashIcon,
