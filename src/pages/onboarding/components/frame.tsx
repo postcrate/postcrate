@@ -8,6 +8,8 @@ type FrameProps = {
   step: 0 | 1 | 2;
   title: string;
   subtitle: string;
+  /** Optional brand icon shown above the title. Used on the welcome step. */
+  icon?: string;
   primary: { label: string; onClick: () => void; disabled?: boolean };
   secondary?: { label: string; onClick: () => void };
   children: React.ReactNode;
@@ -17,6 +19,7 @@ export function Frame({
   step,
   title,
   subtitle,
+  icon,
   primary,
   secondary,
   children,
@@ -28,6 +31,15 @@ export function Frame({
       <div className="flex min-h-0 flex-1 flex-col px-7">
         <header className="mb-5 flex items-start justify-between gap-6">
           <div className="min-w-0">
+            {icon ? (
+              <img
+                src={icon}
+                alt=""
+                aria-hidden
+                className="mb-2.5 size-12 select-none"
+                draggable={false}
+              />
+            ) : null}
             <h1 className="text-[17px] font-semibold tracking-tight">
               {title}
             </h1>

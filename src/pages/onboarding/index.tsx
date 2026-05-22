@@ -3,10 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createMailbox } from "@/services/mailbox";
 import { finishOnboardingWindow } from "@/lib/windows";
 import { useProjectsStore } from "@/stores/use-projects-store";
-import {
-  updateNetworkPrefs,
-  useBackendSettings,
-} from "@/services/settings";
+import { updateNetworkPrefs, useBackendSettings } from "@/services/settings";
 import {
   useOnboardingStore,
   type OnboardingStep,
@@ -21,7 +18,7 @@ type StepCopy = { title: string; subtitle: string };
 
 const COPY: Record<OnboardingStep, StepCopy> = {
   0: {
-    title: "Welcome to Postcrate",
+    title: "Postcrate",
     subtitle: "A local inbox for the email your apps send while you build.",
   },
   1: {
@@ -119,6 +116,7 @@ export default function OnboardingPage() {
       step={step}
       title={copy.title}
       subtitle={copy.subtitle}
+      icon={step === 0 ? "/app-icon.png" : undefined}
       primary={
         isLast
           ? {
