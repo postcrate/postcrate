@@ -4,6 +4,7 @@ import { domAnimation, LazyMotion } from "motion/react";
 
 import { fetcher } from "@/lib/fetcher";
 import { useTheme } from "@/hooks/use-theme";
+import { useAutoUpdateCheck } from "@/hooks/use-auto-update-check";
 import { useAuditSync } from "@/services/audit";
 import { useChaosSync } from "@/services/chaos";
 import { Toaster } from "@/components/ui/sonner";
@@ -53,5 +54,6 @@ function EngineSubscriptions() {
   useAuditSync();
   useDockVisibilitySync();
   useGlobalShortcutSync();
+  useAutoUpdateCheck();
   return null;
 }
